@@ -6,11 +6,10 @@
 /*
 Plugin Name: Percolate Import
 Plugin URI: http://percolate.org
-Description: This plugin provides a handy method to move posts from a Percolate
-feed into the Wordpress environment
-Author: Blend Interactive
+Description: This plugin turns Percolate posts into Wordpress entries.
+Author: Percolate Industries, Inc.
 Version: 1.0
-Author URI: http://blendinteractive.com
+Author URI: http://percolate.org
 */
 
 class PercolateImport
