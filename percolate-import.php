@@ -26,6 +26,8 @@ class PercolateImport
     const POSTSTATUS_OPTION='percolateimport_poststatus';
     const CATEGORY_OPTION='percolate_category';
     
+    const IMPORT_OVERRIDE_OPTION='percolateimport_override';
+    
     const API_BASE='http://percolate.org/api/';
     
     const M_LINKID='percolate_link_id';
@@ -153,6 +155,7 @@ class PercolateImport
         register_setting(self::SETTINGS_PAGE, self::POSTSTATUS_OPTION);
         register_setting(self::SETTINGS_PAGE, self::AUTHORID_OPTION);
         register_setting(self::SETTINGS_PAGE, self::CATEGORY_OPTION);
+	register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
         
         //Import process
         self::checkImport();
@@ -402,6 +405,7 @@ class PercolateImport
             })(jQuery);
         });            
         </script>
+	
         <span class="percapi-userid-control">
         <input size="5" type="text" name="<?php echo self::USERID_OPTION; ?>"
             id="percapi_user_id"
@@ -435,7 +439,23 @@ class PercolateImport
         //echo "<pre>"; print_r($users); echo "</pre>";
         ?>
         New posts imported from percolate will appear in this category.
+	
+	</td>
+	</tr>
+	
+	<tr>
+	    
+	<th>Import Stories</th>
+	<input type="hidden" name="percolateimport_override" value="0" id="override_import" />
+	<td><input type="button" onclick="jQuery('#override_import').val('1'); this.form.submit();" value="Import your stories now" /> 
+	    &nbsp;&nbsp;Last imported on <?=date( 'm/d/Y g:i a', get_option(self::LASTIMPORT_OPTION))?>
+	</td>
+	
         <?php
+	//Just clearing for testing
+//	update_option(self::LASTID_OPTION, 0);
+//	update_option(self::LASTIMPORT_OPTION, 0);
+//	echo get_option(self::LASTIMPORT_OPTION) . '<br>';
     }
     
     public function userIdNotice()
@@ -486,11 +506,22 @@ class PercolateImport
             'percolate',
             array('PercolateImport','settingsPage')
         );
-
     }
     
     public function settingsPage()
-    {
+    {	
+	if( $_REQUEST['settings-updated'] == 'true' && get_option(PercolateImport::IMPORT_OVERRIDE_OPTION) == 1 )
+	{
+	    ?>
+	    <div id="stories_imported" class="updated settings-error">
+		<p>
+		    <strong>Stories Imported.</strong>
+		</p>
+	    </div>
+	    <?php
+	    update_option(self::IMPORT_OVERRIDE_OPTION, 0);
+	}
+	
         load_template(ABSPATH . 'wp-content/plugins/percolate-import/percolate-options.php');
     }
     
@@ -730,7 +761,9 @@ class PercolateImport
             (time() - get_option(self::LASTIMPORT_OPTION)) . ">" .
             self::IMPORT_INTERVAL;
         */
-        if ((time() - get_option(self::LASTIMPORT_OPTION)) > self::IMPORT_INTERVAL) {
+//	echo get_option( self::IMPORT_OVERRIDE_OPTION ) . '<br>';
+//	echo get_option( self::LASTIMPORT_OPTION ) . '<br>';
+        if ( ((time() - get_option(self::LASTIMPORT_OPTION)) > self::IMPORT_INTERVAL) || get_option( self::IMPORT_OVERRIDE_OPTION ) == 1 ) {
             try{
                 self::importStories();
                 
@@ -760,7 +793,6 @@ class PercolateImport
             }
             $url.="?" . implode('&', $tokens);
         }
-
 
         $curl_handle = curl_init($url);
         /* */
@@ -798,7 +830,8 @@ class PercolateImport
             
             throw new Exception($message, $status);
         }
-        
+        $data = json_decode( $buffer, true );
+		
         return json_decode($buffer, true);    
         
     }
