@@ -4,7 +4,7 @@
  * @version 1.0
  */
 /*
-Plugin Name: Percolate Import
+Plugin Name: WP Percolate
 Plugin URI: http://percolate.org
 Description: This plugin turns Percolate posts into Wordpress entries.
 Author: Percolate Industries, Inc.
@@ -70,7 +70,7 @@ class PercolateImport
     public function adminScripts()
     {
         echo '<script type="text/javascript" src="' . get_bloginfo('wpurl') .
-            '/wp-content/plugins/percolate-import/percimport.js"></script>';
+            '/wp-content/plugins/WP-Percolate/percimport.js"></script>';
     }
     
     public function adminInit()
@@ -522,14 +522,14 @@ class PercolateImport
 	    update_option(self::IMPORT_OVERRIDE_OPTION, 0);
 	}
 	
-        load_template(ABSPATH . 'wp-content/plugins/percolate-import/percolate-options.php');
+        load_template(ABSPATH . 'wp-content/plugins/WP-Percolate/percolate-options.php');
     }
     
     
     /** IMPORT SCREEN **/
     public function renderImportPage()
     {
-        load_template(ABSPATH . 'wp-content/plugins/percolate-import/admin-import-page.php');
+        load_template(ABSPATH . 'wp-content/plugins/WP-Percolate/admin-import-page.php');
     }
     
     /** PERCOLATE API **/
