@@ -622,20 +622,31 @@ class PercolateImport
         }
         //echo "<pre>"; print_r($sourceTitles); echo "</pre>";
         
+        $ver = floatval(phpversion());
         update_post_meta($postId, self::M_DOMAIN, $story['domain']);
         update_post_meta($postId, self::M_ADDEDON, strtotime($story['added_on']));
         update_post_meta($postId, self::M_FEATUREDSOURCE, 0);
         update_post_meta($postId, self::M_LINKID, $story['link_id']);
         update_post_meta($postId, self::M_ORIGINALDESCRIPTION, $story['original_description']);
         update_post_meta($postId, self::M_ORIGINALTITLE, $story['original_title']);
-        update_post_meta($postId, self::M_SOURCES, json_encode($story['sources'], JSON_HEX_QUOT));
+        if( $ver > 5.2 )
+	        update_post_meta($postId, self::M_SOURCES, json_encode($story['sources'], JSON_HEX_QUOT));
+	    else
+	    	update_post_meta($postId, self::M_SOURCES, json_encode($story['sources']));
+
         update_post_meta($postId, self::M_URL, $story['url']);
         update_post_meta($postId, self::M_USERDESCRIPTION, $story['user_description']);
         update_post_meta($postId, self::M_USERTITLE, $story['user_title']);
-        update_post_meta($postId, self::M_USE, json_encode($useSources, JSON_HEX_QUOT));
-        
-        update_post_meta($postId, self::M_SOURCETITLES, json_encode($sourceTitles, JSON_HEX_QUOT));
-        
+        if( $ver > 5.2 )
+	        update_post_meta($postId, self::M_USE, json_encode($useSources, JSON_HEX_QUOT));
+	    else
+	    	update_post_meta($postId, self::M_USE, json_encode($useSources));
+
+        if( $ver > 5.2 )
+        	update_post_meta($postId, self::M_SOURCETITLES, json_encode($sourceTitles, JSON_HEX_QUOT));
+        else
+        	update_post_meta($postId, self::M_SOURCETITLES, json_encode($sourceTitles));
+
         do_action('percolate_import_story', $postId);
         
         return $postId;
