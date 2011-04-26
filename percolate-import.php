@@ -440,22 +440,7 @@ class PercolateImport
         ?>
         New posts imported from percolate will appear in this category.
 	
-	</td>
-	</tr>
-	
-	<tr>
-	    
-	<th>Import Stories</th>
-	<input type="hidden" name="percolateimport_override" value="0" id="override_import" />
-	<td><input type="button" onclick="jQuery('#override_import').val('1'); this.form.submit();" value="Import your stories now" /> 
-	    &nbsp;&nbsp;Last imported on <?=date( 'm/d/Y g:i a', get_option(self::LASTIMPORT_OPTION))?>
-	</td>
-	
         <?php
-	//Just clearing for testing
-//	update_option(self::LASTID_OPTION, 0);
-//	update_option(self::LASTIMPORT_OPTION, 0);
-//	echo get_option(self::LASTIMPORT_OPTION) . '<br>';
     }
     
     public function userIdNotice()
