@@ -42,6 +42,7 @@ class PercolateImport
     const M_FEATUREDSOURCE='percolate_featured_source';
     const M_SOURCETITLES='percolate_source_titles';
     const M_USE='percolate_use';
+    const IMPORT_VERSION = '1.0';
     
     /** INSTALL AND INIT CODE **/
     
@@ -159,6 +160,8 @@ class PercolateImport
         
         //Import process
         self::checkImport();
+	
+	self::checkUpdate();
     }
     
     /** POST META BOXES **/
@@ -830,6 +833,32 @@ class PercolateImport
 		
         return json_decode($buffer, true);    
         
+    }
+    
+    function checkUpdate()
+    {
+	$message = self::callPercolateApi('check_version', array('version'=>self::IMPORT_VERSION));
+	
+	if( $message['message'] ) {
+	?>
+	<script type="text/javascript">
+	    if( document.getElementById('wpbody-content') ) {
+		if( !document.getElementById('percolate_update') ) {
+		    
+		
+		var newP = document.createElement("div");
+		newP.className = 'update-nag';
+		newP.id='percolate_update';
+
+		newP.innerHTML = '<?=$message['message']?>';
+		var p2 = document.getElementsByClassName("wrap")[0];
+		p2.parentNode.insertBefore(newP,p2);
+
+		}
+	    }
+	</script>
+	<?
+	}
     }
 }
 
