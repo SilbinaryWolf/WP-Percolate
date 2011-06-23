@@ -28,7 +28,7 @@ class PercolateImport
     
     const IMPORT_OVERRIDE_OPTION='percolateimport_override';
     
-    const API_BASE='http://percolate.org/api/';
+    const API_BASE='http://qa-www-app1.aws.prclt.net/api/v1/';
     
     const M_LINKID='percolate_link_id';
     const M_ADDEDON='percolate_added_on';
@@ -161,7 +161,7 @@ class PercolateImport
         //Import process
         self::checkImport();
 	
-	self::checkUpdate();
+	// self::checkUpdate();
     }
     
     /** POST META BOXES **/
@@ -396,7 +396,7 @@ class PercolateImport
                 $('#percapi_submit').click(function () {
                     var uname=$('#percapi_username').val();
                     $.getJSON(
-                        'http://percolate.org/api/get_user_id?callback=?',
+                        '<?php self::API_BASE ?>user_id?callback=?',
                         {username: uname},
                         function (result){
                             $('#percapi_user_id').val(result.user_id);
@@ -778,7 +778,7 @@ class PercolateImport
     {
         $userId = get_option(self::USERID_OPTION);
         
-        return self::callPercolateApi('get_user_entries', array('id'=>$userId,'last_id'=>10));
+        return self::callPercolateApi('entries', array('id'=>$userId,'last_id'=>10));
     }
     
     protected static function callPercolateApi($method, $fields=array())
@@ -792,12 +792,12 @@ class PercolateImport
             }
             $url.="?" . implode('&', $tokens);
         }
-
+        // echo $url;
         $curl_handle = curl_init($url);
         /* */
         //curl_setopt($curl_handle, CURLOPT_PROXY, '127.0.0.1:8888');
         /* */
-                
+        curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, 1);                
         curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl_handle, CURLOPT_HEADER, 0);
@@ -806,12 +806,12 @@ class PercolateImport
         $buffer = curl_exec($curl_handle);
         
         $status = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
-
+     
         curl_close($curl_handle);
 
         if ($status != 200) {
             $data = json_decode($buffer, true);
-                        
+            
             $message = "An unknown error occurred communicating with Percolate ($status) - $buffer";
             
             if ($data) {
