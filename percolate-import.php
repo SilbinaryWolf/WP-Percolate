@@ -28,7 +28,7 @@ class PercolateImport
     
     const IMPORT_OVERRIDE_OPTION='percolateimport_override';
     
-    const API_BASE='http://qa-www-app1.aws.prclt.net/api/v1/';
+    const API_BASE='http://percolate.com/api/v1/';
     
     const M_LINKID='percolate_link_id';
     const M_ADDEDON='percolate_added_on';
@@ -396,7 +396,7 @@ class PercolateImport
                 $('#percapi_submit').click(function () {
                     var uname=$('#percapi_username').val();
                     $.getJSON(
-                        '<?php self::API_BASE ?>user_id?callback=?',
+                        'http://percolate.com/api/v1/user_id?callback=?',
                         {username: uname},
                         function (result){
                             $('#percapi_user_id').val(result.user_id);
