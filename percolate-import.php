@@ -533,8 +533,8 @@ class PercolateImport
         if ($stories) {
             foreach ($stories as $story) {
                 self::importStory($story);
-                if ($story['link_id'] > $lastId) {
-                    $lastId = $story['link_id'];
+                if ($story['entry_id'] > $lastId) {
+                    $lastId = $story['entry_id'];
                 }
             }            
         }
@@ -776,9 +776,14 @@ class PercolateImport
     
     public function getPercolateStories()
     {
-        $userId = get_option(self::USERID_OPTION);
-        
-        return self::callPercolateApi('entries', array('id'=>$userId,'last_id'=>10));
+        $options['id'] = get_option(self::USERID_OPTION);
+        $lastId = get_option(self::LASTID_OPTION);
+        if($lastId){
+            $options['last_id'] = $lastId;
+        }
+        if($options['id'] != 0){
+            return self::callPercolateApi('entries', $options);
+        }
     }
     
     protected static function callPercolateApi($method, $fields=array())
