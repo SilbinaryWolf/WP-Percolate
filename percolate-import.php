@@ -156,12 +156,12 @@ class PercolateImport
         register_setting(self::SETTINGS_PAGE, self::POSTSTATUS_OPTION);
         register_setting(self::SETTINGS_PAGE, self::AUTHORID_OPTION);
         register_setting(self::SETTINGS_PAGE, self::CATEGORY_OPTION);
-	register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
         
         //Import process
         self::checkImport();
-	
-	// self::checkUpdate();
+    
+    // self::checkUpdate();
     }
     
     /** POST META BOXES **/
@@ -408,7 +408,7 @@ class PercolateImport
             })(jQuery);
         });            
         </script>
-	
+    
         <span class="percapi-userid-control">
         <input size="5" type="text" name="<?php echo self::USERID_OPTION; ?>"
             id="percapi_user_id"
@@ -442,7 +442,7 @@ class PercolateImport
         //echo "<pre>"; print_r($users); echo "</pre>";
         ?>
         New posts imported from percolate will appear in this category.
-	
+    
         <?php
     }
     
@@ -497,19 +497,19 @@ class PercolateImport
     }
     
     public function settingsPage()
-    {	
-	if( $_REQUEST['settings-updated'] == 'true' && get_option(PercolateImport::IMPORT_OVERRIDE_OPTION) == 1 )
-	{
-	    ?>
-	    <div id="stories_imported" class="updated settings-error">
-		<p>
-		    <strong>Stories Imported.</strong>
-		</p>
-	    </div>
-	    <?php
-	    update_option(self::IMPORT_OVERRIDE_OPTION, 0);
-	}
-	
+    {   
+    if( $_REQUEST['settings-updated'] == 'true' && get_option(PercolateImport::IMPORT_OVERRIDE_OPTION) == 1 )
+    {
+        ?>
+        <div id="stories_imported" class="updated settings-error">
+        <p>
+            <strong>Stories Imported.</strong>
+        </p>
+        </div>
+        <?php
+        update_option(self::IMPORT_OVERRIDE_OPTION, 0);
+    }
+    
         load_template(ABSPATH . 'wp-content/plugins/WP-Percolate/percolate-options.php');
     }
     
@@ -633,22 +633,22 @@ class PercolateImport
         update_post_meta($postId, self::M_ORIGINALDESCRIPTION, $story['original_description']);
         update_post_meta($postId, self::M_ORIGINALTITLE, $story['original_title']);
         if( $ver > 5.2 )
-	        update_post_meta($postId, self::M_SOURCES, json_encode($story['sources'], JSON_HEX_QUOT));
-	    else
-	    	update_post_meta($postId, self::M_SOURCES, json_encode($story['sources']));
+            update_post_meta($postId, self::M_SOURCES, json_encode($story['sources'], JSON_HEX_QUOT));
+        else
+            update_post_meta($postId, self::M_SOURCES, json_encode($story['sources']));
 
         update_post_meta($postId, self::M_URL, $story['url']);
         update_post_meta($postId, self::M_USERDESCRIPTION, $story['user_description']);
         update_post_meta($postId, self::M_USERTITLE, $story['user_title']);
         if( $ver > 5.2 )
-	        update_post_meta($postId, self::M_USE, json_encode($useSources, JSON_HEX_QUOT));
-	    else
-	    	update_post_meta($postId, self::M_USE, json_encode($useSources));
+            update_post_meta($postId, self::M_USE, json_encode($useSources, JSON_HEX_QUOT));
+        else
+            update_post_meta($postId, self::M_USE, json_encode($useSources));
 
         if( $ver > 5.2 )
-        	update_post_meta($postId, self::M_SOURCETITLES, json_encode($sourceTitles, JSON_HEX_QUOT));
+            update_post_meta($postId, self::M_SOURCETITLES, json_encode($sourceTitles, JSON_HEX_QUOT));
         else
-        	update_post_meta($postId, self::M_SOURCETITLES, json_encode($sourceTitles));
+            update_post_meta($postId, self::M_SOURCETITLES, json_encode($sourceTitles));
 
         do_action('percolate_import_story', $postId);
         
@@ -760,8 +760,8 @@ class PercolateImport
             (time() - get_option(self::LASTIMPORT_OPTION)) . ">" .
             self::IMPORT_INTERVAL;
         */
-//	echo get_option( self::IMPORT_OVERRIDE_OPTION ) . '<br>';
-//	echo get_option( self::LASTIMPORT_OPTION ) . '<br>';
+//  echo get_option( self::IMPORT_OVERRIDE_OPTION ) . '<br>';
+//  echo get_option( self::LASTIMPORT_OPTION ) . '<br>';
         if ( ((time() - get_option(self::LASTIMPORT_OPTION)) > self::IMPORT_INTERVAL) || get_option( self::IMPORT_OVERRIDE_OPTION ) == 1 ) {
             try{
                 self::importStories();
@@ -835,35 +835,35 @@ class PercolateImport
             throw new Exception($message, $status);
         }
         $data = json_decode( $buffer, true );
-		
+        
         return json_decode($buffer, true);    
         
     }
     
     function checkUpdate()
     {
-	$message = self::callPercolateApi('check_version', array('version'=>self::IMPORT_VERSION));
-	
-	if( $message['message'] ) {
-	?>
-	<script type="text/javascript">
-	    if( document.getElementById('wpbody-content') ) {
-		if( !document.getElementById('percolate_update') ) {
-		    
-		
-		var newP = document.createElement("div");
-		newP.className = 'update-nag';
-		newP.id='percolate_update';
+    $message = self::callPercolateApi('check_version', array('version'=>self::IMPORT_VERSION));
+    
+    if( $message['message'] ) {
+    ?>
+    <script type="text/javascript">
+        if( document.getElementById('wpbody-content') ) {
+        if( !document.getElementById('percolate_update') ) {
+            
+        
+        var newP = document.createElement("div");
+        newP.className = 'update-nag';
+        newP.id='percolate_update';
 
-		newP.innerHTML = '<?=$message['message']?>';
-		var p2 = document.getElementsByClassName("wrap")[0];
-		p2.parentNode.insertBefore(newP,p2);
+        newP.innerHTML = '<?=$message['message']?>';
+        var p2 = document.getElementsByClassName("wrap")[0];
+        p2.parentNode.insertBefore(newP,p2);
 
-		}
-	    }
-	</script>
-	<?
-	}
+        }
+        }
+    </script>
+    <?
+    }
     }
 }
 
