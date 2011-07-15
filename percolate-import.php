@@ -500,10 +500,11 @@ class PercolateImport
     {   
     if( $_REQUEST['settings-updated'] == 'true' && get_option(PercolateImport::IMPORT_OVERRIDE_OPTION) == 1 )
     {
+        $last_id = get_option(self::LASTID_OPTION);
         ?>
         <div id="stories_imported" class="updated settings-error">
         <p>
-            <strong>Stories Imported.</strong>
+            <strong>Stories Imported. Last id: <?php $last_id; ?></strong>
         </p>
         </div>
         <?php
