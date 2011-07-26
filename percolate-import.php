@@ -25,6 +25,7 @@ class PercolateImport
     const LASTID_OPTION='percolateimport_lastid';
     const POSTSTATUS_OPTION='percolateimport_poststatus';
     const CATEGORY_OPTION='percolate_category';
+    const ALLSOURCES_OPTION='percolate_allsources';
     
     const IMPORT_OVERRIDE_OPTION='percolateimport_override';
     
@@ -51,6 +52,7 @@ class PercolateImport
         update_option(self::USERID_OPTION, '0');
         update_option(self::LASTIMPORT_OPTION, 0);
         update_option(self::POSTSTATUS_OPTION, 'publish');
+        update_option(self::ALLSOURCES_OPTION, 0);
     }
     
     public function init()
@@ -152,11 +154,20 @@ class PercolateImport
             self::SETTINGS_SECTION
         );
         
+        add_settings_field(
+            self::ALLSOURCES_OPTION,
+            "Import All Sources?",
+            array('PercolateImport', 'settingsAllSourcesDisplay'),
+            self::SETTINGS_PAGE,
+            self::SETTINGS_SECTION
+        );        
+        
         register_setting(self::SETTINGS_PAGE, self::USERID_OPTION);
         register_setting(self::SETTINGS_PAGE, self::POSTSTATUS_OPTION);
         register_setting(self::SETTINGS_PAGE, self::AUTHORID_OPTION);
         register_setting(self::SETTINGS_PAGE, self::CATEGORY_OPTION);
-    register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
+        register_setting(self::SETTINGS_PAGE, self::ALLSOURCES_OPTION);
+    		register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
         
         //Import process
         self::checkImport();
@@ -446,6 +457,27 @@ class PercolateImport
         <?php
     }
     
+    
+    public function settingsAllSourcesDisplay()
+    {
+        // Get the All Sources Value
+    		$allSources = get_option(self::ALLSOURCES_OPTION);
+        ?>
+     
+        <span class="percapi-allsources">
+        <input type="checkbox" name="<?php echo self::ALLSOURCES_OPTION; ?>"
+            id="percapi_allsources"
+            value="1" 
+            <?php if ($allSources == 1) { echo("checked='checked'");} ?> />
+            Yes
+        </span>    
+    
+    
+        <?php
+    }    
+    
+    
+    
     public function userIdNotice()
     {
         if (get_option(self::USERID_OPTION)) {
@@ -504,7 +536,7 @@ class PercolateImport
         ?>
         <div id="stories_imported" class="updated settings-error">
         <p>
-            <strong>Stories Imported. Last id: <?php $last_id; ?></strong>
+            <strong>Stories Imported. Last id: <?php echo ($last_id); ?></strong>
         </p>
         </div>
         <?php
@@ -779,8 +811,12 @@ class PercolateImport
     {
         $options['id'] = get_option(self::USERID_OPTION);
         $lastId = get_option(self::LASTID_OPTION);
+        $allSources = get_option(self::ALLSOURCES_OPTION);
         if($lastId){
             $options['last_id'] = $lastId;
+        }
+        if($allSources){
+        		$options['allsources'] = 1;
         }
         if($options['id'] != 0){
             return self::callPercolateApi('entries', $options);
