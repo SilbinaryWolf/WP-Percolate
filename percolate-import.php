@@ -25,6 +25,7 @@ class PercolateImport
     const LASTID_OPTION='percolateimport_lastid';
     const POSTSTATUS_OPTION='percolateimport_poststatus';
     const CATEGORY_OPTION='percolate_category';
+	const EX_CATEGORY_OPTION='ex_percolate_category';
     const ALLSOURCES_OPTION='percolate_allsources';
     
     const IMPORT_OVERRIDE_OPTION='percolateimport_override';
@@ -154,6 +155,15 @@ class PercolateImport
             self::SETTINGS_SECTION
         );
         
+
+		add_settings_field(
+            self::EX_CATEGORY_OPTION,
+            "Exclude Category",
+            array('PercolateImport', 'settingsExcludeCategoryDisplay'),
+            self::SETTINGS_PAGE,
+            self::SETTINGS_SECTION
+        );
+
         add_settings_field(
             self::ALLSOURCES_OPTION,
             "Import All Sources?",
@@ -166,6 +176,7 @@ class PercolateImport
         register_setting(self::SETTINGS_PAGE, self::POSTSTATUS_OPTION);
         register_setting(self::SETTINGS_PAGE, self::AUTHORID_OPTION);
         register_setting(self::SETTINGS_PAGE, self::CATEGORY_OPTION);
+		register_setting(self::SETTINGS_PAGE, self::EX_CATEGORY_OPTION);
         register_setting(self::SETTINGS_PAGE, self::ALLSOURCES_OPTION);
     		register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
         
@@ -376,8 +387,9 @@ class PercolateImport
         if (!empty($_POST[self::M_USE])) {
             update_post_meta($postId, self::M_USE, json_encode($_POST[self::M_USE]));
         }
+
         if (!empty($_POST[self::M_SOURCETITLES])) {
-            update_post_meta($postId, self::M_SOURCETITLES, json_encode($titles));
+            update_post_meta($postId, self::M_SOURCETITLES, json_encode($_POST[self::M_SOURCETITLES]));
         }
     }
     
@@ -457,7 +469,17 @@ class PercolateImport
         <?php
     }
     
+    public function settingsExcludeCategoryDisplay()
+    {
+        $ex_categoryId = get_option(self::EX_CATEGORY_OPTION);
+        wp_dropdown_categories('hide_empty=0&show_option_none=None&name=' . self::EX_CATEGORY_OPTION . '&selected=' . $ex_categoryId);
+        //echo "<pre>"; print_r($users); echo "</pre>";
+        ?>
+        Posts assigned to this category will not appear.
     
+        <?php
+    }
+
     public function settingsAllSourcesDisplay()
     {
         // Get the All Sources Value
@@ -899,7 +921,7 @@ class PercolateImport
         }
         }
     </script>
-    <?
+    <?php
     }
     }
 }
@@ -913,3 +935,4 @@ add_action('save_post', array('PercolateImport', 'updatePost'));
 add_action('add_meta_boxes', array('PercolateImport', 'suppressCustomMeta'));
 add_action('admin_print_footer_scripts', array('PercolateImport', 'adminScripts'));
 add_action('admin_notices', array('PercolateImport','userIdNotice'));
+?>
