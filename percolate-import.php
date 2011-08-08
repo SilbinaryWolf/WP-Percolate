@@ -238,10 +238,10 @@ class PercolateImport
         if (!is_array($sourceTitles)) {
             $sourceTitles = array();
         }
-       //echo "<pre>X:"; print_r(get_post_meta($post->ID, self::M_SOURCETITLES, true)); echo "</pre>";
-       // echo "<pre>use:"; print_r($useSources); echo "</pre>";
-       //echo "<pre>title:"; print_r($sourceTitles); echo "</pre>";
-        //echo "<pre>"; print_r($sources); echo "</pre>";
+        // echo "<pre>X:"; print_r(get_post_meta($post->ID, self::M_SOURCETITLES, true)); echo "</pre>";
+        // echo "<pre>use:"; print_r($useSources); echo "</pre>";
+        // echo "<pre>title:"; print_r($sourceTitles); echo "</pre>";
+        // echo "<pre>"; print_r($sources); echo "</pre>";
         ?>
         <script type="text/javascript">
         jQuery(function () {
@@ -301,6 +301,7 @@ class PercolateImport
             <?php if(is_array($sources)): ?>
             <?php foreach ($sources as $idx=>$source):
                 $subid = $source['source_subscription_id'];
+						// echo print_r($source);
             ?>
             <tr>
                 <td>
@@ -319,7 +320,7 @@ class PercolateImport
                     <input type="text"
                        name="<?php echo self::M_SOURCETITLES; ?>[<?php echo $subid; ?>]"
                        value="<?php
-                            echo array_key_exists($subid, $sourceTitles) ? htmlentities($sourceTitles[$subid]) : "";
+                            echo array_key_exists($subid, $sourceTitles) ? empty($sourceTitles[$subid]) ? htmlentities($source['source_entry_title']) : htmlentities($sourceTitles[$subid]) : htmlentities($source['source_entry_title']) ;
                         ?>"
                        style="width: 99%;" />
                 </td>
