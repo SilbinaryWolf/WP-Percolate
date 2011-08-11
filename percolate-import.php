@@ -227,7 +227,62 @@ class PercolateImport
         $sources = array();
         
         if ($sourceMeta) {
-            $sources = json_decode($sourceMeta[0], true);
+        
+					if (json_decode($sourceMeta[0], true) === null) {
+						$patterns = array();
+						
+						// Get all the double quotes that make up the valid json file.
+						$patterns[0] = '/\{"/';
+						$patterns[1] = '/"\:"/';
+						$patterns[2] = '/","/';
+						$patterns[3] = '/"\}/';
+						$patterns[4] = '/,"/';
+						$patterns[5] = '/"\},/';
+						$patterns[6] = '/":/';
+						
+						// take the left over double quotes
+						$patterns[7] = '/"/';
+		
+						$patterns[8] = "/\{'/";
+						$patterns[9] = "/'\:'/";
+						$patterns[10] = "/','/";
+						$patterns[11] = "/'\}/";
+						$patterns[12] = "/,'/";
+						$patterns[13] = "/'\},/";
+						$patterns[14] = "/':/";
+						
+						$replacements = array();
+						
+						// Turn all the json doubles to singles
+						$replacements[0] = "{'";
+						$replacements[1] = "':'";
+						$replacements[2] = "','";
+						$replacements[3] = "'}";
+						$replacements[4] = ",'";
+						$replacements[5] = "'},";
+						$replacements[6] = "':";					
+						
+						// Turn the extra double quote to an entity
+						$replacements[7] = "&quot;";
+						
+						/// Now put it all back together again.
+						$replacements[8] = '{"';
+						$replacements[9] = '":"';
+						$replacements[10] = '","';
+						$replacements[11] = '"}';
+						$replacements[12] = ',"';
+						$replacements[13] = '"},';
+						$replacements[14] = '":';	
+					
+					
+						$cleanSources = preg_replace($patterns, $replacements, $sourceMeta[0]);
+    
+          	$sources = json_decode($cleanSources, true);
+          	} 
+          	else {
+          	
+          	$sources = json_decode($sourceMeta[0], true);
+          	}
         }
         
         $featuredSource = get_post_meta($post->ID, self::M_FEATUREDSOURCE, true);
@@ -241,7 +296,7 @@ class PercolateImport
         // echo "<pre>X:"; print_r(get_post_meta($post->ID, self::M_SOURCETITLES, true)); echo "</pre>";
         // echo "<pre>use:"; print_r($useSources); echo "</pre>";
         // echo "<pre>title:"; print_r($sourceTitles); echo "</pre>";
-        // echo "<pre>"; print_r($sources); echo "</pre>";
+        //echo "<pre>"; print_r($clearnSources); echo "</pre>";
         ?>
         <script type="text/javascript">
         jQuery(function () {
@@ -584,7 +639,6 @@ class PercolateImport
     public function importStories()
     {
         $stories = self::getPercolateStories();
-        //echo "<pre>|stories:"; print_r($stories); echo "</pre>";
         $lastId = get_option(self::LASTID_OPTION);
         if ($stories) {
             foreach ($stories as $story) {
@@ -666,12 +720,19 @@ class PercolateImport
 
         $sourceTitles=array();
         $useSources=array();
-        
+
+
         foreach ($story['sources'] as $source) {
-            $sourceTitles[$source['source_subscription_id']] = htmlentities(
+    		
+        	//echo "<pre>"; print_r($source['source_entry_title']); echo "</pre>";
+        	
+        	$sourceTitles[$source['source_subscription_id']] = htmlentities(
                 $source['source_subscription_title'] . ': ' . $source['source_entry_title'],
                 ENT_QUOTES | ENT_IGNORE, "UTF-8"
             );
+			
+
+					
             $useSources[] = $source['source_subscription_id'];
             $source['source_subscription_title']=htmlentities($source['source_subscription_title']);
             $source['source_entry_title']=htmlentities($source['source_entry_title']);
@@ -679,7 +740,7 @@ class PercolateImport
                 $sourceTitles[$source['source_subscription_id']] = '[no title]';
             }
         }
-        //echo "<pre>"; print_r($sourceTitles); echo "</pre>";
+       //echo "<pre>"; print_r($sourceTitles); echo "</pre>";
         
         $ver = floatval(phpversion());
         update_post_meta($postId, self::M_DOMAIN, $story['domain']);
@@ -688,11 +749,12 @@ class PercolateImport
         update_post_meta($postId, self::M_LINKID, $story['link_id']);
         update_post_meta($postId, self::M_ORIGINALDESCRIPTION, $story['original_description']);
         update_post_meta($postId, self::M_ORIGINALTITLE, $story['original_title']);
-        if( $ver > 5.2 )
-            update_post_meta($postId, self::M_SOURCES, json_encode($story['sources'], JSON_HEX_QUOT));
-        else
+        if( $ver > 5.2 ){
+						update_post_meta($postId, self::M_SOURCES, json_encode($story['sources'], JSON_HEX_QUOT));
+        	
+				}else{
             update_post_meta($postId, self::M_SOURCES, json_encode($story['sources']));
-
+				}
         update_post_meta($postId, self::M_URL, $story['url']);
         update_post_meta($postId, self::M_USERDESCRIPTION, $story['user_description']);
         update_post_meta($postId, self::M_USERTITLE, $story['user_title']);
@@ -757,7 +819,69 @@ class PercolateImport
     
     public static function getSources($postId)
     {
-        $sources = json_decode(get_post_meta($postId, self::M_SOURCES, true), true);
+        
+        
+        $sourceMeta = get_post_meta($postId, self::M_SOURCES);
+        
+        $sources = array();
+        
+				if (json_decode($sourceMeta[0], true) === null) {
+						$patterns = array();
+						
+						// Get all the double quotes that make up the valid json file.
+						$patterns[0] = '/\{"/';
+						$patterns[1] = '/"\:"/';
+						$patterns[2] = '/","/';
+						$patterns[3] = '/"\}/';
+						$patterns[4] = '/,"/';
+						$patterns[5] = '/"\},/';
+						$patterns[6] = '/":/';
+						
+						// take the left over double quotes
+						$patterns[7] = '/"/';
+		
+						$patterns[8] = "/\{'/";
+						$patterns[9] = "/'\:'/";
+						$patterns[10] = "/','/";
+						$patterns[11] = "/'\}/";
+						$patterns[12] = "/,'/";
+						$patterns[13] = "/'\},/";
+						$patterns[14] = "/':/";
+						
+						$replacements = array();
+						
+						// Turn all the json doubles to singles
+						$replacements[0] = "{'";
+						$replacements[1] = "':'";
+						$replacements[2] = "','";
+						$replacements[3] = "'}";
+						$replacements[4] = ",'";
+						$replacements[5] = "'},";
+						$replacements[6] = "':";					
+						
+						// Turn the extra double quote to an entity
+						$replacements[7] = "&quot;";
+						
+						/// Now put it all back together again.
+						$replacements[8] = '{"';
+						$replacements[9] = '":"';
+						$replacements[10] = '","';
+						$replacements[11] = '"}';
+						$replacements[12] = ',"';
+						$replacements[13] = '"},';
+						$replacements[14] = '":';	
+					
+					
+						$cleanSources = preg_replace($patterns, $replacements, $sourceMeta[0]);
+    
+          	$sources = json_decode($cleanSources, true);
+          	} 
+          	else {
+          	
+          	$sources = json_decode($sourceMeta[0], true);
+          	}     
+        
+      
         $useIds = json_decode(get_post_meta($postId, self::M_USE, true), true);
         $titles = json_decode(get_post_meta($postId, self::M_SOURCETITLES, true), true);
         $featuredId = get_post_meta($postId, self::M_FEATUREDSOURCE, true);
