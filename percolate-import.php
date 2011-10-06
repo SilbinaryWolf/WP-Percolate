@@ -721,23 +721,24 @@ class PercolateImport
         $sourceTitles=array();
         $useSources=array();
 
+        if($story['sources']){
+            foreach ($story['sources'] as $source) {
+        		
+            	//echo "<pre>"; print_r($source['source_entry_title']); echo "</pre>";
+            	
+            	$sourceTitles[$source['source_subscription_id']] = htmlentities(
+                    $source['source_subscription_title'] . ': ' . $source['source_entry_title'],
+                    ENT_QUOTES | ENT_IGNORE, "UTF-8"
+                );
+    			
 
-        foreach ($story['sources'] as $source) {
-    		
-        	//echo "<pre>"; print_r($source['source_entry_title']); echo "</pre>";
-        	
-        	$sourceTitles[$source['source_subscription_id']] = htmlentities(
-                $source['source_subscription_title'] . ': ' . $source['source_entry_title'],
-                ENT_QUOTES | ENT_IGNORE, "UTF-8"
-            );
-			
-
-					
-            $useSources[] = $source['source_subscription_id'];
-            $source['source_subscription_title']=htmlentities($source['source_subscription_title']);
-            $source['source_entry_title']=htmlentities($source['source_entry_title']);
-            if (!$sourceTitles[$source['source_subscription_id']]) {
-                $sourceTitles[$source['source_subscription_id']] = '[no title]';
+    					
+                $useSources[] = $source['source_subscription_id'];
+                $source['source_subscription_title']=htmlentities($source['source_subscription_title']);
+                $source['source_entry_title']=htmlentities($source['source_entry_title']);
+                if (!$sourceTitles[$source['source_subscription_id']]) {
+                    $sourceTitles[$source['source_subscription_id']] = '[no title]';
+                }
             }
         }
        //echo "<pre>"; print_r($sourceTitles); echo "</pre>";
