@@ -721,6 +721,7 @@ class PercolateImport
         $sourceTitles=array();
         $useSources=array();
 
+
         if($story['sources']){
             foreach ($story['sources'] as $source) {
         		
@@ -982,12 +983,16 @@ class PercolateImport
             }
             $url.="?" . implode('&', $tokens);
         }
-        // echo $url;
         $curl_handle = curl_init($url);
         /* */
         //curl_setopt($curl_handle, CURLOPT_PROXY, '127.0.0.1:8888');
         /* */
-        curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, 1);                
+
+        /* */
+        // REMOVED 10-10-11 TO DEAL WITH: CURLOPT_FOLLOWLOCATION cannot be activated when safe_mode is enabled or an open_basedir is set 
+        // curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, 1);                
+        /* */
+        
         curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl_handle, CURLOPT_HEADER, 0);
