@@ -80,9 +80,119 @@
             }
             return false;
         });
-        
-    });
+
+	 //user type selection:
+	 $('#percapi-user-type-individual').click(function (){
+		toggleUserType($('#percapi-user-type-individual').val());
+	});
+	
+	$('#percapi-user-type-group').click(function (){
+		toggleUserType($('#percapi-user-type-group').val());
+	});
+
+	//toggle user type onload
+   	toggleUserType($('#init_user_type').val());
+
+	//search user id by name
+   	$('#percapi_submit').click(function () {
+       	var uname=$('#percapi_username').val();
+     	$.getJSON(
+         	'http://percolate.com/api/v1/user_id?callback=?',
+      		{username: uname},
+     		function (result){
+         		$('#percapi_user_id').val(result.user_id);
+     			$('#percapi_username').val('');
+    		});
+   		return false;
+   	}); 
+
+	//set group author ids before submit
+	$('#percolate_options').submit(function() {
+		setupGroupAuthorIdsValue();
+		required_complete=checkRequiredOptions();
+		return required_complete;
+	});
+	
+	//refresh group users
+	$("#refresh_memberform").click(function(){
+		setupGroupAuthorIdsValue();
+		required_complete = checkRequiredOptions();
+		if (required_complete==true){
+		 $('#percolate_options').submit();
+		}
+	});
+	
+	//create new author 
+	$(".group_user_ids").change(function(){
+		$new_author = $(this).val();
+		if ($new_author=='new_author'){
+			window.location.href='/wp-admin/user-new.php';
+		}
+	});
+	//import stories now
+	$("#import_stories_now").click(function(){
+		$('#override_import').val('1');
+		setupGroupAuthorIdsValue();
+		required_complete = checkRequiredOptions();
+		if (required_complete==true){
+		 $('#percolate_options').submit();
+		}
+	});
+
+
+  });
+  function toggleUserType(type){
+	if(type==0){
+		$(".user-type-indi").parent().parent().show();
+		$(".user-type-grp").parent().parent().hide();
+	}else{
+		$(".user-type-indi").parent().parent().hide();
+		$(".user-type-grp").parent().parent().show();
+	}
+  }
+   
+  function setupGroupAuthorIdsValue(){
+		//get all the user selected values 
+	var values = '{"":""';
+  	$(".group_user_ids option:selected").each(function () {
+			selected_value = $(this).val();
+			selected_value = selected_value.replace(/'/g, '\"');
+    		if(selected_value){
+				values += ","+selected_value;
+			}
+  	});
+	values += "}";
+	$("#percolateimport_groupauthorids").val(values);	
+  }
+	
+  function checkRequiredOptions(){
+	type = $('input:radio[name=percolateimport_usertype]:checked').val();
+	user_group_id=$(".user-group-id").val();
+	user_id=$(".user-id").val();
+	
+	if(type==0){
+		if(user_id==''){
+			alert("User ID is required!");
+			return false;
+		}else{
+			return true;
+		}
+		
+	}else{
+		if(user_group_id==''){
+			alert("Group ID is required!");
+			return false;
+		}else{
+			return true;
+		}
+	}
+  
+  }
+
+
 })(jQuery);
+
+
 
 /*** FORMATTING ***/
 // Simple JavaScript Templating

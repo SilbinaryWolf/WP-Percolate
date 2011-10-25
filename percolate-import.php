@@ -19,6 +19,10 @@ class PercolateImport
     
     const IMPORT_INTERVAL=300;
     
+	const USERTYPE_OPTION='percolateimport_usertype';
+	const GROUPID_OPTION='percolateimport_groupid';
+	const DEFGRPAUTHORID_OPTION='percolateimport_defgrpauthorid';
+	const GROUPAUTHORS_OPTION='percolateimport_groupauthorids';
     const USERID_OPTION='percolateimport_userid';
     const AUTHORID_OPTION='percolateimport_authorid';
     const LASTIMPORT_OPTION='percolateimport_lastimported';
@@ -50,6 +54,8 @@ class PercolateImport
     
     public function install()
     {
+		update_option(self::USERTYPE_OPTION, '0');
+		update_option(self::GROUPID_OPTION, '0');
         update_option(self::USERID_OPTION, '0');
         update_option(self::LASTIMPORT_OPTION, 0);
         update_option(self::POSTSTATUS_OPTION, 'publish');
@@ -73,7 +79,7 @@ class PercolateImport
     
     public function adminScripts()
     {
-        echo '<script type="text/javascript" src="' . get_bloginfo('wpurl') .
+        echo '<script type="text/javascript" src="' . get_bloginfo('url') .
             '/wp-content/plugins/WP-Percolate/percimport.js"></script>';
     }
     
@@ -123,10 +129,26 @@ class PercolateImport
             self::SETTINGS_PAGE
         );
         
+		add_settings_field(
+			self::USERTYPE_OPTION,
+			"Percolate User Type",
+			array('PercolateImport', 'settingsUserTypeDisplay'),
+			self::SETTINGS_PAGE,
+            self::SETTINGS_SECTION
+		);
+
         add_settings_field(
             self::USERID_OPTION,
             "Percolate User ID",
             array('PercolateImport', 'settingsUserIdDisplay'),
+            self::SETTINGS_PAGE,
+            self::SETTINGS_SECTION
+        );
+
+		add_settings_field(
+            self::GROUPID_OPTION,
+            "Percolate Group ID",
+            array('PercolateImport', 'settingsGroupIdDisplay'),
             self::SETTINGS_PAGE,
             self::SETTINGS_SECTION
         );
@@ -146,7 +168,23 @@ class PercolateImport
             self::SETTINGS_PAGE,
             self::SETTINGS_SECTION
         );
+
+		add_settings_field(
+	        self::DEFGRPAUTHORID_OPTION,
+	        "Default Group Author",
+	        array('PercolateImport', 'settingsDefGrpAuthorDisplay'),
+	        self::SETTINGS_PAGE,
+	        self::SETTINGS_SECTION
+	    );
         
+		add_settings_field(
+	        self::GROUPAUTHORS_OPTION,
+	        "Group Authors",
+	        array('PercolateImport', 'settingsGroupAuthorsDisplay'),
+	        self::SETTINGS_PAGE,
+	        self::SETTINGS_SECTION
+	    );
+
         add_settings_field(
             self::CATEGORY_OPTION,
             "Category",
@@ -170,15 +208,19 @@ class PercolateImport
             array('PercolateImport', 'settingsAllSourcesDisplay'),
             self::SETTINGS_PAGE,
             self::SETTINGS_SECTION
-        );        
-        
+        );     
+   
+        register_setting(self::SETTINGS_PAGE, self::USERTYPE_OPTION);
+		register_setting(self::SETTINGS_PAGE, self::GROUPID_OPTION);
+		register_setting(self::SETTINGS_PAGE, self::DEFGRPAUTHORID_OPTION);
+		register_setting(self::SETTINGS_PAGE, self::GROUPAUTHORS_OPTION);
         register_setting(self::SETTINGS_PAGE, self::USERID_OPTION);
         register_setting(self::SETTINGS_PAGE, self::POSTSTATUS_OPTION);
         register_setting(self::SETTINGS_PAGE, self::AUTHORID_OPTION);
         register_setting(self::SETTINGS_PAGE, self::CATEGORY_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::EX_CATEGORY_OPTION);
         register_setting(self::SETTINGS_PAGE, self::ALLSOURCES_OPTION);
-    		register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
+    	register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
         
         //Import process
         self::checkImport();
@@ -356,7 +398,7 @@ class PercolateImport
             <?php if(is_array($sources)): ?>
             <?php foreach ($sources as $idx=>$source):
                 $subid = $source['source_subscription_id'];
-						// echo print_r($source);
+				echo print_r($source);
             ?>
             <tr>
                 <td>
@@ -460,50 +502,83 @@ class PercolateImport
         echo "<p>Settings for Percolate API Integration</p>";
     }
     
+	public function settingsUserTypeDisplay()
+	{
+		$userType = get_option(self::USERTYPE_OPTION);
+		?>
+		<span class="percapi-user-type">
+		   	<input type="radio" name="<?php echo self::USERTYPE_OPTION; ?>"
+		   	     	id="percapi-user-type-individual"  value="0" 
+					 <?php 
+					 	echo $userType != 1 ?  "checked=\"checked\"" :  "" ;
+					 ?> />
+		   	     	Individual
+		   	<input type="radio" name="<?php echo self::USERTYPE_OPTION; ?>"
+		   	     	id="percapi-user-type-group" value="1" 
+					 <?php 
+					 	echo $userType == 1 ?  "checked=\"checked\"" : "" ;
+					 ?>
+		   	      />
+		   	     	Group
+			<input type="hidden" name="init_user_type" id="init_user_type" value="<?php echo $userType;?>">
+		</span>
+	<?php
+	}
+
+
     public function settingsUserIdDisplay()
     {
         ?>
-        <script type="text/javascript">
-        jQuery(function() {
-            (function ($){
-                $('.percapi-userid-control').append(
-                    '<br />Find User ID by user name: ' +
-                    '<input type="text" id="percapi_username" size="10" />' +
-                    '<input type="button" id="percapi_submit" value="Find by username" />'
-                );
-                
-                $('#percapi_submit').click(function () {
-                    var uname=$('#percapi_username').val();
-                    $.getJSON(
-                        'http://percolate.com/api/v1/user_id?callback=?',
-                        {username: uname},
-                        function (result){
-                            $('#percapi_user_id').val(result.user_id);
-                            $('#percapi_username').val('');
-                        });
-                    return false;
-                });
-            
-            })(jQuery);
-        });            
-        </script>
-    
-        <span class="percapi-userid-control">
-        <input size="5" type="text" name="<?php echo self::USERID_OPTION; ?>"
+        <span class="percapi-userid-control user-type-indi">
+        <input size="5" type="text" class="user-id" name="<?php echo self::USERID_OPTION; ?>"
             id="percapi_user_id"
             value="<?php echo get_option(self::USERID_OPTION != '0' ? self::USERID_OPTION : ''); ?>" />
             User ID for the Percolate API.
+			<br />Find User ID by user name: 
+            <input type="text" id="percapi_username" size="10" />
+			<input type="button" id="percapi_submit" value="Find by username" />
         </span>
         <?php
     }
     
-    
+    public function settingsGroupIdDisplay()
+    {
+        ?>
+        <span class="percapi-usergroupid-control user-type-grp">
+        <input size="5" type="text" class="user-group-id" name="<?php echo self::GROUPID_OPTION; ?>"
+            id="percapi_user_id"
+            value="<?php echo get_option(self::GROUPID_OPTION != '0' ? self::GROUPID_OPTION : ''); ?>" />
+            Group ID for the Percolate API.
+        </span>
+        <?php
+    }
+
+
+    public function settingsDefGrpAuthorDisplay()
+    {
+        $users = get_users();
+        $defgrpauthorId = get_option(self::DEFGRPAUTHORID_OPTION);
+        ?>
+		<span class="user-type-grp">
+        <select name="<?php echo self::DEFGRPAUTHORID_OPTION; ?>">
+            <?php foreach ($users as $user): ?>
+            <option <?php echo ($user->ID == $defgrpauthorId) ? ' selected="selected" ' : ''; ?>
+                value="<?php echo $user->ID; ?>"><?php echo $user->display_name; ?></option>
+            <?php endforeach; ?>
+        </select> When a Wordpress author does not exit for a corresponding group member assign posts to this Wordpress user. 
+        <?php
+    }
+
+
+
+
     public function settingsAuthorDisplay()
     {
         $users = get_users();
         $authorId = get_option(self::AUTHORID_OPTION);
         //echo "<pre>"; print_r($users); echo "</pre>";
         ?>
+		<span class="user-type-indi">
         <select name="<?php echo self::AUTHORID_OPTION; ?>">
             <option></option>
             <?php foreach ($users as $user): ?>
@@ -511,8 +586,72 @@ class PercolateImport
                 value="<?php echo $user->ID; ?>"><?php echo $user->display_name; ?></option>
             <?php endforeach; ?>
         </select> New posts imported from percolate will be owned by this user.
+		</span>
         <?php
     }
+
+	public function settingsGroupAuthorsDisplay(){
+		$group_authors = get_option(self::GROUPAUTHORS_OPTION);
+		?>	
+		<span class="user-type-grp">
+				<input type="hidden" name="<?php echo self::GROUPAUTHORS_OPTION ?>" id="<?php echo self::GROUPAUTHORS_OPTION ?>" value="<?php echo empty($group_authors) ? "" : $group_authors ?>"/>
+			
+			<table>
+				<tr>
+					<th>
+						Group Members 
+				            <input type="button" id="refresh_memberform" value="<?php _e('Refresh') ?>" />
+				         
+					</th>
+				 	<th>
+				 		Wordpress Authors
+				 	</th>
+				 </tr>
+		<?php
+
+		$gourp_id = get_option(self::GROUPID_OPTION);
+		$group_authors_array = json_decode($group_authors);
+		
+		if($gourp_id>0){
+
+			$percolate_users = self::getGroupUsers($gourp_id);
+
+			if($percolate_users!=null){
+			  $users = get_users();
+
+			  foreach ($percolate_users as $puser) {
+			  ?>
+				<tr>
+					<td width="100px;">
+						<?php echo $puser->username;?> 
+					</td>
+					<td>
+						<select name="<?php echo $puser->user_id?>" class="group_user_ids" >
+				            <?php foreach ($users as $user):
+										$temp_pid = $puser->user_id;  ?>
+				            <option <?php echo ($user->ID == $group_authors_array->$temp_pid) ? ' selected="selected" ' : ''; ?>
+					            value="<?php echo "'".$puser->user_id."':'".$user->ID."'"; ?>"><?php echo $user->display_name; ?></option>
+				            <?php endforeach; ?>
+							 <option value="new_author">Create New Author</option>
+					    </select>
+					</td>
+				</tr>
+			<?php
+				}
+			}else{
+				echo "Did not find any users with the group id $gourp_id"; 
+			}
+		
+		}else{
+			echo "Enter a group id and save to view the group users.";
+		}
+		?>
+			</table>
+		</span>
+		<?php	
+		
+	}
+
 
     public function settingsCategoryDisplay()
     {
@@ -558,7 +697,7 @@ class PercolateImport
     
     public function userIdNotice()
     {
-        if (get_option(self::USERID_OPTION)) {
+        if (get_option(self::USERID_OPTION) || get_option(self::GROUPID_OPTION)) {
             return;
         }
         
@@ -566,9 +705,9 @@ class PercolateImport
         echo '<p>';
         echo '<strong>' . __('Notice:') . '</strong> ';
         _e(
-            'You haven&rsquo;t set a Percolate User ID for the Percolate
+            'You haven&rsquo;t set a Percolate User or Group ID for the Percolate
             Import plugin. This plugin will not function correctly
-            until the user ID is set.'
+            until the user or group ID is set.'
         );
         echo '</p><p>';
         printf(
@@ -621,14 +760,14 @@ class PercolateImport
         update_option(self::IMPORT_OVERRIDE_OPTION, 0);
     }
     
-        load_template(ABSPATH . 'wp-content/plugins/WP-Percolate/percolate-options.php');
+        load_template(dirname(__FILE__) . '/percolate-options.php');
     }
     
     
     /** IMPORT SCREEN **/
     public function renderImportPage()
     {
-        load_template(ABSPATH . 'wp-content/plugins/WP-Percolate/admin-import-page.php');
+        load_template(dirname(__FILE__) . '/admin-import-page.php');
     }
     
     /** PERCOLATE API **/
@@ -639,6 +778,7 @@ class PercolateImport
     public function importStories()
     {
         $stories = self::getPercolateStories();
+        //echo "<pre>|stories:"; print_r($stories); echo "</pre>";
         $lastId = get_option(self::LASTID_OPTION);
         if ($stories) {
             foreach ($stories as $story) {
@@ -660,7 +800,7 @@ class PercolateImport
     {
         global $wpdb;
         
-        //echo "<pre>"; print_r($story); echo "</pre>";
+       // echo "<pre>"; print_r($story); echo "</pre>";
         
         $linkId = $story['link_id'];
         $postName = 'perc_' . $linkId;
@@ -706,12 +846,31 @@ class PercolateImport
             $post['post_category']=array(get_option(self::CATEGORY_OPTION));
         }
         
-        $authorId = get_option(self::AUTHORID_OPTION);
         
-        if ($authorId) {
-            $post['post_author']=$authorId;
-        }
-        
+		//check user type
+		$userType = get_option(self::USERTYPE_OPTION);
+		if($userType!=1){
+			$authorId = get_option(self::AUTHORID_OPTION);
+        	if ($authorId) {
+            	$post['post_author']=$authorId;
+        	}
+		}else{
+			//story author
+			// comes like this "user": {"username": "joe", "user_id": 9}
+			$author = $story['user'];
+			$author_id = $author['user_id'];
+			//get group authors
+			$group_authors = get_option(self::GROUPAUTHORS_OPTION);
+			$group_authors_array = json_decode($group_authors);
+			//check if the percolate user is mapped to a wp user.
+			$user_id = $group_authors_array->$author_id;
+			if ($user_id !=0){
+				$post['post_author']=$user_id;
+			}else{
+				$post['post_author']=get_option(self::DEFGRPAUTHORID_OPTION);
+			}
+		 }
+			   
         $postId = wp_insert_post($post);
         
         if ($story['tag']) {
@@ -773,6 +932,7 @@ class PercolateImport
         do_action('percolate_import_story', $postId);
         
         return $postId;
+		
     }
     
     public static function getUrl($postId)
@@ -944,10 +1104,11 @@ class PercolateImport
         */
 //  echo get_option( self::IMPORT_OVERRIDE_OPTION ) . '<br>';
 //  echo get_option( self::LASTIMPORT_OPTION ) . '<br>';
+
+
         if ( ((time() - get_option(self::LASTIMPORT_OPTION)) > self::IMPORT_INTERVAL) || get_option( self::IMPORT_OVERRIDE_OPTION ) == 1 ) {
             try{
-                self::importStories();
-                
+				self::importStories();        
             }
             catch (Exception $e)
             {
@@ -956,24 +1117,62 @@ class PercolateImport
         }
     }
     
-    public function getPercolateStories()
-    {
-        $options['id'] = get_option(self::USERID_OPTION);
-        $lastId = get_option(self::LASTID_OPTION);
-        $allSources = get_option(self::ALLSOURCES_OPTION);
-        if($lastId){
-            $options['last_id'] = $lastId;
-        }
-        if($allSources){
-        		$options['allsources'] = 1;
-        }
-        if($options['id'] != 0){
-            return self::callPercolateApi('entries', $options);
-        }
+    public function getPercolateStories() {
+			
+			$userType = get_option(self::USERTYPE_OPTION);
+			if($userType!=1){
+	        	$options['id'] = get_option(self::USERID_OPTION);
+		        //self::setUpCommonOptionsForStories($options);
+			}else{
+				$options['group_id']=get_option(self::GROUPID_OPTION);
+				//self::setUpCommonOptionsForStories($options);
+			}
+
+			// Get last id and all sources options
+			$lastId = get_option(self::LASTID_OPTION);
+		  $allSources = get_option(self::ALLSOURCES_OPTION);
+
+			// Check for last entry_id and add as a parameter		  
+		  if($lastId){
+		      $options['last_id'] = $lastId;
+		  }
+		  
+		  // Check if all sources option is set and if so add it as a parameter
+		  if($allSources){
+		  		$options['allsources'] = 1;
+		  }		
+		
+			// Make the actual call to the API
+			if($options['group_id'] != 0 || $options['id'] != 0){
+          return self::callPercolateApi('entries', $options);
+      }
     }
+
+		
+		private function setUpCommonOptionsForStories($options){
+			$lastId = get_option(self::LASTID_OPTION);
+	       $allSources = get_option(self::ALLSOURCES_OPTION);
+	        if($lastId){
+	            $options['last_id'] = $lastId;
+	        }
+	        if($allSources){
+	        	$options['allsources'] = 1;
+	        }
+		}
+
+	//get group users
+	public function getGroupUsers($groupId){
+		$method = "group_users?group_id=".$groupId;
+		$url = self::API_BASE . $method;
+		$data = file_get_contents($url,0,null,null);
+		return json_decode($data);
+	}
+	
+	//
+	
     
     protected static function callPercolateApi($method, $fields=array())
-    {
+    {  
         $url = self::API_BASE . "$method";
 
         if ($fields) {
@@ -983,10 +1182,16 @@ class PercolateImport
             }
             $url.="?" . implode('&', $tokens);
         }
+	//we could use file_get_contents instead of curl
+	//	$data = file_get_contents($url,0,null,null);
+	//	return json_decode($data);
+
+        // echo $url;
+		/**/
         $curl_handle = curl_init($url);
-        /* */
+        //
         //curl_setopt($curl_handle, CURLOPT_PROXY, '127.0.0.1:8888');
-        /* */
+        //
 
         /* */
         // REMOVED 10-10-11 TO DEAL WITH: CURLOPT_FOLLOWLOCATION cannot be activated when safe_mode is enabled or an open_basedir is set 
@@ -1025,8 +1230,9 @@ class PercolateImport
             throw new Exception($message, $status);
         }
         $data = json_decode( $buffer, true );
+		return json_decode($buffer, true);    
+        /**/
         
-        return json_decode($buffer, true);    
         
     }
     
