@@ -615,22 +615,23 @@ class PercolateImport
 		if($gourp_id>0){
 
 			$percolate_users = self::getGroupUsers($gourp_id);
-
+			
 			if($percolate_users!=null){
 			  $users = get_users();
 
 			  foreach ($percolate_users as $puser) {
+					$temp_pid = $puser['user_id'];
 			  ?>
 				<tr>
 					<td width="100px;">
-						<?php echo $puser->username;?> 
+						<?php echo $puser['username'];?> 
 					</td>
 					<td>
-						<select name="<?php echo $puser->user_id?>" class="group_user_ids" >
+						<select name="<?php echo $temp_pid?>" class="group_user_ids" >
 				            <?php foreach ($users as $user):
-										$temp_pid = $puser->user_id;  ?>
+									  ?>
 				            <option <?php echo ($user->ID == $group_authors_array->$temp_pid) ? ' selected="selected" ' : ''; ?>
-					            value="<?php echo "'".$puser->user_id."':'".$user->ID."'"; ?>"><?php echo $user->display_name; ?></option>
+					            value="<?php echo "'".$temp_pid."':'".$user->ID."'"; ?>"><?php echo $user->display_name; ?></option>
 				            <?php endforeach; ?>
 							 <option value="new_author">Create New Author</option>
 					    </select>
@@ -1118,59 +1119,42 @@ class PercolateImport
     }
     
     public function getPercolateStories() {
-			
-			$userType = get_option(self::USERTYPE_OPTION);
-			if($userType!=1){
-	        	$options['id'] = get_option(self::USERID_OPTION);
-		        //self::setUpCommonOptionsForStories($options);
-			}else{
-				$options['group_id']=get_option(self::GROUPID_OPTION);
-				//self::setUpCommonOptionsForStories($options);
-			}
-
-			// Get last id and all sources options
-			$lastId = get_option(self::LASTID_OPTION);
-		  $allSources = get_option(self::ALLSOURCES_OPTION);
-
-			// Check for last entry_id and add as a parameter		  
-		  if($lastId){
-		      $options['last_id'] = $lastId;
-		  }
-		  
-		  // Check if all sources option is set and if so add it as a parameter
-		  if($allSources){
-		  		$options['allsources'] = 1;
-		  }		
 		
-			// Make the actual call to the API
-			if($options['group_id'] != 0 || $options['id'] != 0){
-          return self::callPercolateApi('entries', $options);
-      }
-    }
-
-		
-		private function setUpCommonOptionsForStories($options){
-			$lastId = get_option(self::LASTID_OPTION);
-	       $allSources = get_option(self::ALLSOURCES_OPTION);
-	        if($lastId){
-	            $options['last_id'] = $lastId;
-	        }
-	        if($allSources){
-	        	$options['allsources'] = 1;
-	        }
+		$userType = get_option(self::USERTYPE_OPTION);
+		if($userType!=1){
+        	$options['id'] = get_option(self::USERID_OPTION);
+		}else{
+			$options['group_id']=get_option(self::GROUPID_OPTION);
 		}
 
+		// Get last id and all sources options
+		$lastId = get_option(self::LASTID_OPTION);
+	    $allSources = get_option(self::ALLSOURCES_OPTION);
+
+		// Check for last entry_id and add as a parameter		  
+	  	if($lastId){
+		      $options['last_id'] = $lastId;
+		}
+	  
+		  // Check if all sources option is set and if so add it as a parameter
+		if($allSources){
+		  		$options['allsources'] = 1;
+		}		
+	
+		 // Make the actual call to the API
+		if($options['group_id'] != 0 || $options['id'] != 0){
+         	return self::callPercolateApi('entries', $options);
+     	}
+    }
+
+	
 	//get group users
 	public function getGroupUsers($groupId){
-		$method = "group_users?group_id=".$groupId;
-		$url = self::API_BASE . $method;
-		$data = file_get_contents($url,0,null,null);
-		return json_decode($data);
+		$options['group_id']=$groupId;
+	    return self::callPercolateApi('group_users', $options);
 	}
 	
-	//
-	
-    
+	//call perfolate api
     protected static function callPercolateApi($method, $fields=array())
     {  
         $url = self::API_BASE . "$method";
@@ -1187,7 +1171,7 @@ class PercolateImport
 	//	return json_decode($data);
 
         // echo $url;
-		/**/
+		/* call url*/
         $curl_handle = curl_init($url);
         //
         //curl_setopt($curl_handle, CURLOPT_PROXY, '127.0.0.1:8888');
@@ -1197,7 +1181,7 @@ class PercolateImport
         // REMOVED 10-10-11 TO DEAL WITH: CURLOPT_FOLLOWLOCATION cannot be activated when safe_mode is enabled or an open_basedir is set 
         // curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, 1);                
         /* */
-        
+        //curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, 1);  
         curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl_handle, CURLOPT_HEADER, 0);
@@ -1230,8 +1214,8 @@ class PercolateImport
             throw new Exception($message, $status);
         }
         $data = json_decode( $buffer, true );
-		return json_decode($buffer, true);    
-        /**/
+        
+		return $data;    
         
         
     }
