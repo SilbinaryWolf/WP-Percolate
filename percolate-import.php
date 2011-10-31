@@ -49,6 +49,7 @@ class PercolateImport
     const M_SOURCETITLES='percolate_source_titles';
     const M_USE='percolate_use';
     const IMPORT_VERSION = '1.0';
+	const M_MEDIA='percolate_media';
     
     /** INSTALL AND INIT CODE **/
     
@@ -103,7 +104,16 @@ class PercolateImport
             'normal',
             'high'
         );
-        
+
+        add_meta_box(
+	        'percolate-media',
+	        'Percolate Media',
+	        array('PercolateImport','mediaMetaBox'),
+	        'post',
+	        'normal',
+	        'high'
+	    );
+
         add_meta_box(
             'percolate-domain',
             'Percolate Via',
@@ -262,6 +272,36 @@ class PercolateImport
         <?php
     }
     
+	public function mediaMetaBox($post){
+		$mediaMeta = get_post_meta($post->ID, self::M_MEDIA);
+		$p_img = $mediaMeta[0]['p_img'];
+	    echo "<img src='$p_img' id='m_media' />";
+	?>
+	<script type="text/javascript">
+	    jQuery(function () {
+	        (function($){  
+
+	            if(!$("#m_media").attr('src')){
+	              $('.select-media-button').hide();
+	            }
+
+	            $('.select-media-button').click(function () {
+
+	              p_img =$("#m_media").attr('src');
+	              img_tag = '<img src="'+ p_img +'" alt="" />'; 
+	              switchEditors.go('content', 'html');
+	              edInsertContent(edCanvas, img_tag);
+	              switchEditors.go('content', 'tinymce');
+	            });
+	        })(jQuery);
+	    });
+	    </script>
+		 <div class="add-source-input">
+	            <input type="button" class="select-media-button" value="Place Media In Post Body" />
+	     </div>
+	<?php	
+	}
+
     public function sourcesMetaBox($post)
     {
         $sourceMeta = get_post_meta($post->ID, self::M_SOURCES);
@@ -398,7 +438,6 @@ class PercolateImport
             <?php if(is_array($sources)): ?>
             <?php foreach ($sources as $idx=>$source):
                 $subid = $source['source_subscription_id'];
-				echo print_r($source);
             ?>
             <tr>
                 <td>
@@ -920,6 +959,9 @@ class PercolateImport
         update_post_meta($postId, self::M_URL, $story['url']);
         update_post_meta($postId, self::M_USERDESCRIPTION, $story['user_description']);
         update_post_meta($postId, self::M_USERTITLE, $story['user_title']);
+		//add or update media
+		update_post_meta($postId, self::M_MEDIA,$story['media']);
+
         if( $ver > 5.2 )
             update_post_meta($postId, self::M_USE, json_encode($useSources, JSON_HEX_QUOT));
         else

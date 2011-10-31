@@ -126,7 +126,7 @@
 	$(".group_user_ids").change(function(){
 		$new_author = $(this).val();
 		if ($new_author=='new_author'){
-			window.location.href='/wp-admin/user-new.php';
+			window.location ='user-new.php';
 		}
 	});
 	//import stories now
