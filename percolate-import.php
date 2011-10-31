@@ -944,7 +944,8 @@ class PercolateImport
        //echo "<pre>"; print_r($sourceTitles); echo "</pre>";
         
         $ver = floatval(phpversion());
-        update_post_meta($postId, self::M_DOMAIN, $story['domain']);
+        $parsed_url = parse_url($story['url']);
+        update_post_meta($postId, self::M_DOMAIN, $parsed_url['host']);
         update_post_meta($postId, self::M_ADDEDON, strtotime($story['added_on']));
         update_post_meta($postId, self::M_FEATUREDSOURCE, 0);
         update_post_meta($postId, self::M_LINKID, $story['link_id']);
