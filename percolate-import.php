@@ -233,7 +233,8 @@ class PercolateImport
 		register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
 
 		//Import process
-		self::checkImport();
+	    //self::checkImport();
+		// TODO: do we still need this?
 
 		// self::checkUpdate();
 	}
@@ -1316,9 +1317,32 @@ class PercolateImport
     <?php
 		}
 	}
+	
+	function activateImport(){
+		wp_schedule_event(time(), 'minute', 'percolate_import_event');
+	}
+	function deactivateImport(){
+		wp_clear_scheduled_hook('percolate_import_event');
+	}
+	
+	function scheduleImport( $schedules ) {
+		$schedules['minute'] = array(
+			'interval' => 300, 
+			'display' => __('Once 300 seconds')
+		);
+	return $schedules;
+	}
+	
 }
 
 register_activation_hook(__FILE__, array('PercolateImport', 'install'));
+
+register_activation_hook(__FILE__, array('PercolateImport', 'activateImport'));
+register_deactivation_hook(__FILE__, array('PercolateImport', 'deactivateImport'));
+
+add_action('percolate_import_event', array('PercolateImport', 'importStories'));
+add_filter('cron_schedules',  array('PercolateImport', 'scheduleImport'));
+
 
 add_action('plugins_loaded', array('PercolateImport', 'init'));
 add_action('admin_init', array('PercolateImport','adminInit'));
@@ -1327,4 +1351,9 @@ add_action('save_post', array('PercolateImport', 'updatePost'));
 add_action('add_meta_boxes', array('PercolateImport', 'suppressCustomMeta'));
 add_action('admin_print_footer_scripts', array('PercolateImport', 'adminScripts'));
 add_action('admin_notices', array('PercolateImport','userIdNotice'));
+
+
+
+
+
 ?>
