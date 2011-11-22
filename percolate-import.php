@@ -280,6 +280,7 @@ class PercolateImport
 			// Get the media type
 			$mediaType = $mediaMeta[0]['type'];
 			echo "<h4>Type: " . ucfirst($mediaType) . "</h4>";		
+			echo "<input type='hidden' value='" . $mediaType . "' id='media_type' />";
 		
 			if ($mediaType === "image") {
 				$p_img = $mediaMeta[0]['p_img'];
@@ -289,18 +290,19 @@ class PercolateImport
 				$video_url = $mediaMeta[0]['url'];
 				
 				if(strstr($video_url, "vimeo")) {
-					echo '<iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe><br /><br /><br /><h4>Copy This Embed Code.</h4><textarea style="width:90%;color:#CCC;"><iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe></textarea>';
+					echo '<iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe><br /><br /><br /><h4>Copy This Embed Code.</h4><textarea style="width:90%;color:#CCC;" id="m_media_video"><iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe></textarea>';
 				}
 				if(strstr($video_url, "youtube")) {
-					echo '<iframe title="YouTube video player" width="520" height="320" src="'.$video_url.'?wmode=transparent&amp;rel=0" frameborder="0" type="text/html"></iframe><br /><br /><br /><h4>Copy This Embed Code.</h4><textarea style="width:90%;color:#CCC;"><iframe title="YouTube video player" width="520" height="320" src="'.$video_url.'?wmode=transparent&amp;rel=0" frameborder="0" type="text/html"></iframe>';
+					echo '<iframe title="YouTube video player" width="520" height="320" src="'.$video_url.'?wmode=transparent&amp;rel=0" frameborder="0" type="text/html"></iframe><br /><br /><br /><h4>Copy This Embed Code.</h4><textarea style="width:90%;color:#CCC;" id="m_media_video"><iframe title="YouTube video player" width="520" height="320" src="'.$video_url.'?wmode=transparent&amp;rel=0" frameborder="0" type="text/html"></iframe></textarea>';
 				}				
 			} 
 			if ($mediaType === "quote") {
 				$quote_text = $mediaMeta[0]['text'];
-				echo "<blockquote>$quote_text</blockquote>";
+				echo '<blockquote>$quote_text</blockquote><textarea style="width:90%;color:#CCC;" id="m_media_quote"><blockquote>' . $quote_text . '</blockquote></textarea>';
 			} 						
 		}
 				
+		
 		
 		
 		
@@ -309,24 +311,37 @@ class PercolateImport
 	    jQuery(function () {
 	        (function($){
 
-	            if(!$("#m_media").attr('src')){
+	            if(!$("#media_type").val()){
 	              $('.select-media-button').hide();
 	            }
 
 	            $('.select-media-button').click(function () {
+	            	
+	            	mType = $("#media_type").val();
+	            	
+	            	if (mType == 'image' ) {	           
+		              p_img =$("#m_media").attr('src');
+		              embedContent = '<img src="'+ p_img +'" alt="" />';
+								} else if (mType == 'video') {
+									embedContent = $("textarea#m_media_video").val();
+								}	else if (mType == 'quote') {         	
+		              embedContent = $("textarea#m_media_quote").val();
+		            }  
+		              
+		              switchEditors.go('content', 'html');
+		              edInsertContent(edCanvas, embedContent);
+		              switchEditors.go('content', 'tinymce');
 
-	              p_img =$("#m_media").attr('src');
-	              img_tag = '<img src="'+ p_img +'" alt="" />';
-	              switchEditors.go('content', 'html');
-	              edInsertContent(edCanvas, img_tag);
-	              switchEditors.go('content', 'tinymce');
 	            });
+	            
+	            
+	            
 	        })(jQuery);
 	    });
 	    </script>
 		 <div class="add-source-input">
 	  	<br /><br />
-	  	<input type="button" class="select-media-button" value="Insert image into post body." />
+	  	<input type="button" class="select-media-button" value="Insert <?php echo $mediaType ?> into post body." />
 	   </div>
 	<?php
 	}
