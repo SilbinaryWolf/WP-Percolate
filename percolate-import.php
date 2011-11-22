@@ -233,7 +233,7 @@ class PercolateImport
 		register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
 
 		//Import process
-	    //self::checkImport();
+	    self::checkImport();
 		// TODO: do we still need this?
 
 		// self::checkUpdate();
@@ -482,12 +482,34 @@ class PercolateImport
                         value="<?php echo $subid; ?>" />
                 </td>
                 <td style="width: 99%;">
+                   
+                   					
+                   <?php 
+                   // If the source is manually entered
+                   if (strpos($subid,'new') !== false) { ?>
+                   
                     <input type="text"
                        name="<?php echo self::M_SOURCETITLES; ?>[<?php echo $subid; ?>]"
-                       value="<?php
-		echo array_key_exists($subid, $sourceTitles) ? empty($sourceTitles[$subid]) ? htmlentities($source['source_entry_title']) : htmlentities($sourceTitles[$subid]) : htmlentities($source['source_entry_title']) ;
-		?>"
-                       style="width: 99%;" />
+                       value="<?php echo array_key_exists($subid, $sourceTitles) ? empty($sourceTitles[$subid]) ? htmlentities($source['source_entry_title']) : htmlentities($sourceTitles[$subid]) : htmlentities($source['source_entry_title']) ; ?>" style="width: 99%;" />
+                    
+                    <?php } 
+                    // Else the source has been imported from Percolate
+                    else { ?>
+                   
+                  
+                    <input type="text"
+                    	 disabled="disabled"
+                       name="<?php echo self::M_SOURCETITLES; ?>[<?php echo $subid; ?>]"
+                       value="<?php echo htmlentities($source['source_entry_title']); ?>"
+                       style="width: 60%; color:#B0B0B0;" />                  
+                    
+                    <span><?php echo htmlentities($source['source_subscription_title']); ?></span> - <small style="color:#B0B0B0;">Imported</small>
+                    
+                    <?php }  ?>
+                       
+                       
+                       
+                       
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -507,6 +529,7 @@ class PercolateImport
 			return;
 		}
 
+			
 		if (!empty($_POST['percolate_sourceurl'])) {
 			$sourceMeta = get_post_meta($postId, self::M_SOURCES, true);
 
@@ -544,7 +567,7 @@ class PercolateImport
 		if (!empty($_POST[self::M_DOMAIN])) {
 			update_post_meta($postId, self::M_DOMAIN, $_POST[self::M_DOMAIN]);
 		}
-		if (!empty($_POST[self::M_FEATUREDSOURCE])) {
+		if (isset($_POST[self::M_FEATUREDSOURCE])) {
 			update_post_meta($postId, self::M_FEATUREDSOURCE, intval($_POST[self::M_FEATUREDSOURCE]));
 		}
 		if (!empty($_POST[self::M_URL])) {
