@@ -558,6 +558,14 @@ class PercolateImport
 
 			$titles = $_POST[self::M_SOURCETITLES];
 
+			
+
+/*
+			print_r ($titles);
+			return;
+*/
+
+			
 			foreach ($newSources as $id=>$url) {
 				if (empty($url)) {
 					continue;
@@ -593,7 +601,25 @@ class PercolateImport
 		}
 
 		if (!empty($_POST[self::M_SOURCETITLES])) {
-			update_post_meta($postId, self::M_SOURCETITLES, json_encode($_POST[self::M_SOURCETITLES]));
+		
+//			$mixed = stripslashes($_POST[self::M_SOURCETITLES]);
+		
+			$mixed = $_POST[self::M_SOURCETITLES];
+		
+		
+			function htmlspecialchars_deep($mixed, $quote_style = ENT_QUOTES, $charset = 'UTF-8') 
+			{ 
+			    if (is_array($mixed)) { 
+			        foreach($mixed as $key => $value) { 
+			            $mixed[$key] = htmlspecialchars_deep($value, $quote_style, $charset); 
+			        } 
+			    } elseif (is_string($mixed)) { 
+			        $mixed = htmlspecialchars(htmlspecialchars_decode($mixed, $quote_style), $quote_style, $charset); 
+			    } 
+			    return $mixed; 
+			} 		
+		
+			update_post_meta($postId, self::M_SOURCETITLES, json_encode($mixed));
 		}
 	}
 
@@ -662,7 +688,13 @@ class PercolateImport
 
 	public function settingsDefGrpAuthorDisplay()
 	{
-		$users = get_users();
+		global $wp_version;
+		if ($wp_version >= "3.1") {	
+			$users = get_users();
+		} else {
+			$users = get_users_of_blog();
+		}
+
 		$defgrpauthorId = get_option(self::DEFGRPAUTHORID_OPTION);
 ?>
 		<span class="user-type-grp">
@@ -680,7 +712,15 @@ class PercolateImport
 
 	public function settingsAuthorDisplay()
 	{
-		$users = get_users();
+
+		global $wp_version;
+		if ($wp_version >= "3.1") {	
+			$users = get_users();
+		} else {
+			$users = get_users_of_blog();
+		}
+
+
 		$authorId = get_option(self::AUTHORID_OPTION);
 		//echo "<pre>"; print_r($users); echo "</pre>";
 ?>
@@ -723,7 +763,13 @@ class PercolateImport
 			$percolate_users = self::getGroupUsers($gourp_id);
 
 			if($percolate_users!=null){
-				$users = get_users();
+
+				global $wp_version;
+				if ($wp_version >= "3.1") {	
+					$users = get_users();
+				} else {
+					$users = get_users_of_blog();
+				}
 
 				foreach ($percolate_users as $puser) {
 					$temp_pid = $puser['user_id'];
