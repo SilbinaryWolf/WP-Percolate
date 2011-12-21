@@ -505,7 +505,7 @@ class PercolateImport
                    
                     <input type="text"
                        name="<?php echo self::M_SOURCETITLES; ?>[<?php echo $subid; ?>]"
-                       value="<?php echo array_key_exists($subid, $sourceTitles) ? empty($sourceTitles[$subid]) ? htmlentities($source['source_entry_title']) : htmlentities($sourceTitles[$subid]) : htmlentities($source['source_entry_title']) ; ?>" style="width: 99%;" />
+                       value="<?php echo array_key_exists($subid, $sourceTitles) ? empty($sourceTitles[$subid]) ? html_entity_decode($source['source_entry_title'], ENT_NOQUOTES, 'utf-8') : html_entity_decode($sourceTitles[$subid], ENT_NOQUOTES, 'utf-8') : html_entity_decode($source['source_entry_title'], ENT_NOQUOTES, 'utf-8') ; ?>" style="width: 99%;" />
                     
                     <?php } 
                     // Else the source has been imported from Percolate
@@ -515,7 +515,7 @@ class PercolateImport
                     <input type="text"
                     	 disabled="disabled"
                        name="<?php echo self::M_SOURCETITLES; ?>[<?php echo $subid; ?>]"
-                       value="<?php echo htmlentities($source['source_entry_title']); ?>"
+                       value="<?php echo html_entity_decode($source['source_entry_title'], ENT_NOQUOTES, 'utf-8'); ?>"
                        style="width: 60%; color:#B0B0B0;" />                  
                     
                     <span><?php echo htmlentities($source['source_subscription_title']); ?></span> - <small style="color:#B0B0B0;">Imported</small>
@@ -531,7 +531,7 @@ class PercolateImport
             <?php endif; ?>
         </table>
         <div class="add-source-input">
-            <input type="button" class="add-source-button" value="Add Source" />
+            <input type="button" class="add-source-button" value="Add Another New Source" />
         </div>
         <?php
 		//echo "<pre>"; print_r($sources); echo "</pre>";
@@ -559,8 +559,8 @@ class PercolateImport
 			$titles = $_POST[self::M_SOURCETITLES];
 
 			
-
 /*
+
 			print_r ($titles);
 			return;
 */
@@ -578,12 +578,14 @@ class PercolateImport
 				$newSource = array(
 					'source_subscription_id'=>$id,
 					'source_url'=>$url,
-					'source_entry_title'=>$titles[$id],
+					'source_entry_title'=>htmlentities(stripslashes($titles[$id]), ENT_QUOTES | ENT_IGNORE, "UTF-8"),
 					'is_twitter'=>(strpos($url, 'twitter.com') > -1) ? 1 : 0
 				);
-
 				$sources[]=$newSource;
 			}
+			
+		
+			
 
 			update_post_meta($postId, self::M_SOURCES, json_encode($sources));
 		}
@@ -602,31 +604,38 @@ class PercolateImport
 
 		if (!empty($_POST[self::M_SOURCETITLES])) {
 		
-//			$mixed = stripslashes($_POST[self::M_SOURCETITLES]);
+//		$mixed = stripslashes($_POST[self::M_SOURCETITLES]);
+	
+			$titles = $_POST[self::M_SOURCETITLES];
+	
+			$sourceTitles=array();
+				
+
+			foreach ($titles as $id=>$title) {
+				$sourceTitles[$id] = htmlentities(stripslashes($title), ENT_QUOTES | ENT_IGNORE, "UTF-8");			
+			}	
+	
+	
+			//print_r ($sourceTitles);
+			//return;
+	
 		
-			$mixed = $_POST[self::M_SOURCETITLES];
-		
-		
-			function htmlspecialchars_deep($mixed, $quote_style = ENT_QUOTES, $charset = 'UTF-8') 
-			{ 
-			    if (is_array($mixed)) { 
-			        foreach($mixed as $key => $value) { 
-			            $mixed[$key] = htmlspecialchars_deep($value, $quote_style, $charset); 
-			        } 
-			    } elseif (is_string($mixed)) { 
-			        $mixed = htmlspecialchars(htmlspecialchars_decode($mixed, $quote_style), $quote_style, $charset); 
-			    } 
-			    return $mixed; 
-			} 		
-		
-			update_post_meta($postId, self::M_SOURCETITLES, json_encode($mixed));
+			//$_POST[self::M_SOURCETITLES] = array_map('htmlentities',$_POST[self::M_SOURCETITLES]);  
+			//$mixed = $_POST[self::M_SOURCETITLES]
+
+
+			//$mixed = preg_replace(array('/\x5C(?!\x5C)/u', '/\x5C\x5C/u'), array('','\\'), $mixed);
+			//print_r (json_encode($mixed));
+			update_post_meta($postId, self::M_SOURCETITLES, json_encode($sourceTitles));
 		}
 	}
 
+/*
 	public function suppressCustomMeta($postType, $post = null)
 	{
 		remove_meta_box('postcustom', 'post', 'advanced');
 	}
+*/
 
 	/** SETTINGS **/
 	public function settingsSectionHeader()
@@ -1033,7 +1042,8 @@ class PercolateImport
 
 		$sourceTitles=array();
 		$useSources=array();
-
+		$storySources=array();
+				
 
 		if($story['sources']){
 			foreach ($story['sources'] as $source) {
@@ -1045,14 +1055,38 @@ class PercolateImport
 					ENT_QUOTES | ENT_IGNORE, "UTF-8"
 				);
 
-
-
 				$useSources[] = $source['source_subscription_id'];
-				$source['source_subscription_title']=htmlentities($source['source_subscription_title']);
-				$source['source_entry_title']=htmlentities($source['source_entry_title']);
+				//$source['source_subscription_title']=htmlentities($source['source_subscription_title']);
+				//$source['source_entry_title']=htmlentities($source['source_entry_title']);
 				if (!$sourceTitles[$source['source_subscription_id']]) {
 					$sourceTitles[$source['source_subscription_id']] = '[no title]';
 				}
+				
+				$storySources[] = array(
+					"entry_pubdate" => $source['entry_pubdate'],
+					"subscribed" => $source['subscribed'],
+					"source_url" => $source['source_url'],	
+					"source_subscription_title" => $source['source_subscription_title'],										
+					"source_subscription_id" => $source['source_subscription_id'],
+					"is_twitter" => $source['is_twitter'],	
+					"source_entry_title" =>  htmlentities($source['source_entry_title'], ENT_QUOTES | ENT_IGNORE, "UTF-8")									
+				);
+			
+			
+							
+				/*
+				"entry_pubdate":"2011-12-17T13:20:15",
+				"subscribed":1,
+				"source_url":"http://twitter.com/CMEGroup/statuses/148029740828213248",
+				"source_subscription_title":"CMEGroup",
+				"source_subscription_id":261609,
+				"is_twitter":true,
+				"source_entry_title":"Note worthy: what is the meaning of money? http://t.co/udgYlKnh nvia @guardian $$"},
+				*/				
+					
+				
+				
+				
 			}
 		}
 		//echo "<pre>"; print_r($sourceTitles); echo "</pre>";
@@ -1066,10 +1100,10 @@ class PercolateImport
 		update_post_meta($postId, self::M_ORIGINALDESCRIPTION, $story['original_description']);
 		update_post_meta($postId, self::M_ORIGINALTITLE, $story['original_title']);
 		if( $ver > 5.2 ){
-			update_post_meta($postId, self::M_SOURCES, json_encode($story['sources'], JSON_HEX_QUOT));
+			update_post_meta($postId, self::M_SOURCES, json_encode($storySources));
 
 		}else{
-			update_post_meta($postId, self::M_SOURCES, json_encode($story['sources']));
+			update_post_meta($postId, self::M_SOURCES, json_encode($storySources));
 		}
 		update_post_meta($postId, self::M_URL, $story['url']);
 		update_post_meta($postId, self::M_USERDESCRIPTION, $story['user_description']);
