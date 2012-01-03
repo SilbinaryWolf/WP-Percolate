@@ -1037,7 +1037,7 @@ class PercolateImport
 		$postId = wp_insert_post($post);
 
 		if ($story['tag']) {
-			wp_set_post_tags($postId, array($story['tag']));
+			wp_set_post_tags($postId, $story['tag']);
 		}
 
 		$sourceTitles=array();
