@@ -11,7 +11,7 @@
 
 	    <input type="hidden" name="percolateimport_override" value="0" id="override_import" />
 	    <input type="button" id="import_stories_now" value="Import your stories now" />
-	    &nbsp;&nbsp;Last imported on <?=date( 'm/d/Y g:i a', get_option(PercolateImport::LASTIMPORT_OPTION))?> - <small>ID: <?php echo get_option(PercolateImport::LASTID_OPTION) ?></small>
+	    &nbsp;&nbsp;Last imported on <?=date( 'm/d/Y g:i a', get_option(PercolateImport::LASTIMPORT_OPTION))?> - <small>ID: <?php echo get_option(PercolateImport::STARTID_OPTION) ?></small>
 
 	</p>
     </form>
