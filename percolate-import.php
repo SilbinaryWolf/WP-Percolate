@@ -946,6 +946,7 @@ class PercolateImport
 		
 		// Make the actual call to the API
 		if($options['api_key']){
+			$options['count']=5;
 			return self::callPercolateApi($method , $options);
 		}
 	}
