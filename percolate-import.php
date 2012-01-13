@@ -861,10 +861,14 @@ class PercolateImport
 		$postId = wp_insert_post($post);
 
 		if ($tags_array) {
+			$tags_s = "";
 			foreach($tags_array as $tag){
-			  wp_set_post_tags($postId, $tag['tag']);
+			  $tags_s = $tags_s.$tag['tag'] .",";
 			}
+		wp_set_post_tags($postId, $tags_s);
 		}
+		
+		
 
 	
 		$ver = floatval(phpversion());
