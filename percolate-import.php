@@ -65,6 +65,7 @@ class PercolateImport
 		update_option(self::GROUPID_OPTION, '0');
 		update_option(self::USERID_OPTION, '0');
 		update_option(self::LASTIMPORT_OPTION, 0);
+		update_option(self::STARTID_OPTION, 0);
 		update_option(self::POSTSTATUS_OPTION, 'publish');
 		update_option(self::ALLSOURCES_OPTION, 0);
 	}
