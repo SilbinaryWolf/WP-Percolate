@@ -950,11 +950,20 @@ class PercolateImport
 		}
 	}
 
-
+	
 	//get group users
+	//http://percolate.com/api/v2/groups/3/users?api_key=1871_oqiFtcFWzL3Wm4IyIffrLDHVNtzxJMNeR8q0bIrx&_accept=application/json
 	public function getGroupUsers($groupId){
-		$options['group_id']=$groupId;
-		return ;//self::callPercolateApi('group_users', $options);
+		$apiKey = get_option(self::APIKEY_OPTION);
+		if($apiKey){
+			$options['api_key'] = $apiKey;
+		}else{
+			//no api key return empty array for now
+			return array();
+		}
+		
+		$method = 'groups/'.$groupId.'/users';
+		self::callPercolateApi($method , $options);
 	}
 
 	//call percolate api
