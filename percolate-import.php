@@ -941,7 +941,7 @@ class PercolateImport
 		$startId = get_option(self::STARTID_OPTION);
 		// Check for last post id and add as a parameter
 		if($startId){
-			$options['start_id'] = $startId;
+			$options['start_at_id'] = $startId;
 		}
 		
 		// Make the actual call to the API
@@ -963,7 +963,7 @@ class PercolateImport
 		}
 		
 		$method = 'groups/'.$groupId.'/users';
-		self::callPercolateApi($method , $options);
+		return self::callPercolateApi($method , $options);
 	}
 
 	//call percolate api
