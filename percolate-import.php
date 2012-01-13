@@ -957,7 +957,7 @@ class PercolateImport
 		return ;//self::callPercolateApi('group_users', $options);
 	}
 
-	//call perfolate api
+	//call percolate api
 	//http://percolate.com/api/v2/users/1871/posts/?api_key=1871_oqiFtcFWzL3Wm4IyIffrLDHVNtzxJMNeR8q0bIrx&_accept=application/json
 	//http://percolate.com/api/v2/groups/3/posts?api_key=1871_oqiFtcFWzL3Wm4IyIffrLDHVNtzxJMNeR8q0bIrx&_accept=application/json
 	
