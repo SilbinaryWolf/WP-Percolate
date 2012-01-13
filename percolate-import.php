@@ -25,13 +25,8 @@ class PercolateImport
 	const GROUPAUTHORS_OPTION='percolateimport_groupauthorids';
 	const USERID_OPTION='percolateimport_userid';
 	const AUTHORID_OPTION='percolateimport_authorid';
-	
 	const LASTIMPORT_OPTION='percolateimport_lastimported';
-	// const LASTID_OPTION='percolateimport_lastid';
-	
-	const STARTID_OPTION='percolateimport_startid';
-	const APIKEY_OPTION='percolateimport_apikey';
-	
+	const LASTID_OPTION='percolateimport_lastid';
 	const POSTSTATUS_OPTION='percolateimport_poststatus';
 	const CATEGORY_OPTION='percolate_category';
 	const EX_CATEGORY_OPTION='ex_percolate_category';
@@ -39,7 +34,7 @@ class PercolateImport
 
 	const IMPORT_OVERRIDE_OPTION='percolateimport_override';
 
-	const API_BASE='http://percolate.com/api/v2/';
+	const API_BASE='http://percolate.com/api/v1/';
 
 	const M_LINKID='percolate_link_id';
 	const M_ADDEDON='percolate_added_on';
@@ -49,7 +44,6 @@ class PercolateImport
 	const M_ORIGINALDESCRIPTION='percolate_original_description';
 	const M_USERDESCRIPTION='percolate_user_description';
 	const M_URL='percolate_url';
-	const M_SHORTURL='percolate_shorturl';
 	const M_SOURCES='percolate_sources';
 	const M_FEATUREDSOURCE='percolate_featured_source';
 	const M_SOURCETITLES='percolate_source_titles';
@@ -87,7 +81,7 @@ class PercolateImport
 	public function adminScripts()
 	{
 		echo '<script type="text/javascript" src="' . get_bloginfo('url') .
-			'/wp-content/plugins/wp-perc/percimport.js"></script>';
+			'/wp-content/plugins/WP-Percolate/percimport.js"></script>';
 	}
 
 	public function adminInit()
@@ -101,7 +95,6 @@ class PercolateImport
 			'normal',
 			'high'
 		);
-
 
 		add_meta_box(
 			'percolate-url',
@@ -138,15 +131,6 @@ class PercolateImport
 			'high'
 		);
 
-		add_meta_box(
-			'percolate-short-url',
-			'Percolate Short Url',
-			array('PercolateImport','shortUrl'),
-			'post',
-			'normal',
-			'high'
-		);
-
 		//Settings
 		add_settings_section(
 			self::SETTINGS_SECTION,
@@ -155,13 +139,6 @@ class PercolateImport
 			self::SETTINGS_PAGE
 		);
 
-		add_settings_field(
-			self::APIKEY_OPTION,
-			"Percolate API KEY",
-			array('PercolateImport','settingsApiKeyDisplay'),
-			self::SETTINGS_PAGE,
-			self::SETTINGS_SECTION
-		);
 		add_settings_field(
 			self::USERTYPE_OPTION,
 			"Percolate User Type",
@@ -242,10 +219,9 @@ class PercolateImport
 			self::SETTINGS_PAGE,
 			self::SETTINGS_SECTION
 		);
-		
+
 		register_setting(self::SETTINGS_PAGE, self::USERTYPE_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::GROUPID_OPTION);
-		register_setting(self::SETTINGS_PAGE, self::APIKEY_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::DEFGRPAUTHORID_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::GROUPAUTHORS_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::USERID_OPTION);
@@ -268,26 +244,16 @@ class PercolateImport
 	{
 		$url = get_post_meta($post->ID, self::M_URL, true);
 ?>
-        <?php echo 	$url ?>
+        <input type="text" style="width:99%;" name="<?php echo self::M_URL; ?>" value="<?php echo $url; ?>" />
         <?php
 	}
 
-
-		public function shortUrl($post)
-		{
-			$url = get_post_meta($post->ID, self::M_SHORTURL, true);
-	?>
-	        <?php echo $url ?>
-	        <?php
-		}
-		
-		
 	public function domainMetaBox($post)
 	{
 		$domain = get_post_meta($post->ID, self::M_DOMAIN, true);
-		
+		$url = get_post_meta($post->ID, self::M_URL, true);
 ?>
-        <?php echo 	$domain ?>
+        <input type="text" style="width:99%;" name="<?php echo self::M_DOMAIN; ?>" value="<?php echo $domain; ?>" />
         <?php
 	}
 
@@ -309,22 +275,19 @@ class PercolateImport
 
 	public function mediaMetaBox($post){
 		$mediaMeta = get_post_meta($post->ID, self::M_MEDIA);
-
 		if ($mediaMeta) {
-		foreach($mediaMeta as $media_js){
+		
 			// Get the media type
-			$medias= json_decode($media_js);
-			$media=$medias[0];
-			$mediaType = $media->type;
-			echo "<h4>Type: " . $mediaType . "</h4>";		
+			$mediaType = $mediaMeta[0]['type'];
+			echo "<h4>Type: " . ucfirst($mediaType) . "</h4>";		
 			echo "<input type='hidden' value='" . $mediaType . "' id='media_type' />";
 		
 			if ($mediaType === "image") {
-				$p_img = $media->p_img;
+				$p_img = $mediaMeta[0]['p_img'];
 				echo "<img src='$p_img' id='m_media' />";
 			} 
 			if ($mediaType === "video") {
-				$video_url = $media->url;
+				$video_url = $mediaMeta[0]['url'];
 				
 				if(strstr($video_url, "vimeo")) {
 					echo '<iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe><br /><br /><br /><h4>Copy This Embed Code.</h4><textarea style="width:90%;color:#CCC;" id="m_media_video"><iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe></textarea>';
@@ -334,10 +297,9 @@ class PercolateImport
 				}				
 			} 
 			if ($mediaType === "quote") {
-				$quote_text = $media->text;
+				$quote_text = $mediaMeta[0]['text'];
 				echo '<blockquote>$quote_text</blockquote><textarea style="width:90%;color:#CCC;" id="m_media_quote"><blockquote>' . $quote_text . '</blockquote></textarea>';
-			} 
-			}						
+			} 						
 		}
 				
 		
@@ -391,40 +353,186 @@ class PercolateImport
 		$sources = array();
 
 		if ($sourceMeta) {
-			$sources = $sourceMeta[0];
+
+			if (json_decode($sourceMeta[0], true) === null) {
+				$patterns = array();
+
+				// Get all the double quotes that make up the valid json file.
+				$patterns[0] = '/\{"/';
+				$patterns[1] = '/"\:"/';
+				$patterns[2] = '/","/';
+				$patterns[3] = '/"\}/';
+				$patterns[4] = '/,"/';
+				$patterns[5] = '/"\},/';
+				$patterns[6] = '/":/';
+
+				// take the left over double quotes
+				$patterns[7] = '/"/';
+
+				$patterns[8] = "/\{'/";
+				$patterns[9] = "/'\:'/";
+				$patterns[10] = "/','/";
+				$patterns[11] = "/'\}/";
+				$patterns[12] = "/,'/";
+				$patterns[13] = "/'\},/";
+				$patterns[14] = "/':/";
+
+				$replacements = array();
+
+				// Turn all the json doubles to singles
+				$replacements[0] = "{'";
+				$replacements[1] = "':'";
+				$replacements[2] = "','";
+				$replacements[3] = "'}";
+				$replacements[4] = ",'";
+				$replacements[5] = "'},";
+				$replacements[6] = "':";
+
+				// Turn the extra double quote to an entity
+				$replacements[7] = "&quot;";
+
+				/// Now put it all back together again.
+				$replacements[8] = '{"';
+				$replacements[9] = '":"';
+				$replacements[10] = '","';
+				$replacements[11] = '"}';
+				$replacements[12] = ',"';
+				$replacements[13] = '"},';
+				$replacements[14] = '":';
+
+
+				$cleanSources = preg_replace($patterns, $replacements, $sourceMeta[0]);
+
+				$sources = json_decode($cleanSources, true);
+			}
+			else {
+
+				$sources = json_decode($sourceMeta[0], true);
+			}
 		}
-		?>
-        
-		 <table class="form-table sources-table">
-	    
-	            <?php if(is_array($sources)): ?>
-	            <?php foreach ($sources as $idx=>$source):
-		 					$subid = $source['id'];
-	?>
-	            <tr>
-	               
-	                <td style="width: 99%;">
 
+		$featuredSource = get_post_meta($post->ID, self::M_FEATUREDSOURCE, true);
+		$featuredSource = $featuredSource ? $featuredSource : 0;
+		$useSources = json_decode(get_post_meta($post->ID, self::M_USE, true), true);
+		$sourceTitles = json_decode(get_post_meta($post->ID, self::M_SOURCETITLES, true), true);
 
-	                    <input type="text"
-	                    	 disabled="disabled"
-	                       name="<?php echo self::M_SOURCETITLES; ?>[<?php echo $subid; ?>]"
-	                       value="<?php echo html_entity_decode($source['name'], ENT_NOQUOTES, 'utf-8'); ?>"
-	                       style="width: 60%; color:#B0B0B0;" />                  
+		if (!is_array($sourceTitles)) {
+			$sourceTitles = array();
+		}
+		// echo "<pre>X:"; print_r(get_post_meta($post->ID, self::M_SOURCETITLES, true)); echo "</pre>";
+		// echo "<pre>use:"; print_r($useSources); echo "</pre>";
+		// echo "<pre>title:"; print_r($sourceTitles); echo "</pre>";
+		//echo "<pre>"; print_r($clearnSources); echo "</pre>";
+?>
+        <script type="text/javascript">
+        jQuery(function () {
+            (function($){
 
-	                    <span><?php echo htmlentities($source['source_subscription_title']); ?></span> - <small style="color:#B0B0B0;">Imported</small>
+                $('.add-source-button').click(function () {
+                    var table = $('.sources-table',$(this).closest('.postbox')),
+                        rowCount = $('tr', table).length,
+                        row = $('<tr>' +
+                        '<td><input type="radio" ' +
+                        'name="<?php echo self::M_FEATUREDSOURCE; ?>" value="' + (rowCount - 1) + '" /></td>' +
+                        '<td><input type="checkbox" checked="checked" ' +
+                        'name="<?php echo self::M_USE;?>[]" value="new_' +
+                        rowCount + '" /></td>' +
+                        '<td style="width:99%">Title: <input type="text" ' +
+                        'class="title-input percolate-required" ' +
+                        'name="<?php echo self::M_SOURCETITLES; ?>[new_' +
+                        rowCount + ']" value="" style="width:80%" />' +
+                        '<br />URL:<input type="text" class="percolate-required" name="percolate_sourceurl[new_' +
+                        rowCount + ']" style="width:80%" /><br /><span class="percolate-error"></span></td>' +
+                        '</tr>');
 
-	                    <?php  ?>
+                    $(table).append(row);
+                    $('.title-input', row).focus();
 
+                    $('.percolate-required', row).change(function () {
+                        var valid = true;
+                        jQuery('.percolate-required', jQuery(this).closest('td')).each(function () {
+                            if(!jQuery(this).val())
+                            {
+                                valid = false;
+                            }
+                        });
 
+                        if (valid) {
+                            jQuery('.percolate-error',$(this).closest('td'))
+                                .removeClass('error')
+                                .html('');
+                        } else {
+                            jQuery('.percolate-error',$(this).closest('td'))
+                                .addClass('error')
+                                .html('<small>Please enter both a URL and a title.</small>');
+                        }
+                    });
 
-
-	                </td>
-	            </tr>
-	            <?php endforeach; ?>
-	            <?php endif; ?>
-	        </table>
-
+                });
+            })(jQuery);
+        });
+        </script>
+        <input type="hidden" name="percolate_postid" value="<?php echo $post->ID; ?>" />
+        <table class="form-table sources-table">
+            <tr>
+                <th>Featured</th>
+                <th>Use</th>
+                <th>Source</th>
+            </tr>
+            <?php if(is_array($sources)): ?>
+            <?php foreach ($sources as $idx=>$source):
+				$subid = $source['source_subscription_id'];
+?>
+            <tr>
+                <td>
+                    <input <?php if($idx == $featuredSource): echo 'checked="checked"'; endif; ?>
+                        type="radio"
+                        name="<?php echo self::M_FEATUREDSOURCE; ?>"
+                        value="<?php echo $idx; ?>" />
+                </td>
+                <td>
+                    <input type="checkbox"
+                        <?php if(in_array($subid, $useSources)): echo 'checked="checked"'; endif; ?>
+                        name="<?php echo self::M_USE; ?>[]"
+                        value="<?php echo $subid; ?>" />
+                </td>
+                <td style="width: 99%;">
+                   
+                   					
+                   <?php 
+                   // If the source is manually entered
+                   if (strpos($subid,'new') !== false) { ?>
+                   
+                    <input type="text"
+                       name="<?php echo self::M_SOURCETITLES; ?>[<?php echo $subid; ?>]"
+                       value="<?php echo array_key_exists($subid, $sourceTitles) ? empty($sourceTitles[$subid]) ? html_entity_decode($source['source_entry_title'], ENT_NOQUOTES, 'utf-8') : html_entity_decode($sourceTitles[$subid], ENT_NOQUOTES, 'utf-8') : html_entity_decode($source['source_entry_title'], ENT_NOQUOTES, 'utf-8') ; ?>" style="width: 99%;" />
+                    
+                    <?php } 
+                    // Else the source has been imported from Percolate
+                    else { ?>
+                   
+                  
+                    <input type="text"
+                    	 disabled="disabled"
+                       name="<?php echo self::M_SOURCETITLES; ?>[<?php echo $subid; ?>]"
+                       value="<?php echo html_entity_decode($source['source_entry_title'], ENT_NOQUOTES, 'utf-8'); ?>"
+                       style="width: 60%; color:#B0B0B0;" />                  
+                    
+                    <span><?php echo htmlentities($source['source_subscription_title']); ?></span> - <small style="color:#B0B0B0;">Imported</small>
+                    
+                    <?php }  ?>
+                       
+                       
+                       
+                       
+                </td>
+            </tr>
+            <?php endforeach; ?>
+            <?php endif; ?>
+        </table>
+        <div class="add-source-input">
+            <input type="button" class="add-source-button" value="Add Another New Source" />
+        </div>
         <?php
 		//echo "<pre>"; print_r($sources); echo "</pre>";
 	}
@@ -437,25 +545,99 @@ class PercolateImport
 		}
 
 			
+		if (!empty($_POST['percolate_sourceurl'])) {
+			$sourceMeta = get_post_meta($postId, self::M_SOURCES, true);
 
+			$sources = json_decode($sourceMeta, true);
+
+			if (!is_array($sources)) {
+				$sources = array();
+			}
+
+			$newSources = $_POST['percolate_sourceurl'];
+
+			$titles = $_POST[self::M_SOURCETITLES];
+
+			
+/*
+
+			print_r ($titles);
+			return;
+*/
+
+			
+			foreach ($newSources as $id=>$url) {
+				if (empty($url)) {
+					continue;
+				}
+
+				if (empty($titles[$id])) {
+					$titles[$id]='Source';
+				}
+
+				$newSource = array(
+					'source_subscription_id'=>$id,
+					'source_url'=>$url,
+					'source_entry_title'=>htmlentities(stripslashes($titles[$id]), ENT_QUOTES | ENT_IGNORE, "UTF-8"),
+					'is_twitter'=>(strpos($url, 'twitter.com') > -1) ? 1 : 0
+				);
+				$sources[]=$newSource;
+			}
+			
+		
+			
+
+			update_post_meta($postId, self::M_SOURCES, json_encode($sources));
+		}
 		if (!empty($_POST[self::M_DOMAIN])) {
 			update_post_meta($postId, self::M_DOMAIN, $_POST[self::M_DOMAIN]);
 		}
-
+		if (isset($_POST[self::M_FEATUREDSOURCE])) {
+			update_post_meta($postId, self::M_FEATUREDSOURCE, intval($_POST[self::M_FEATUREDSOURCE]));
+		}
 		if (!empty($_POST[self::M_URL])) {
 			update_post_meta($postId, self::M_URL, $_POST[self::M_URL]);
 		}
-		
-		if (!empty($_POST[self::M_SHORTURL])) {
-			update_post_meta($postId, self::M_SHORTURL, $_POST[self::M_SHORTURL]);
+		if (!empty($_POST[self::M_USE])) {
+			update_post_meta($postId, self::M_USE, json_encode($_POST[self::M_USE]));
 		}
+
+		if (!empty($_POST[self::M_SOURCETITLES])) {
 		
+//		$mixed = stripslashes($_POST[self::M_SOURCETITLES]);
+	
+			$titles = $_POST[self::M_SOURCETITLES];
+	
+			$sourceTitles=array();
+				
+
+			foreach ($titles as $id=>$title) {
+				$sourceTitles[$id] = htmlentities(stripslashes($title), ENT_QUOTES | ENT_IGNORE, "UTF-8");			
+			}	
+	
+	
+			//print_r ($sourceTitles);
+			//return;
+	
 		
+			//$_POST[self::M_SOURCETITLES] = array_map('htmlentities',$_POST[self::M_SOURCETITLES]);  
+			//$mixed = $_POST[self::M_SOURCETITLES]
+
+
+			//$mixed = preg_replace(array('/\x5C(?!\x5C)/u', '/\x5C\x5C/u'), array('','\\'), $mixed);
+			//print_r (json_encode($mixed));
+			update_post_meta($postId, self::M_SOURCETITLES, json_encode($sourceTitles));
+		}
 	}
 
+/*
+	public function suppressCustomMeta($postType, $post = null)
+	{
+		remove_meta_box('postcustom', 'post', 'advanced');
+	}
+*/
 
-/** PERCOLATE SETTINGS **/	
-	
+	/** SETTINGS **/
 	public function settingsSectionHeader()
 	{
 		echo "<p>Settings for Percolate API Integration</p>";
@@ -512,17 +694,6 @@ class PercolateImport
         <?php
 	}
 
-
-	public function settingsApiKeyDisplay()
-	{
-		?>
-    <span class="percapi-apikey-control api-key">
-    <input size="44" type="text" class="api-key" name="<?php echo self::APIKEY_OPTION; ?>"
-        id="percapi_api_key"
-        value="<?php echo get_option(self::APIKEY_OPTION); ?>" />
-    </span>
-    <?php
-	}
 
 	public function settingsDefGrpAuthorDisplay()
 	{
@@ -685,6 +856,7 @@ class PercolateImport
 	}
 
 
+
 	public function userIdNotice()
 	{
 		if (get_option(self::USERID_OPTION) || get_option(self::GROUPID_OPTION)) {
@@ -739,7 +911,7 @@ class PercolateImport
 	{
 		if( $_REQUEST['settings-updated'] == 'true' && get_option(PercolateImport::IMPORT_OVERRIDE_OPTION) == 1 )
 		{
-			$last_id = get_option(self::STARTID_OPTION);
+			$last_id = get_option(self::LASTID_OPTION);
 ?>
         <div id="stories_imported" class="updated settings-error">
         <p>
@@ -768,46 +940,32 @@ class PercolateImport
 	 */
 	public function importStories()
 	{
-		$posts = self::getPercolatePosts();
-		
-		$objects = $posts['objects'];
-		$data = $posts['data'];
-		
-		if ($objects) {
-			foreach ($objects as $object) {
-				self::importStory($object);
+		$stories = self::getPercolateStories();
+		//echo "<pre>|stories:"; print_r($stories); echo "</pre>";
+		$lastId = get_option(self::LASTID_OPTION);
+		if ($stories) {
+			foreach ($stories as $story) {
+				self::importStory($story);
+				if ($story['entry_id'] > $lastId) {
+					$lastId = $story['entry_id'];
+				}
 			}
 		}
-		
+		//echo "import complete: " . time();
 		update_option(self::LASTIMPORT_OPTION, time());
-		$startId = $data['last_id'];
-		
-		if($startId){
-			update_option(self::STARTID_OPTION, $startId);
-		}
-			
+		update_option(self::LASTID_OPTION, $lastId);
 	}
 
 	/**
 	 * Add a percolate story to the WP system as a post
 	 **/
-	public function importStory($object)
+	public function importStory($story)
 	{
-		global $wpdb;		
-		
-		
-		
-		$tags_array =  $object['tags'];
-		$body = $object['body'];
-		$analytics_array = $object['analytics'];
-		$short_url = $object['short_url'];
-		$more_sources = $object['more_sources'];
-		$link_array =  $object['link'];
-		$url_array = $link_array['url'];
-		$media_array = $link_array['media'];
-		
-		$linkId = $object['id'];
-		
+		global $wpdb;
+
+		// echo "<pre>"; print_r($story); echo "</pre>";
+
+		$linkId = $story['link_id'];
 		$postName = 'perc_' . $linkId;
 
 		$posts = $wpdb->get_results(
@@ -825,19 +983,24 @@ class PercolateImport
 		}
 
 		$post = array();
-		$post['post_title']=html_entity_decode($link_array['title']);
-	
+		$post['post_title']=html_entity_decode($story['user_title']);
+		if (!$post['post_title']) {
+			$post['post_title']=html_entity_decode($story['original_title']);
+		}
 
 		if (!trim($post['post_title'])) {
 			$post['post_title']='[no title]';
 		}
 
-		$post['post_content']=html_entity_decode($link_array['description']);
+		$post['post_content']=html_entity_decode($story['user_description']);
 
-		$post['post_name']=$postName;
-		
+		// if (!$post['post_content']) {
+		//     $post['post_content']=html_entity_decode($story['original_description']);
+		// }
 
-		$post['post_date']=date('Y-m-d H:i:s', strtotime($object['posted_on']));
+		$post['post_name']='perc_' . $story['link_id'];
+
+		$post['post_date']=date('Y-m-d H:i:s', strtotime($story['added_on']));
 
 		$post['post_status']=get_option(self::POSTSTATUS_OPTION);
 
@@ -855,37 +1018,108 @@ class PercolateImport
 				$post['post_author']=$authorId;
 			}
 		}else{
-			// TODO: set author using post
+			//story author
+			// comes like this "user": {"username": "joe", "user_id": 9}
+			$author = $story['user'];
+			$author_id = $author['user_id'];
+			//get group authors
+			$group_authors = get_option(self::GROUPAUTHORS_OPTION);
+			$group_authors_array = json_decode($group_authors);
+			//check if the percolate user is mapped to a wp user.
+			$user_id = $group_authors_array->$author_id;
+			if ($user_id !=0){
+				$post['post_author']=$user_id;
+			}else{
+				$post['post_author']=get_option(self::DEFGRPAUTHORID_OPTION);
+			}
 		}
 
 		$postId = wp_insert_post($post);
 
-		if ($tags_array) {
-			foreach($tags_array as $tag){
-			  wp_set_post_tags($postId, $tag['tag']);
+		if ($story['tag']) {
+			wp_set_post_tags($postId, $story['tag']);
+		}
+
+		$sourceTitles=array();
+		$useSources=array();
+		$storySources=array();
+				
+
+		if($story['sources']){
+			foreach ($story['sources'] as $source) {
+
+				//echo "<pre>"; print_r($source['source_entry_title']); echo "</pre>";
+
+				$sourceTitles[$source['source_subscription_id']] = htmlentities(
+					$source['source_subscription_title'] . ': ' . $source['source_entry_title'],
+					ENT_QUOTES | ENT_IGNORE, "UTF-8"
+				);
+
+				$useSources[] = $source['source_subscription_id'];
+				//$source['source_subscription_title']=htmlentities($source['source_subscription_title']);
+				//$source['source_entry_title']=htmlentities($source['source_entry_title']);
+				if (!$sourceTitles[$source['source_subscription_id']]) {
+					$sourceTitles[$source['source_subscription_id']] = '[no title]';
+				}
+				
+				$storySources[] = array(
+					"entry_pubdate" => $source['entry_pubdate'],
+					"subscribed" => $source['subscribed'],
+					"source_url" => $source['source_url'],	
+					"source_subscription_title" => $source['source_subscription_title'],										
+					"source_subscription_id" => $source['source_subscription_id'],
+					"is_twitter" => $source['is_twitter'],	
+					"source_entry_title" =>  htmlentities($source['source_entry_title'], ENT_QUOTES | ENT_IGNORE, "UTF-8")									
+				);
+			
+			
+							
+				/*
+				"entry_pubdate":"2011-12-17T13:20:15",
+				"subscribed":1,
+				"source_url":"http://twitter.com/CMEGroup/statuses/148029740828213248",
+				"source_subscription_title":"CMEGroup",
+				"source_subscription_id":261609,
+				"is_twitter":true,
+				"source_entry_title":"Note worthy: what is the meaning of money? http://t.co/udgYlKnh nvia @guardian $$"},
+				*/				
+					
+				
+				
+				
 			}
 		}
+		//echo "<pre>"; print_r($sourceTitles); echo "</pre>";
 
-	
 		$ver = floatval(phpversion());
-	
-		update_post_meta($postId, self::M_DOMAIN, $url_array['hostname']);
-		update_post_meta($postId, self::M_ADDEDON, strtotime($link_array['posted_on']));
-		update_post_meta($postId, self::M_LINKID, $link_array['urlid']);
-		update_post_meta($postId, self::M_ORIGINALDESCRIPTION, html_entity_decode($link_array['description']));
-		update_post_meta($postId, self::M_ORIGINALTITLE, html_entity_decode($link_array['title']));
+		$parsed_url = parse_url($story['url']);
+		update_post_meta($postId, self::M_DOMAIN, $parsed_url['host']);
+		update_post_meta($postId, self::M_ADDEDON, strtotime($story['added_on']));
+		update_post_meta($postId, self::M_FEATUREDSOURCE, 0);
+		update_post_meta($postId, self::M_LINKID, $story['link_id']);
+		update_post_meta($postId, self::M_ORIGINALDESCRIPTION, $story['original_description']);
+		update_post_meta($postId, self::M_ORIGINALTITLE, $story['original_title']);
 		if( $ver > 5.2 ){
-			update_post_meta($postId, self::M_SOURCES, $more_sources);
+			update_post_meta($postId, self::M_SOURCES, json_encode($storySources));
 
 		}else{
-			update_post_meta($postId, self::M_SOURCES, $more_sources);
+			update_post_meta($postId, self::M_SOURCES, json_encode($storySources));
 		}
-		update_post_meta($postId, self::M_URL, $url_array['url']);
-		update_post_meta($postId, self::M_SHORTURL, $short_url);
-		update_post_meta($postId, self::M_USERDESCRIPTION, html_entity_decode($link_array['description']));
-		update_post_meta($postId, self::M_USERTITLE, $link_array['title']);
+		update_post_meta($postId, self::M_URL, $story['url']);
+		update_post_meta($postId, self::M_USERDESCRIPTION, $story['user_description']);
+		update_post_meta($postId, self::M_USERTITLE, $story['user_title']);
 		//add or update media
-		update_post_meta($postId, self::M_MEDIA,json_encode($media_array));
+		update_post_meta($postId, self::M_MEDIA,$story['media']);
+
+		if( $ver > 5.2 )
+			update_post_meta($postId, self::M_USE, json_encode($useSources, JSON_HEX_QUOT));
+		else
+			update_post_meta($postId, self::M_USE, json_encode($useSources));
+
+		if( $ver > 5.2 )
+			update_post_meta($postId, self::M_SOURCETITLES, json_encode($sourceTitles, JSON_HEX_QUOT));
+		else
+			update_post_meta($postId, self::M_SOURCETITLES, json_encode($sourceTitles));
 
 		do_action('percolate_import_story', $postId);
 
@@ -899,13 +1133,170 @@ class PercolateImport
 
 		return $url;
 	}
-	
+
+	public static function getFeaturedSource($postId)
+	{
+		$sources = json_decode(get_post_meta($postId, self::M_SOURCES, true), true);
+		$useIds = json_decode(get_post_meta($postId, self::M_USE, true), true);
+		$titles = json_decode(get_post_meta($postId, self::M_SOURCETITLES, true), true);
+		$featuredId = get_post_meta($postId, self::M_FEATUREDSOURCE, true);
+		$result = array();
+
+		if (!$sources) {
+			return array();
+		}
+
+		if (!array_key_exists($featuredId, $sources)) {
+			return array();
+		}
+
+		$source = $sources[$featuredId];
+
+		$id = $source['source_subscription_id'];
+		if (!array_key_exists('source_url', $source)) {
+			if (!array_key_exists('source_entry_url', $source)) {
+				$source['source_url']=$source['source_entry_url'];
+			} else {
+				$source['source_url']='';
+			}
+		}
+
+		$source['display_title']=$titles[$id];
+
+		if (!$source['display_title']) {
+			$source['display_title']=$source['source_entry_title'];
+		}
+
+		return $source;
+
+	}
+
+	public static function getSources($postId)
+	{
+
+
+		$sourceMeta = get_post_meta($postId, self::M_SOURCES);
+
+		$sources = array();
+
+		if (json_decode($sourceMeta[0], true) === null) {
+			$patterns = array();
+
+			// Get all the double quotes that make up the valid json file.
+			$patterns[0] = '/\{"/';
+			$patterns[1] = '/"\:"/';
+			$patterns[2] = '/","/';
+			$patterns[3] = '/"\}/';
+			$patterns[4] = '/,"/';
+			$patterns[5] = '/"\},/';
+			$patterns[6] = '/":/';
+
+			// take the left over double quotes
+			$patterns[7] = '/"/';
+
+			$patterns[8] = "/\{'/";
+			$patterns[9] = "/'\:'/";
+			$patterns[10] = "/','/";
+			$patterns[11] = "/'\}/";
+			$patterns[12] = "/,'/";
+			$patterns[13] = "/'\},/";
+			$patterns[14] = "/':/";
+
+			$replacements = array();
+
+			// Turn all the json doubles to singles
+			$replacements[0] = "{'";
+			$replacements[1] = "':'";
+			$replacements[2] = "','";
+			$replacements[3] = "'}";
+			$replacements[4] = ",'";
+			$replacements[5] = "'},";
+			$replacements[6] = "':";
+
+			// Turn the extra double quote to an entity
+			$replacements[7] = "&quot;";
+
+			/// Now put it all back together again.
+			$replacements[8] = '{"';
+			$replacements[9] = '":"';
+			$replacements[10] = '","';
+			$replacements[11] = '"}';
+			$replacements[12] = ',"';
+			$replacements[13] = '"},';
+			$replacements[14] = '":';
+
+
+			$cleanSources = preg_replace($patterns, $replacements, $sourceMeta[0]);
+
+			$sources = json_decode($cleanSources, true);
+		}
+		else {
+
+			$sources = json_decode($sourceMeta[0], true);
+		}
+
+
+		$useIds = json_decode(get_post_meta($postId, self::M_USE, true), true);
+		$titles = json_decode(get_post_meta($postId, self::M_SOURCETITLES, true), true);
+		$featuredId = get_post_meta($postId, self::M_FEATUREDSOURCE, true);
+
+		$result = array();
+		//echo "<pre>"; print_r($sources); echo "</pre>";
+		//return;
+		if (!$sources) {
+			return $result;
+		}
+
+		foreach ($sources as $source) {
+			$id = $source['source_subscription_id'];
+
+			if (in_array($id, $useIds)) {
+
+				if (!array_key_exists('source_url', $source)) {
+
+					if (!array_key_exists('source_entry_url', $source)) {
+
+						$source['source_url']=$source['source_entry_url'];
+
+					} else {
+
+						$source['source_url']='';
+
+					}
+
+				}
+
+				$source['display_title']=$titles[$id];
+
+				if (!$source['display_title']) {
+
+					$source['display_title']=$source['source_entry_title'];
+
+				}
+
+
+				$source['featured']=($id == $featuredId);
+
+				$result[]=$source;
+			}
+
+		}
+		return $result;
+	}
+
 	/**
 	 * Check to see if stories have been imported recently
 	 */
 	public function checkImport()
 	{
-	
+		/*
+        echo time() . "-" . get_option(self::LASTIMPORT_OPTION) . "=" .
+            (time() - get_option(self::LASTIMPORT_OPTION)) . ">" .
+            self::IMPORT_INTERVAL;
+        */
+		//  echo get_option( self::IMPORT_OVERRIDE_OPTION ) . '<br>';
+		//  echo get_option( self::LASTIMPORT_OPTION ) . '<br>';
+
 
 		if ( ((time() - get_option(self::LASTIMPORT_OPTION)) > self::IMPORT_INTERVAL) || get_option( self::IMPORT_OVERRIDE_OPTION ) == 1 ) {
 			try{
@@ -918,35 +1309,32 @@ class PercolateImport
 		}
 	}
 
-	public function getPercolatePosts() {
-		
-		$apiKey = get_option(self::APIKEY_OPTION);
-		if($apiKey){
-			$options['api_key'] = $apiKey;
-		}else{
-			//no api key return empty array for now
-			return array();
-		}
-		
+	public function getPercolateStories() {
+
 		$userType = get_option(self::USERTYPE_OPTION);
-		
 		if($userType!=1){
-			$user_id = get_option(self::USERID_OPTION);
-			$method = "users/".$user_id."/posts/";
+			$options['id'] = get_option(self::USERID_OPTION);
 		}else{
-			$group_id=get_option(self::GROUPID_OPTION);
-			$method = "groups/".$group_id."/posts/";
+			$options['group_id']=get_option(self::GROUPID_OPTION);
 		}
-		// Get start id
-		$startId = get_option(self::STARTID_OPTION);
-		// Check for last post id and add as a parameter
-		if($startId){
-			$options['start_id'] = $startId;
+
+		// Get last id and all sources options
+		$lastId = get_option(self::LASTID_OPTION);
+		$allSources = get_option(self::ALLSOURCES_OPTION);
+
+		// Check for last entry_id and add as a parameter
+		if($lastId){
+			$options['last_id'] = $lastId;
 		}
-		
+
+		// Check if all sources option is set and if so add it as a parameter
+		if($allSources){
+			$options['allsources'] = 1;
+		}
+
 		// Make the actual call to the API
-		if($options['api_key']){
-			return self::callPercolateApi($method , $options);
+		if($options['group_id'] != 0 || $options['id'] != 0){
+			return self::callPercolateApi('entries', $options);
 		}
 	}
 
@@ -954,18 +1342,14 @@ class PercolateImport
 	//get group users
 	public function getGroupUsers($groupId){
 		$options['group_id']=$groupId;
-		return ;//self::callPercolateApi('group_users', $options);
+		return self::callPercolateApi('group_users', $options);
 	}
 
 	//call perfolate api
-	//http://percolate.com/api/v2/users/1871/posts/?api_key=1871_oqiFtcFWzL3Wm4IyIffrLDHVNtzxJMNeR8q0bIrx&_accept=application/json
-	//http://percolate.com/api/v2/groups/3/posts?api_key=1871_oqiFtcFWzL3Wm4IyIffrLDHVNtzxJMNeR8q0bIrx&_accept=application/json
-	
 	protected static function callPercolateApi($method, $fields=array())
 	{
-			
 		$url = self::API_BASE . "$method";
-			
+
 		if ($fields) {
 			$tokens = array();
 			foreach ($fields as $key=>$val) {
@@ -973,9 +1357,22 @@ class PercolateImport
 			}
 			$url.="?" . implode('&', $tokens);
 		}
+		//we could use file_get_contents instead of curl
+		// $data = file_get_contents($url,0,null,null);
+		// return json_decode($data);
 
+		// echo $url;
 		/* call url*/
 		$curl_handle = curl_init($url);
+		//
+		//curl_setopt($curl_handle, CURLOPT_PROXY, '127.0.0.1:8888');
+		//
+
+		/* */
+		// REMOVED 10-10-11 TO DEAL WITH: CURLOPT_FOLLOWLOCATION cannot be activated when safe_mode is enabled or an open_basedir is set
+		// curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, 1);
+		/* */
+		//curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
 		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($curl_handle, CURLOPT_HEADER, 0);
@@ -1008,7 +1405,7 @@ class PercolateImport
 			throw new Exception($message, $status);
 		}
 		$data = json_decode( $buffer, true );
-		
+
 		return $data;
 
 
@@ -1070,6 +1467,7 @@ add_action('plugins_loaded', array('PercolateImport', 'init'));
 add_action('admin_init', array('PercolateImport','adminInit'));
 add_action('admin_menu', array('PercolateImport', 'adminMenu'));
 add_action('save_post', array('PercolateImport', 'updatePost'));
+add_action('add_meta_boxes', array('PercolateImport', 'suppressCustomMeta'));
 add_action('admin_print_footer_scripts', array('PercolateImport', 'adminScripts'));
 add_action('admin_notices', array('PercolateImport','userIdNotice'));
 
