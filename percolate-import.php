@@ -87,7 +87,7 @@ class PercolateImport
 	public function adminScripts()
 	{
 		echo '<script type="text/javascript" src="' . get_bloginfo('url') .
-			'/wp-content/plugins/wp-perc/percimport.js"></script>';
+			'/wp-content/plugins/WP-Percolate/percimport.js"></script>';
 	}
 
 	public function adminInit()
