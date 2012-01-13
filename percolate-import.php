@@ -87,7 +87,7 @@ class PercolateImport
 	public function adminScripts()
 	{
 		echo '<script type="text/javascript" src="' . get_bloginfo('url') .
-			'/wp-content/plugins/WP-Percolate/percimport.js"></script>';
+			'/wp-content/plugins/wp-perc/percimport.js"></script>';
 	}
 
 	public function adminInit()
@@ -599,8 +599,8 @@ class PercolateImport
 		if($gourp_id>0){
 
 			$percolate_users = self::getGroupUsers($gourp_id);
-
-			if($percolate_users!=null){
+			
+			if(is_array($percolate_users)){
 
 				global $wp_version;
 				if ($wp_version >= "3.1") {	
@@ -964,7 +964,13 @@ class PercolateImport
 		}
 		
 		$method = 'groups/'.$groupId.'/users';
-		return self::callPercolateApi($method , $options);
+		try {
+		   	return self::callPercolateApi($method , $options);
+		} catch (Exception $e) {
+		    return $e;
+		}
+		
+		
 	}
 
 	//call percolate api
