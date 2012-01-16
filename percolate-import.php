@@ -594,14 +594,17 @@ class PercolateImport
 				 </tr>
 		<?php
 
-		$gourp_id = get_option(self::GROUPID_OPTION);
+		$group_id = get_option(self::GROUPID_OPTION);
 		$group_authors_array = json_decode($group_authors);
 
-		if($gourp_id>0){
+		if($group_id>0){
 
-			$percolate_users = self::getGroupUsers($gourp_id);
+			$percolate_users = self::getGroupUsers($group_id);
+		
+			$objects = $percolate_users['objects'];
 			
-			if(is_array($percolate_users)){
+			
+			if(is_array($objects)){
 
 				global $wp_version;
 				if ($wp_version >= "3.1") {	
@@ -610,8 +613,8 @@ class PercolateImport
 					$users = get_users_of_blog();
 				}
 
-				foreach ($percolate_users as $puser) {
-					$temp_pid = $puser['user_id'];
+				foreach ($objects as $puser) {
+					$temp_pid = $puser['id'];
 ?>
 				<tr>
 					<td width="100px;">
@@ -621,8 +624,13 @@ class PercolateImport
 						<select name="<?php echo $temp_pid?>" class="group_user_ids" >
 				            <?php foreach ($users as $user):
 ?>
+
+										<?php if (isset($group_authors_array->$temp_pid)) { ?>
 				            <option <?php echo ($user->ID == $group_authors_array->$temp_pid) ? ' selected="selected" ' : ''; ?>
 					            value="<?php echo "'".$temp_pid."':'".$user->ID."'"; ?>"><?php echo $user->display_name; ?></option>
+					          <?php } else { ?>
+				            <option value="<?php echo "'".$temp_pid."':'".$user->ID."'"; ?>"><?php echo $user->display_name; ?></option>					          
+					          <?php } ?>
 				            <?php endforeach; ?>
 							 <option value="new_author">Create New Author</option>
 					    </select>
@@ -631,7 +639,7 @@ class PercolateImport
 			<?php
 				}
 			}else{
-				echo "Did not find any users with the group id $gourp_id";
+				echo "Did not find any users with the group id $group_id";
 			}
 
 		}else{
@@ -856,7 +864,22 @@ class PercolateImport
 				$post['post_author']=$authorId;
 			}
 		}else{
-			// TODO: set author using post
+			//story author
+			// comes like this "user": {"username": "joe", "id": 9}
+			$author = $object['user'];
+			$author_id = $author['id'];
+			//get group authors
+			$group_authors = get_option(self::GROUPAUTHORS_OPTION);
+			$group_authors_array = json_decode($group_authors);
+			//check if the percolate user is mapped to a wp user.
+			$user_id = $group_authors_array->$author_id;
+			if ($user_id !=0){
+				$post['post_author']=$user_id;
+			}else{
+				$post['post_author']=get_option(self::DEFGRPAUTHORID_OPTION);
+			}
+
+
 		}
 
 		$postId = wp_insert_post($post);
@@ -969,6 +992,7 @@ class PercolateImport
 		}
 		
 		$method = 'groups/'.$groupId.'/users';
+		//echo "<pre>"; print_r(self::callPercolateApi($method , $options)); echo "</pre>";
 		try {
 		   	return self::callPercolateApi($method , $options);
 		} catch (Exception $e) {
