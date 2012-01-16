@@ -565,7 +565,6 @@ class PercolateImport
 ?>
 		<span class="user-type-indi">
         <select name="<?php echo self::AUTHORID_OPTION; ?>">
-            <option></option>
             <?php foreach ($users as $user): ?>
             <option <?php echo ($user->ID == $authorId) ? ' selected="selected" ' : ''; ?>
                 value="<?php echo $user->ID; ?>"><?php echo $user->display_name; ?></option>
@@ -841,7 +840,7 @@ class PercolateImport
 			$post['post_title']='[no title]';
 		}
 
-		$post['post_content']=html_entity_decode($link_array['description']);
+		$post['post_content']=html_entity_decode($body);
 
 		$post['post_name']=$postName;
 		
