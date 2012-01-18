@@ -315,7 +315,7 @@ class PercolateImport
 		foreach($mediaMeta as $media_js){
 			// Get the media type
 			$medias= json_decode($media_js);
-			$media=$medias[0];
+			$media=$medias;
 			$mediaType = $media->type;
 			echo "<h4>Type: " . $mediaType . "</h4>";		
 			echo "<input type='hidden' value='" . $mediaType . "' id='media_type' />";
@@ -812,7 +812,7 @@ class PercolateImport
 		$more_sources = $object['more_sources'];
 		$link_array =  $object['link'];
 		$url_array = $link_array['url'];
-		$media_array = $link_array['media'];
+		$media_array = $object['media'];
 		
 		$linkId = $object['id'];
 		
