@@ -314,18 +314,18 @@ class PercolateImport
 		if ($mediaMeta) {
 		foreach($mediaMeta as $media_js){
 			// Get the media type
-			$medias= json_decode($media_js);
-			$media=$medias;
-			$mediaType = $media->type;
+			//$medias= json_decode($media_js);
+			$media=$media_js;
+			$mediaType = $media['type'];
 			echo "<h4>Type: " . $mediaType . "</h4>";		
 			echo "<input type='hidden' value='" . $mediaType . "' id='media_type' />";
 		
 			if ($mediaType === "image") {
-				$p_img = $media->p_img;
+				$p_img = $media['p_img'];
 				echo "<img src='$p_img' id='m_media' />";
 			} 
 			if ($mediaType === "video") {
-				$video_url = $media->url;
+				$video_url = $media['url'];
 				
 				if(strstr($video_url, "vimeo")) {
 					echo '<iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe><br /><br /><br /><h4>Copy This Embed Code.</h4><textarea style="width:90%;color:#CCC;" id="m_media_video"><iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe></textarea>';
@@ -335,7 +335,7 @@ class PercolateImport
 				}				
 			} 
 			if ($mediaType === "quote") {
-				$quote_text = $media->text;
+				$quote_text = $media['text'];
 				echo '<blockquote>$quote_text</blockquote><textarea style="width:90%;color:#CCC;" id="m_media_quote"><blockquote>' . $quote_text . '</blockquote></textarea>';
 			} 
 			}						
@@ -912,7 +912,7 @@ class PercolateImport
 		update_post_meta($postId, self::M_USERDESCRIPTION, html_entity_decode($link_array['description']));
 		update_post_meta($postId, self::M_USERTITLE, $link_array['title']);
 		//add or update media
-		update_post_meta($postId, self::M_MEDIA,json_encode($media_array));
+		update_post_meta($postId, self::M_MEDIA,$media_array);
 
 		do_action('percolate_import_story', $postId);
 
