@@ -780,20 +780,22 @@ class PercolateImport
 		
 		$objects = $posts['objects'];
 		$data = $posts['data'];
-		
-		if ($objects) {
-			foreach ($objects as $object) {
-				self::importStory($object);
-			}
-		}
-		
-		update_option(self::LASTIMPORT_OPTION, time());
 		$startId = $data['last_id'];
+		$last_startId = get_option(self::STARTID_OPTION);
 		
-		if($startId){
-			update_option(self::STARTID_OPTION, $startId);
-		}
-			
+		if(intval($last_startId) > intval($startId)){
+			if ($objects) {
+				foreach ($objects as $object) {
+					self::importStory($object);
+				}
+			}
+			update_option(self::LASTIMPORT_OPTION, time());
+		
+			if($startId){
+				update_option(self::STARTID_OPTION, $startId);
+			}
+
+		}	
 	}
 
 	/**
