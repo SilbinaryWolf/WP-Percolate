@@ -783,7 +783,7 @@ class PercolateImport
 		$startId = $data['last_id'];
 		$last_startId = get_option(self::STARTID_OPTION);
 		
-		if(intval($last_startId) > intval($startId)){
+		if(intval($last_startId) < intval($startId)){
 			if ($objects) {
 				foreach ($objects as $object) {
 					self::importStory($object);
