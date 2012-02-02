@@ -8,7 +8,7 @@ Plugin Name: WP Percolate
 Plugin URI: http://percolate.org
 Description: This plugin turns Percolate posts into Wordpress entries.
 Author: Percolate Industries, Inc.
-Version: 2.0
+Version: 2.3
 Author URI: http://percolate.org
 */
 
@@ -263,6 +263,23 @@ class PercolateImport
 
 		// self::checkUpdate();
 	}
+
+/*
+function percoalte_plugin_action_links( $links, $file ) {
+	if ( $file == plugin_basename( dirname(__FILE__).'/percolate-import.php' ) ) {
+		$links[] = '<a href="'.admin_url('options-general.php?page=percolate').'">'.__('Settings').'</a>';
+	}
+
+	return $links;
+}
+
+add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
+*/
+
+
+
+
+
 
 	/** POST META BOXES **/
 	public function urlMetaBox($post)
@@ -783,6 +800,9 @@ class PercolateImport
 		$startId = $data['last_id'];
 		$last_startId = get_option(self::STARTID_OPTION);
 		
+		// Check to see if the last_id coming from the percolate API is larger than that is what is
+		// stored in the wp db, if its smaller than something is wrong and we don't update the start_at_id and don't
+		// do the import. 
 		if(intval($last_startId) < intval($startId)){
 			if ($objects) {
 				foreach ($objects as $object) {
@@ -1102,6 +1122,21 @@ class PercolateImport
 	}
 	
 }
+
+
+
+// Add settings link on plugin page
+function percolate_plugin_settings_link($links) { 
+  $settings_link = '<a href="options-general.php?page=percolate">Settings</a>'; 
+  array_unshift($links, $settings_link); 
+  return $links; 
+}
+ 
+$plugin = plugin_basename(__FILE__); 
+add_filter("plugin_action_links_$plugin", 'percolate_plugin_settings_link' );
+
+
+
 
 register_activation_hook(__FILE__, array('PercolateImport', 'install'));
 
