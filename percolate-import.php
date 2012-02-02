@@ -1,7 +1,6 @@
 <?php
 /**
  * @package Percolate_Import
- * @version 2.0
  */
 /*
 Plugin Name: WP Percolate
