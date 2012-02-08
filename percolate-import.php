@@ -840,6 +840,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		
 			if($startId){
 				update_option(self::STARTID_OPTION, $startId);
+				update_option(self::IMPORT_MOSTRECENT_OPTION, '0');
 			}
 
 		}	
