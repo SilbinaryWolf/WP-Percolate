@@ -90,8 +90,7 @@ class PercolateImport
 
 	public function adminScripts()
 	{
-		echo '<script type="text/javascript" src="' . get_bloginfo('url') .
-			'/wp-content/plugins/WP-Percolate/percimport.js"></script>';
+		echo '<script type="text/javascript" src="' . plugin_dir_url(__File__) . 'percimport.js"></script>';
 	}
 
 	public function adminInit()
@@ -840,7 +839,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		
 			if($startId){
 				update_option(self::STARTID_OPTION, $startId);
-				update_option(self::IMPORT_MOSTRECENT_OPTION, '0');
+				update_option(self::IMPORT_MOSTRECENT_OPTION, 0);
 			}
 
 		}	
