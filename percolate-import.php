@@ -249,7 +249,7 @@ class PercolateImport
 		
 		add_settings_field(
 			self::IMPORT_MOSTRECENT_OPTION,
-			"Just import my most recent posts from percolate going forward",
+			"On initial import start from the most recent posts and go forward",
 			array('PercolateImport', 'settingsImportRecentDisplay'),
 			self::SETTINGS_PAGE,
 			self::SETTINGS_SECTION
