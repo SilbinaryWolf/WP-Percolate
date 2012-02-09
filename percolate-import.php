@@ -384,7 +384,8 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		            }  
 		              
 		              switchEditors.go('content', 'html');
-		              edInsertContent(edCanvas, embedContent);
+									//edInsertContent(edCanvas, embedContent); // This stopped working in 3.3.1
+		              send_to_editor(embedContent);
 		              switchEditors.go('content', 'tinymce');
 
 	            });
