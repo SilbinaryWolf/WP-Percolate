@@ -1003,7 +1003,6 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 	
 	//get group users
-	//http://percolate.com/api/v2/groups/3/users?api_key=1871_oqiFtcFWzL3Wm4IyIffrLDHVNtzxJMNeR8q0bIrx&_accept=application/json
 	public function getGroupUsers($groupId){
 		$apiKey = get_option(self::APIKEY_OPTION);
 		if($apiKey){
@@ -1024,9 +1023,6 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		
 	}
 
-	//call percolate api
-	//http://percolate.com/api/v2/users/1871/posts/?api_key=1871_oqiFtcFWzL3Wm4IyIffrLDHVNtzxJMNeR8q0bIrx&_accept=application/json
-	//http://percolate.com/api/v2/groups/3/posts?api_key=1871_oqiFtcFWzL3Wm4IyIffrLDHVNtzxJMNeR8q0bIrx&_accept=application/json
 	
 	protected static function callPercolateApi($method, $fields=array())
 	{
