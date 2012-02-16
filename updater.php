@@ -59,7 +59,6 @@ class GitHubUpdater {
 			if (!isset($this->config['homepage'])) $this->config['homepage'] = $plugin_data['PluginURI'];
 			
 			
-			//register_activation_hook( plugin_basename(__FILE__), array(&$this, 'delete_transients'));
 			if (WP_DEBUG) add_action( 'init', array(&$this, 'delete_transients') );
 			if (!defined('WP_MEMORY_LIMIT')) define('WP_MEMORY_LIMIT', '96M');
 	
