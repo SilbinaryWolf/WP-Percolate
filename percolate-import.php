@@ -7,7 +7,7 @@ Plugin Name: WP Percolate
 Plugin URI: http://percolate.org
 Description: This plugin turns Percolate posts into Wordpress entries.
 Author: Percolate Industries, Inc.
-Version: 2.3
+Version: 2.3.1
 Author URI: http://percolate.org
 */
 
@@ -1150,6 +1150,27 @@ add_action('admin_menu', array('PercolateImport', 'adminMenu'));
 add_action('save_post', array('PercolateImport', 'updatePost'));
 add_action('admin_print_footer_scripts', array('PercolateImport', 'adminScripts'));
 add_action('admin_notices', array('PercolateImport','userIdNotice'));
+
+
+// The plugin github updater
+
+
+include_once('updater.php');
+if (is_admin()) { // note the use of is_admin() to double check that this is happening in the admin
+	$config = array(
+		'slug' => plugin_basename(__FILE__),
+		'proper_folder_name' => 'WP-Percolate',
+		'api_url' => 'https://api.github.com/repos/percolate/WP-Percolate',
+		'raw_url' => 'https://raw.github.com/percolate/WP-Percolate/master',
+		'github_url' => 'https://github.com/percolate/WP-Percolate',
+		'zip_url' => 'https://github.com/percolate/WP-Percolate/zipball/master',
+		'sslverify' => false,
+		'requires' => "3.1.0",
+		'tested' => "3.3.1", //$wp_version
+		);	
+new GitHubUpdater($config);		
+}
+
 
 
 
