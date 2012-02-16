@@ -38,6 +38,8 @@ class PercolateImport
 
 	const IMPORT_OVERRIDE_OPTION='percolateimport_override';
 
+	const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
+
 	const API_BASE='http://percolate.com/api/v2/';
 
 	const M_LINKID='percolate_link_id';
@@ -87,8 +89,7 @@ class PercolateImport
 
 	public function adminScripts()
 	{
-		echo '<script type="text/javascript" src="' . get_bloginfo('url') .
-			'/wp-content/plugins/WP-Percolate/percimport.js"></script>';
+		echo '<script type="text/javascript" src="' . plugin_dir_url(__File__) . 'percimport.js"></script>';
 	}
 
 	public function adminInit()
@@ -244,6 +245,15 @@ class PercolateImport
 			self::SETTINGS_SECTION
 		);
 		
+		add_settings_field(
+			self::IMPORT_MOSTRECENT_OPTION,
+			"On initial import start from the most recent posts and go forward",
+			array('PercolateImport', 'settingsImportRecentDisplay'),
+			self::SETTINGS_PAGE,
+			self::SETTINGS_SECTION
+		);
+		
+		
 		register_setting(self::SETTINGS_PAGE, self::USERTYPE_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::GROUPID_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::APIKEY_OPTION);
@@ -254,9 +264,10 @@ class PercolateImport
 		register_setting(self::SETTINGS_PAGE, self::AUTHORID_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::CATEGORY_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::EX_CATEGORY_OPTION);
+		register_setting(self::SETTINGS_PAGE, self::IMPORT_MOSTRECENT_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::ALLSOURCES_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
-
+	
 		//Import process
 	    self::checkImport();
 		// TODO: do we still need this?
@@ -710,6 +721,20 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         <?php
 	}
 
+		public function settingsImportRecentDisplay()
+		{
+			// Get the Import Most Recent
+			$importMostRecent = get_option(self::IMPORT_MOSTRECENT_OPTION);
+	?>
+
+	        <span class="percapi-importrecent">
+		    <input type="checkbox" name="<?php echo self::IMPORT_MOSTRECENT_OPTION; ?>" id="<?php echo self::IMPORT_MOSTRECENT_OPTION; ?>" value="1" <?php if ($importMostRecent == 1) { echo("checked='checked'");} ?> />
+	            Yes
+	        </span>
+
+
+	        <?php
+		}
 
 	public function userIdNotice()
 	{
@@ -814,6 +839,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		
 			if($startId){
 				update_option(self::STARTID_OPTION, $startId);
+				update_option(self::IMPORT_MOSTRECENT_OPTION, 0);
 			}
 
 		}	
@@ -994,6 +1020,11 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			$options['start_at_id'] = $startId;
 		}
 		
+		$importMostRecent = get_option(self::IMPORT_MOSTRECENT_OPTION);
+		if($importMostRecent==1){
+			$options['scroll']="True";
+		}
+		
 		// Make the actual call to the API
 		if($options['api_key']){
 			$options['count']=5;
@@ -1170,6 +1201,9 @@ if (is_admin()) { // note the use of is_admin() to double check that this is hap
 		);	
 new GitHubUpdater($config);		
 }
+
+
+
 
 
 
