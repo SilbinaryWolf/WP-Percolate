@@ -35,12 +35,12 @@ class GitHubUpdater {
 			// Setup the defaults, change these values in the plugin that you want to update.
 			$defaults = array(
 				'slug' => plugin_basename(__FILE__),
-				'proper_folder_name' => plugin_basename(__FILE__),
-				'api_url' => 'https://api.github.com/repos/danwoodward/testupdater',
-				'raw_url' => 'https://raw.github.com/danwoodward/testupdater/master',
-				'github_url' => 'https://github.com/danwoodward/testupdater',
-				'zip_url' => 'http://github.com/danwoodward/testupdater/zipball/master',
-				'sslverify' => true,
+				'proper_folder_name' => 'WP-Percolate',
+				'api_url' => 'https://api.github.com/repos/percolate/WP-Percolate',
+				'raw_url' => 'https://raw.github.com/percolate/WP-Percolate/master',
+				'github_url' => 'https://github.com/percolate/WP-Percolate',
+				'zip_url' => 'https://github.com/percolate/WP-Percolate/zipball/master',
+				'sslverify' => false,
 				'requires' => "3.1.0",
 				'tested' => "3.3.1", //$wp_version
 				);	
@@ -73,6 +73,7 @@ class GitHubUpdater {
 			
 			
 			//register_activation_hook( plugin_basename(__FILE__), array(&$this, 'delete_transients'));
+			if (WP_DEBUG) add_action( 'init', array(&$this, 'delete_transients') );
 			if (!defined('WP_MEMORY_LIMIT')) define('WP_MEMORY_LIMIT', '96M');
 	
 			add_filter('site_transient_update_plugins', array(&$this, 'api_check'),10,1);
@@ -90,6 +91,15 @@ class GitHubUpdater {
 		function http_request_timeout() {
 			return 2;
 		}
+		
+		// For testing purpose, the site transient will be reset on each page load
+		function delete_transients() {
+			delete_site_transient('update_plugins');
+			delete_site_transient($this->config['slug'].'_new_version');
+			delete_site_transient($this->config['slug'].'_github_data');
+			delete_site_transient($this->config['slug'].'_changelog');
+		}		
+		
 	
 		function get_new_version() {
 			
