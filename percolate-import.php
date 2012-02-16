@@ -68,7 +68,8 @@ class PercolateImport
 		if (get_option(self::GROUPID_OPTION) == FALSE ) update_option(self::GROUPID_OPTION, '0');
 		if (get_option(self::LASTIMPORT_OPTION) == FALSE ) update_option(self::LASTIMPORT_OPTION, '0');	
 		if (get_option(self::STARTID_OPTION) == FALSE ) update_option(self::STARTID_OPTION, '0');						
-		if (get_option(self::POSTSTATUS_OPTION) == FALSE ) update_option(self::POSTSTATUS_OPTION, '0');						
+		if (get_option(self::POSTSTATUS_OPTION) == FALSE ) update_option(self::POSTSTATUS_OPTION, 'publish');
+		if (get_option(self::IMPORT_MOSTRECENT_OPTION) == FALSE ) update_option(self::IMPORT_MOSTRECENT_OPTION,1);						
 		if (get_option(self::ALLSOURCES_OPTION) == FALSE ) update_option(self::ALLSOURCES_OPTION, '0');						
 	}
 
