@@ -4,4 +4,4 @@ This is the plugin for importing stories from Percolate into Wordpress. It's cur
 --------------------------------------------------
 _Please do not remove this version declaration_
 
-~Current Version:2.3.6~
+~Current Version:2.3.7~
