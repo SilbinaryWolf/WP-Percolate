@@ -101,7 +101,7 @@ class GitHubUpdater {
 				$__version = explode('~Current Version:', $raw_response['body']);
 				$_version = explode('~', $__version[1]);
 				$version = $_version[0];
-				set_site_transient($this->config['slug'].'_new_version', $version, 1); //60*60*6 refresh every 6 hours, set 1 for testing
+				set_site_transient($this->config['slug'].'_new_version', $version, 60*60*6); //60*60*6 refresh every 6 hours, set 1 for testing
 			}
 			return $version;
 		}
@@ -117,7 +117,7 @@ class GitHubUpdater {
 	
 				$github_data = json_decode($github_data['body']);
 	
-				set_site_transient($this->config['slug'].'_github_data', $github_data, 1); // 60*60*6refresh every 6 hours, set 1 for testing
+				set_site_transient($this->config['slug'].'_github_data', $github_data, 60*60*6); // 60*60*6refresh every 6 hours, set 1 for testing
 			}
 			return $github_data;			
 		}
