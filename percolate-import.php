@@ -1165,10 +1165,29 @@ function percolate_plugin_settings_link($links) {
   array_unshift($links, $settings_link); 
   return $links; 
 }
- 
+
+// Add Check for Updates on plugin page
+function percolate_plugin_check_updates_link($links) { 
+  $settings_link = "<a id='percolate_update_check' href='#' >Check for Updates</a>"; 
+  array_unshift($links, $settings_link); 
+  return $links; 
+}
+//load this javascript to admin header
+function percolate_plugin_check_updates_js(){
+	?>
+	<script type='text/javascript'>
+	jQuery(document).ready(function(){jQuery('#percolate_update_check').click(function(){jQuery(this).html("Checking.......");var data = {action: 'percolate_check_updates_action'};jQuery.post('/wp-admin/admin-ajax.php', data, function(response){window.location.reload();});});});</script>
+<?php
+}
+
+add_action('admin_head','percolate_plugin_check_updates_js' ); 
+
+
 $plugin = plugin_basename(__FILE__); 
+add_filter("plugin_action_links_$plugin", 'percolate_plugin_check_updates_link' );
 add_filter("plugin_action_links_$plugin", 'percolate_plugin_settings_link' );
 
+add_action('wp_ajax_percolate_check_updates_action', 'percolate_check_updates_action_callback');
 
 
 
@@ -1190,8 +1209,6 @@ add_action('admin_notices', array('PercolateImport','userIdNotice'));
 
 
 // The plugin github updater
-
-
 include_once('updater.php');
 if (is_admin()) { // note the use of is_admin() to double check that this is happening in the admin
 	$config = array(
@@ -1205,15 +1222,14 @@ if (is_admin()) { // note the use of is_admin() to double check that this is hap
 		'requires' => "3.1.0",
 		'tested' => "3.3.1", //$wp_version
 		);	
-new GitHubUpdater($config);		
+GLOBAL $gitHubUpdater;
+$gitHubUpdater = new GitHubUpdater($config);	
+//reset the transients to allow update checks
+function percolate_check_updates_action_callback(){
+  global $gitHubUpdater;
+  $gitHubUpdater->delete_transients();
 }
-
-
-
-
-
-
-
-
+	
+}
 
 ?>
