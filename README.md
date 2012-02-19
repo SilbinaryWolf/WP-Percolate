@@ -6,6 +6,18 @@ Get Started
 In order to use this plugin you will need an API key issued to you from Percolate, along with your user ID.
 
 
+Changelog
+-----------
+
+### 2.4.0
+
+* Automatic plugin updater
+* Ability to start importing posts from today going forward, instead of starting from the beginning of account creation. 
+* Fix for inserting images into post body in wordpress 3.3.1
+* Made the path to the javascript file agnostic of the plugin directory name.
+
+
+
 --------------------------------------------------
 _Please do not remove this version declaration_
 ~Current Version:2.4.0~
