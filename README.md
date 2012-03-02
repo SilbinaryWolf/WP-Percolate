@@ -20,7 +20,7 @@ Changelog
 
 --------------------------------------------------
 _Please do not remove this version declaration_
-~Current Version:2.4.2~
+~Current Version:2.4.3~
 
 
 
