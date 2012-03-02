@@ -1021,14 +1021,21 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			$group_id=get_option(self::GROUPID_OPTION);
 			$method = "groups/".$group_id."/posts/";
 		}
-		// Get start id
-		$startId = get_option(self::STARTID_OPTION);
-		// Check for last post id and add as a parameter
-		if($startId){
-			$options['start_at_id'] = $startId;
-		}
+		
 		
 		$importMostRecent = get_option(self::IMPORT_MOSTRECENT_OPTION);
+		
+		// Use the start id in the db only if Import Most Recent option is not selected.
+		if ($importMostRecent!=1){
+			// Get start id
+			$startId = get_option(self::STARTID_OPTION);
+			// Check for last post id and add as a parameter
+			if($startId){
+				$options['start_at_id'] = $startId;
+			}
+		}
+		
+		
 		if($importMostRecent==1){
 			$options['scroll']="True";
 		}
@@ -1036,6 +1043,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		// Make the actual call to the API
 		if($options['api_key']){
 			$options['count']=5;
+			
 			return self::callPercolateApi($method , $options);
 		}
 	}
