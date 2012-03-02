@@ -68,10 +68,10 @@ class PercolateImport
 		if (get_option(self::GROUPID_OPTION) == FALSE ) update_option(self::GROUPID_OPTION, '0');
 		if (get_option(self::LASTIMPORT_OPTION) == FALSE ) update_option(self::LASTIMPORT_OPTION, '0');	
 		if (get_option(self::STARTID_OPTION) == FALSE ) update_option(self::STARTID_OPTION, '0');						
-		if (get_option(self::POSTSTATUS_OPTION) == FALSE ) update_option(self::POSTSTATUS_OPTION, 'publish');
+		if (get_option(self::POSTSTATUS_OPTION) == FALSE ) update_option(self::POSTSTATUS_OPTION, 'draft');
 
 		$recentOption = get_option(self::IMPORT_MOSTRECENT_OPTION);
-		if (!isset($recentOption) || !$recentOption || $recentOption == '') update_option(self::IMPORT_MOSTRECENT_OPTION,1);						
+		if (!isset($recentOption) || !$recentOption || $recentOption == '') update_option(self::IMPORT_MOSTRECENT_OPTION,0);						
 		if (get_option(self::ALLSOURCES_OPTION) == FALSE ) update_option(self::ALLSOURCES_OPTION, '0');						
 	}
 
@@ -235,6 +235,7 @@ class PercolateImport
 		);
 
 
+/*
 		add_settings_field(
 			self::EX_CATEGORY_OPTION,
 			"Exclude Category",
@@ -242,6 +243,7 @@ class PercolateImport
 			self::SETTINGS_PAGE,
 			self::SETTINGS_SECTION
 		);
+*/
 
 		add_settings_field(
 			self::ALLSOURCES_OPTION,
@@ -269,7 +271,7 @@ class PercolateImport
 		register_setting(self::SETTINGS_PAGE, self::POSTSTATUS_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::AUTHORID_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::CATEGORY_OPTION);
-		register_setting(self::SETTINGS_PAGE, self::EX_CATEGORY_OPTION);
+		//register_setting(self::SETTINGS_PAGE, self::EX_CATEGORY_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::IMPORT_MOSTRECENT_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::ALLSOURCES_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
@@ -703,7 +705,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		$ex_categoryId = get_option(self::EX_CATEGORY_OPTION);
 		wp_dropdown_categories('hide_empty=0&show_option_none=None&name=' . self::EX_CATEGORY_OPTION . '&selected=' . $ex_categoryId);
 		//echo "<pre>"; print_r($users); echo "</pre>";
-?>
+		?>
         Posts assigned to this category will not appear.
 
         <?php

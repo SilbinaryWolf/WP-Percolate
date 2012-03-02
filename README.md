@@ -3,7 +3,7 @@ This is the plugin for importing stories from Percolate into Wordpress. It requi
 Get Started
 -----------
 
-In order to use this plugin you will need an API key issued to you from Percolate, along with your user ID.
+In order to use this plugin you will need an API key issued to you from Percolate, along with your user ID. For installation instructions please visit our [Wordpress partners page](http://partners.percolate.com/category/plugin-documentation/wordpress/).
 
 
 Changelog
