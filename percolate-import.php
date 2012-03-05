@@ -7,7 +7,7 @@ Plugin Name: WP Percolate
 Plugin URI: http://percolate.org
 Description: This plugin turns Percolate posts into Wordpress entries.
 Author: Percolate Industries, Inc.
-Version: 2.4.5
+Version: 3.0
 Author URI: http://percolate.org
 */
 
@@ -735,10 +735,16 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			$importMostRecent = get_option(self::IMPORT_MOSTRECENT_OPTION);
 	?>
 
-	        <span class="percapi-importrecent">
-		    <input type="checkbox" name="<?php echo self::IMPORT_MOSTRECENT_OPTION; ?>" id="<?php echo self::IMPORT_MOSTRECENT_OPTION; ?>" value="1" <?php if ($importMostRecent == 1) { echo("checked='checked'");} ?> />
+	        <span class="percapi-importrecent" style="width:10%;float:left;">
+		   	  <input type="checkbox" name="<?php echo self::IMPORT_MOSTRECENT_OPTION; ?>" id="<?php echo self::IMPORT_MOSTRECENT_OPTION; ?>" value="1" <?php if ($importMostRecent == 1) { echo("checked='checked'");} ?> />
 	            Yes
 	        </span>
+	        
+	        <span style="float:left;width:60%;background:#FFFAB1;padding:14px;">
+	         Note: If this is your first time activating the plugin you may want to <strong>check this to import posts from Percolate starting today</strong>. If you leave this <strong>unchecked</strong> the plugin will start importing the first posts you made on Percolate and move forward.
+	        
+	        </span>
+	        
 
 
 	        <?php

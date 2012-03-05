@@ -9,7 +9,7 @@ In order to use this plugin you will need an API key issued to you from Percolat
 Changelog
 -----------
 
-### 2.4.0
+### 3.0
 
 * Automatic plugin updater
 * Ability to start importing posts from today going forward, instead of starting from the beginning of account creation. 
@@ -20,7 +20,7 @@ Changelog
 
 --------------------------------------------------
 _Please do not remove this version declaration_
-~Current Version:2.4.5~
+~Current Version:3.0~
 
 
 
