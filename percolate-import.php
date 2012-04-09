@@ -57,6 +57,7 @@ class PercolateImport
 	const M_USE='percolate_use';
 	const IMPORT_VERSION = '1.0';
 	const M_MEDIA='percolate_media';
+	const M_POSTEDPERMALINK = 'posted_permalink';
 
 	/** INSTALL AND INIT CODE **/
 
@@ -154,7 +155,16 @@ class PercolateImport
 			'normal',
 			'high'
 		);
-
+		
+		add_meta_box(
+			'posted_permalink',
+			'Posted Permalink to Percolate',
+			array('PercolateImport','postedPermalink'),
+			'post',
+			'normal',
+			'high'
+		);
+		
 		//Settings
 		add_settings_section(
 			self::SETTINGS_SECTION,
@@ -466,6 +476,15 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         <?php
 		//echo "<pre>"; print_r($sources); echo "</pre>";
 	}
+
+	//posted permalink to percolate
+	public function postedPermalink($post)
+	{
+		$plink = get_post_meta($post->ID, self::M_POSTEDPERMALINK, true);
+ 		echo $plink;
+	}
+
+
 
 	public function updatePost($postId)
 	{
@@ -839,15 +858,22 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		$data = $posts['data'];
 		$startId = $data['last_id'];
 		$last_startId = get_option(self::STARTID_OPTION);
-		
+		$perc_permalinks = array();
 		// Check to see if the last_id coming from the percolate API is larger than that is what is
 		// stored in the wp db, if its smaller than something is wrong and we don't update the start_at_id and don't
 		// do the import. 
 		if(intval($last_startId) < intval($startId)){
 			if ($objects) {
 				foreach ($objects as $object) {
-					self::importStory($object);
+				  array_push($perc_permalinks, self::importStory($object));
 				}
+				//post the permalinks to percolate
+				if (!empty($perc_permalinks)) {
+					foreach ($perc_permalinks as $perc_permalink) {
+						self::postToPercolate($perc_permalink);
+					}
+				}
+			
 			}
 			update_option(self::LASTIMPORT_OPTION, time());
 		
@@ -865,8 +891,6 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 	public function importStory($object)
 	{
 		global $wpdb;		
-		
-		
 		
 		$tags_array =  $object['tags'];
 		$body = $object['body'];
@@ -978,9 +1002,14 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		update_post_meta($postId, self::M_MEDIA,$media_array);
 
 		do_action('percolate_import_story', $postId);
-
-		return $postId;
-
+		
+		//return an array with permalink and perc id to post back to percolate
+		$plink = get_permalink($postId);
+		update_post_meta($postId, self::M_POSTEDPERMALINK, $plink);
+		
+		return array("post_id" => $linkId,
+			         "permalink" => $plink
+			    );
 	}
 
 	public static function getUrl($postId)
@@ -1037,7 +1066,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			$startId = get_option(self::STARTID_OPTION);
 			// Check for last post id and add as a parameter
 			if($startId){
-				$options['start_at_id'] = $startId;
+				$options['start_at_id'] = $startId; 
 			}
 		}
 		
@@ -1075,9 +1104,32 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		
 		
 	}
+	
+	//post to percolate 
+	public function postToPercolate($jsonFields){
+		$apiKey = get_option(self::APIKEY_OPTION);
+		if($apiKey){
+			$options['api_key'] = $apiKey;
+		}else{
+			//no api key return false
+			return false;
+		}
+		
+		$method = 'publish/public';
+		
+		try {
+			self::callPercolateApi($method , $options, $jsonFields);
+		   	return;
+		} catch (Exception $e) {
+			//try posting again
+			self::postToPercolate($jsonFields);
+		}
+		
+		
+	}
 
 	
-	protected static function callPercolateApi($method, $fields=array())
+	protected static function callPercolateApi($method, $fields=array(), $jsonFields=array())
 	{
 			
 		$url = self::API_BASE . "$method";
@@ -1090,40 +1142,48 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			$url.="?" . implode('&', $tokens);
 		}
 
+
 		/* call url*/
 		$curl_handle = curl_init($url);
 		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
 		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($curl_handle, CURLOPT_HEADER, 0);
-		curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array('Expect:'));
-
+	
+		/* json post fields */
+		if ($jsonFields) {
+			curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
+			curl_setopt($curl_handle, CURLOPT_POSTFIELDS,json_encode($jsonFields));
+		}else{
+			curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array('Expect:'));
+		}
+			
 		$buffer = curl_exec($curl_handle);
-
+		
 		$status = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
-
+		
 		curl_close($curl_handle);
-
+		
+		$data = json_decode( $buffer, true );
+	
 		if ($status != 200) {
-			$data = json_decode($buffer, true);
-
+		
 			$message = "An unknown error occurred communicating with Percolate ($status) - $buffer";
-
+		
 			if ($data) {
-
+		
 				if ($data['error']) {
 					$message = $data['error'];
 				}
-
+		
 				if (array_key_exists('request', $data)) {
 					$message .= ' -- Request: '.$data['request'];
 				}
 			} else {
 				$message = "No Data received.";
 			}
-
+		
 			throw new Exception($message, $status);
 		}
-		$data = json_decode( $buffer, true );
 		
 		return $data;
 
