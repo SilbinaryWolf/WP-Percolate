@@ -1119,12 +1119,12 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		
 		try {
 			self::callPercolateApi($method , $options, $jsonFields);
-		   	return;
 		} catch (Exception $e) {
 			//try posting again
-			self::postToPercolate($jsonFields);
+			call_user_func(__FUNCTION__,$jsonFields);
 		}
 		
+		return true;
 		
 	}
 
