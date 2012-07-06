@@ -173,17 +173,20 @@ class PercolateImport
 			self::SETTINGS_PAGE
 		);
 
-		add_settings_field(
-			self::APIKEY_OPTION,
-			"Percolate API KEY",
-			array('PercolateImport','settingsApiKeyDisplay'),
-			self::SETTINGS_PAGE,
-			self::SETTINGS_SECTION
-		);
+
 		add_settings_field(
 			self::USERTYPE_OPTION,
 			"Percolate User Type",
 			array('PercolateImport', 'settingsUserTypeDisplay'),
+			self::SETTINGS_PAGE,
+			self::SETTINGS_SECTION
+		);
+
+
+		add_settings_field(
+			self::APIKEY_OPTION,
+			"Percolate API KEY",
+			array('PercolateImport','settingsApiKeyDisplay'),
 			self::SETTINGS_PAGE,
 			self::SETTINGS_SECTION
 		);
@@ -255,13 +258,6 @@ class PercolateImport
 		);
 */
 
-		add_settings_field(
-			self::ALLSOURCES_OPTION,
-			"Import All Sources?",
-			array('PercolateImport', 'settingsAllSourcesDisplay'),
-			self::SETTINGS_PAGE,
-			self::SETTINGS_SECTION
-		);
 
 		add_settings_field(
 			self::IMPORT_MOSTRECENT_OPTION,
@@ -550,9 +546,6 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
             id="percapi_user_id"
             value="<?php echo get_option(self::USERID_OPTION != '0' ? self::USERID_OPTION : ''); ?>" />
             User ID for the Percolate API.
-			<br />Find User ID by user name:
-            <input type="text" id="percapi_username" size="10" />
-			<input type="button" id="percapi_submit" value="Find by username" />
         </span>
         <?php
 	}
@@ -730,24 +723,6 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         <?php
 	}
 
-	public function settingsAllSourcesDisplay()
-	{
-		// Get the All Sources Value
-		$allSources = get_option(self::ALLSOURCES_OPTION);
-?>
-
-        <span class="percapi-allsources">
-        <input type="checkbox" name="<?php echo self::ALLSOURCES_OPTION; ?>"
-            id="percapi_allsources"
-            value="1"
-            <?php if ($allSources == 1) { echo("checked='checked'");} ?> />
-            Yes
-        </span>
-
-
-        <?php
-	}
-
 		public function settingsImportRecentDisplay()
 		{
 			// Get the Import Most Recent
@@ -821,7 +796,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 	public function settingsPage()
 	{
-		if( $_REQUEST['settings-updated'] == 'true' && get_option(PercolateImport::IMPORT_OVERRIDE_OPTION) == 1 )
+		if( isset($_REQUEST['settings-updated']) && $_REQUEST['settings-updated'] == 'true' && get_option(PercolateImport::IMPORT_OVERRIDE_OPTION) == 1 )
 		{
 			$last_id = get_option(self::STARTID_OPTION);
 ?>
@@ -991,7 +966,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		$ver = floatval(phpversion());
 
 		update_post_meta($postId, self::M_DOMAIN, $url_array['hostname']);
-		update_post_meta($postId, self::M_ADDEDON, strtotime($link_array['posted_on']));
+		update_post_meta($postId, self::M_ADDEDON, strtotime($object['posted_on']));
 		update_post_meta($postId, self::M_LINKID, $link_array['urlid']);
 		update_post_meta($postId, self::M_ORIGINALDESCRIPTION, html_entity_decode($link_array['description']));
 		update_post_meta($postId, self::M_ORIGINALTITLE, html_entity_decode($link_array['title']));
