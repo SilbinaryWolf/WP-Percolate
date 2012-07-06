@@ -858,11 +858,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		$data = $posts['data'];
 		$startId = $data['last_id'];
 		$last_startId = get_option(self::STARTID_OPTION);
-<<<<<<< HEAD
 		$perc_permalinks = array();
-=======
-
->>>>>>> utc-pub
 		// Check to see if the last_id coming from the percolate API is larger than that is what is
 		// stored in the wp db, if its smaller than something is wrong and we don't update the start_at_id and don't
 		// do the import.
@@ -894,15 +890,9 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 	 **/
 	public function importStory($object)
 	{
-<<<<<<< HEAD
 		global $wpdb;		
 		
-=======
-		global $wpdb;
 
-
-
->>>>>>> utc-pub
 		$tags_array =  $object['tags'];
 		$body = $object['body'];
 		$analytics_array = $object['analytics'];
@@ -1145,13 +1135,10 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		
 	}
 
-<<<<<<< HEAD
+
 	
 	protected static function callPercolateApi($method, $fields=array(), $jsonFields=array())
-=======
 
-	protected static function callPercolateApi($method, $fields=array())
->>>>>>> utc-pub
 	{
 
 		$url = self::API_BASE . "$method";
@@ -1206,12 +1193,10 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		
 			throw new Exception($message, $status);
 		}
-<<<<<<< HEAD
+
 		
-=======
 		$data = json_decode( $buffer, true );
 
->>>>>>> utc-pub
 		return $data;
 
 
