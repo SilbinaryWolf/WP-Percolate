@@ -910,7 +910,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		$offset =  get_option('gmt_offset');
 
 		// utc timezone adjustment
-		if ( 0 == $offset){
+		if (0 == $offset){
 			$post['post_date']=date('Y-m-d H:i:s', strtotime($object['posted_on']));
 		}else{
 			$post['post_date']=date('Y-m-d H:i:s', strtotime($object['posted_on']." ".$offset." hours"));
