@@ -1239,7 +1239,7 @@ function percolate_plugin_check_updates_link($links) {
 function percolate_plugin_check_updates_js(){
 	?>
 	<script type='text/javascript'>
-	jQuery(document).ready(function(){jQuery('#percolate_update_check').click(function(){jQuery(this).html("Checking.......");var data = {action: 'percolate_check_updates_action'};jQuery.post('/wp-admin/admin-ajax.php', data, function(response){window.location.reload();});});});</script>
+	jQuery(document).ready(function(){jQuery('#percolate_update_check').click(function(){jQuery(this).html("Checking...");var data = {action: 'percolate_check_updates_action'};jQuery.post('/wp-admin/admin-ajax.php', data, function(response){window.location.reload();});});});</script>
 <?php
 }
 
