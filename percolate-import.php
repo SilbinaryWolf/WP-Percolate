@@ -907,8 +907,15 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 		$post['post_name']=$postName;
 		
-
-		$post['post_date']=date('Y-m-d H:i:s', strtotime($object['posted_on']));
+		$offset =  get_option('gmt_offset');
+		
+		// utc timezone adjustment 
+		if ( 0 > $offset){
+			// adjust the post pub time if offest is less than 0
+			$post['post_date']=date('Y-m-d H:i:s', strtotime($object['posted_on']." ".$offset." hours"));
+		}else{
+			$post['post_date']=date('Y-m-d H:i:s', strtotime($object['posted_on']));
+		}
 
 		$post['post_status']=get_option(self::POSTSTATUS_OPTION);
 
