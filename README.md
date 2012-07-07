@@ -16,6 +16,12 @@ Changelog
 * Fix for inserting images into post body in wordpress 3.3.1
 * Made the path to the javascript file agnostic of the plugin directory name.
 
+### 3.1
+
+* Updated post timestamp to honor a timezone set in wordpress. The offset of the wordpress setting is applied to the `posted_on` time when importing. 
+* Added postToPercolate function.
+* Cleaned up settings page. Got rid of search by username and re-ordered the input options.
+
 
 -----------
 _Method of Deployment_
