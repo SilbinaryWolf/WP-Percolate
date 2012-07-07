@@ -9,19 +9,19 @@ In order to use this plugin you will need an API key issued to you from Percolat
 Changelog
 -----------
 
-### 3.0
-
-* Automatic plugin updater
-* Ability to start importing posts from today going forward, instead of starting from the beginning of account creation. 
-* Fix for inserting images into post body in wordpress 3.3.1
-* Made the path to the javascript file agnostic of the plugin directory name.
-
 ### 3.1
 
 * Updated post timestamp to honor a timezone set in wordpress. The offset of the wordpress setting is applied to the `posted_on` time when importing. 
 * Added postToPercolate function.
 * Cleaned up settings page. Got rid of search by username and re-ordered the input options.
 
+
+### 3.0
+
+* Automatic plugin updater
+* Ability to start importing posts from today going forward, instead of starting from the beginning of account creation. 
+* Fix for inserting images into post body in wordpress 3.3.1
+* Made the path to the javascript file agnostic of the plugin directory name.
 
 -----------
 _Method of Deployment_
