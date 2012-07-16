@@ -843,11 +843,11 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 				  array_push($perc_permalinks, self::importStory($object));
 				}
 				//post the permalinks to percolate
-				if (!empty($perc_permalinks)) {
-					foreach ($perc_permalinks as $perc_permalink) {
-						self::postToPercolate($perc_permalink);
-					}
-				}
+				//if (!empty($perc_permalinks)) {
+				//	foreach ($perc_permalinks as $perc_permalink) {
+				//		self::postToPercolate($perc_permalink);
+				//	}
+				//}
 			
 			}
 			update_option(self::LASTIMPORT_OPTION, time());
