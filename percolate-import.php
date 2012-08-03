@@ -903,7 +903,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			$post['post_title']='[no title]';
 		}
 
-		$post['post_content']=$body;
+		$post['post_content']=html_entity_decode($body);
 
 		$post['post_name']=$postName;
 

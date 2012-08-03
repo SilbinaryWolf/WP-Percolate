@@ -9,10 +9,6 @@ In order to use this plugin you will need an API key issued to you from Percolat
 Changelog
 -----------
 
-### 3.1.2
-
-* Bug: Fix for not importing the full post body. 
-
 ### 3.1
 
 * Updated post timestamp to honor a timezone set in wordpress. The offset of the wordpress setting is applied to the `posted_on` time when importing. 
