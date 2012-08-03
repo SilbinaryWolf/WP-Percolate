@@ -9,6 +9,7 @@ Description: This plugin turns Percolate posts into Wordpress entries.
 Author: Percolate Industries, Inc.
 Version: 3.0
 Author URI: http://percolate.org
+
 */
 
 class PercolateImport
