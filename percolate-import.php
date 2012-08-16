@@ -38,15 +38,15 @@ class PercolateImport
 
 	const IMPORT_OVERRIDE_OPTION='percolateimport_override';
 
-	const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
+	//const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
 
-	const API_BASE='http://percolate.com/api/v2/';
+	const API_BASE='http://percolate.com/api/v3/';
 
 	const M_LINKID='percolate_link_id';
 	const M_ADDEDON='percolate_added_on';
 	const M_ORIGINALTITLE='percolate_original_title';
 	const M_USERTITLE='percolate_user_title';
-	const M_DOMAIN='percolate_domain';
+	//const M_DOMAIN='percolate_domain';
 	const M_ORIGINALDESCRIPTION='percolate_original_description';
 	const M_USERDESCRIPTION='percolate_user_description';
 	const M_URL='percolate_url';
@@ -58,6 +58,7 @@ class PercolateImport
 	const IMPORT_VERSION = '1.0';
 	const M_MEDIA='percolate_media';
 	const M_POSTEDPERMALINK = 'posted_permalink';
+	const M_PERCOLATEID = 'percolate_id';
 
 	/** INSTALL AND INIT CODE **/
 
@@ -71,8 +72,8 @@ class PercolateImport
 		if (get_option(self::STARTID_OPTION) == FALSE ) update_option(self::STARTID_OPTION, '0');
 		if (get_option(self::POSTSTATUS_OPTION) == FALSE ) update_option(self::POSTSTATUS_OPTION, 'draft');
 
-		$recentOption = get_option(self::IMPORT_MOSTRECENT_OPTION);
-		if (!isset($recentOption) || !$recentOption || $recentOption == '') update_option(self::IMPORT_MOSTRECENT_OPTION,0);
+    // $recentOption = get_option(self::IMPORT_MOSTRECENT_OPTION);
+    // if (!isset($recentOption) || !$recentOption || $recentOption == '') update_option(self::IMPORT_MOSTRECENT_OPTION,0);
 		if (get_option(self::ALLSOURCES_OPTION) == FALSE ) update_option(self::ALLSOURCES_OPTION, '0');
 	}
 
@@ -131,26 +132,18 @@ class PercolateImport
 		);
 
 		add_meta_box(
-			'percolate-domain',
-			'Percolate Via',
-			array('PercolateImport','domainMetaBox'),
-			'post',
-			'normal',
-			'high'
-		);
-		add_meta_box(
-			'percolate-sources',
-			'Percolate Sources',
-			array('PercolateImport','sourcesMetaBox'),
-			'post',
-			'normal',
-			'high'
-		);
-
-		add_meta_box(
 			'percolate-short-url',
 			'Percolate Short Url',
 			array('PercolateImport','shortUrl'),
+			'post',
+			'normal',
+			'high'
+		);
+		
+		add_meta_box(
+			'percolate_id',
+			'Percolate ID',
+			array('PercolateImport','percolateId'),
 			'post',
 			'normal',
 			'high'
@@ -259,13 +252,13 @@ class PercolateImport
 */
 
 
-		add_settings_field(
-			self::IMPORT_MOSTRECENT_OPTION,
-			"On initial import start from the most recent posts and go forward",
-			array('PercolateImport', 'settingsImportRecentDisplay'),
-			self::SETTINGS_PAGE,
-			self::SETTINGS_SECTION
-		);
+    // add_settings_field(
+    //  self::IMPORT_MOSTRECENT_OPTION,
+    //  "On initial import start from the most recent posts and go forward",
+    //  array('PercolateImport', 'settingsImportRecentDisplay'),
+    //  self::SETTINGS_PAGE,
+    //  self::SETTINGS_SECTION
+    // );
 
 
 		register_setting(self::SETTINGS_PAGE, self::USERTYPE_OPTION);
@@ -278,7 +271,7 @@ class PercolateImport
 		register_setting(self::SETTINGS_PAGE, self::AUTHORID_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::CATEGORY_OPTION);
 		//register_setting(self::SETTINGS_PAGE, self::EX_CATEGORY_OPTION);
-		register_setting(self::SETTINGS_PAGE, self::IMPORT_MOSTRECENT_OPTION);
+		//register_setting(self::SETTINGS_PAGE, self::IMPORT_MOSTRECENT_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::ALLSOURCES_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
 
@@ -324,22 +317,13 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 	        <?php
 		}
 
-
-	public function domainMetaBox($post)
-	{
-		$domain = get_post_meta($post->ID, self::M_DOMAIN, true);
-
-?>
-        <?php echo 	$domain ?>
-        <?php
-	}
-
 	public function infoMetaBox($post)
 	{
 		$userTitle = get_post_meta($post->ID, self::M_USERTITLE, true);
 		$originalTitle = get_post_meta($post->ID, self::M_ORIGINALTITLE, true);
 		$userDescription = get_post_meta($post->ID, self::M_USERDESCRIPTION, true);
 		$originalDescription = get_post_meta($post->ID, self::M_ORIGINALDESCRIPTION, true);
+		//use post id
 		$linkId = get_post_meta($post->ID, self::M_LINKID, true);
 		if (!$linkId) {
 			echo '<p class="nonessential">Not a Percolate post.</p>';
@@ -363,8 +347,11 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			echo "<input type='hidden' value='" . $mediaType . "' id='media_type' />";
 
 			if ($mediaType === "image") {
-				$p_img = $media['p_img'];
-				echo "<img src='$p_img' id='m_media' />";
+				$p_img = $media['src']; //$p_img = $media['p_img']; //apiV3 feature
+				$p_img_width = $media['images']['large']['width'];//apiV3 feature
+				$p_img_height = $media['images']['large']['height']; //apiV3 feature
+				
+				echo "<img src='$p_img' id='m_media' width='$p_img_width' height='$p_img_height' />"; //echo "<img src='$p_img' id='m_media' />"; narada
 			}
 			if ($mediaType === "video") {
 				$video_url = $media['url'];
@@ -382,10 +369,6 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			}
 			}
 		}
-
-
-
-
 
 	?>
 	<script type="text/javascript">
@@ -428,56 +411,17 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 	<?php
 	}
 
-	public function sourcesMetaBox($post)
-	{
-		$sourceMeta = get_post_meta($post->ID, self::M_SOURCES);
-
-		$sources = array();
-
-		if ($sourceMeta) {
-			$sources = $sourceMeta[0];
-		}
-		?>
-
-		 <table class="form-table sources-table">
-
-	            <?php if(is_array($sources)): ?>
-	            <?php foreach ($sources as $idx=>$source):
-		 					$subid = $source['id'];
-	?>
-	            <tr>
-
-	                <td style="width: 99%;">
-
-
-	                    <input type="text"
-	                    	 disabled="disabled"
-	                       name="<?php echo self::M_SOURCETITLES; ?>[<?php echo $subid; ?>]"
-	                       value="<?php echo html_entity_decode($source['name'], ENT_NOQUOTES, 'utf-8'); ?>"
-	                       style="width: 60%; color:#B0B0B0;" />
-
-	                    <span><?php echo htmlentities($source['source_subscription_title']); ?></span> - <small style="color:#B0B0B0;">Imported</small>
-
-	                    <?php  ?>
-
-
-
-
-	                </td>
-	            </tr>
-	            <?php endforeach; ?>
-	            <?php endif; ?>
-	        </table>
-
-        <?php
-		//echo "<pre>"; print_r($sources); echo "</pre>";
-	}
-
 	//posted permalink to percolate
 	public function postedPermalink($post)
 	{
 		$plink = get_post_meta($post->ID, self::M_POSTEDPERMALINK, true);
  		echo $plink;
+	}
+	// percolate id
+	public function percolateId($post)
+	{
+		$percolateId = get_post_meta($post->ID, self::M_PERCOLATEID, true);
+ 		echo $percolateId;
 	}
 
 
@@ -491,9 +435,9 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 
 
-		if (!empty($_POST[self::M_DOMAIN])) {
-			update_post_meta($postId, self::M_DOMAIN, $_POST[self::M_DOMAIN]);
-		}
+    // if (!empty($_POST[self::M_DOMAIN])) {
+    //  update_post_meta($postId, self::M_DOMAIN, $_POST[self::M_DOMAIN]);
+    // }
 
 		if (!empty($_POST[self::M_URL])) {
 			update_post_meta($postId, self::M_URL, $_POST[self::M_URL]);
@@ -723,27 +667,6 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         <?php
 	}
 
-		public function settingsImportRecentDisplay()
-		{
-			// Get the Import Most Recent
-			$importMostRecent = get_option(self::IMPORT_MOSTRECENT_OPTION);
-	?>
-
-	        <span class="percapi-importrecent" style="width:10%;float:left;">
-		   	  <input type="checkbox" name="<?php echo self::IMPORT_MOSTRECENT_OPTION; ?>" id="<?php echo self::IMPORT_MOSTRECENT_OPTION; ?>" value="1" <?php if ($importMostRecent == 1) { echo("checked='checked'");} ?> />
-	            Yes
-	        </span>
-
-	        <span style="float:left;width:60%;background:#FFFAB1;padding:14px;">
-	         Note: If this is your first time activating the plugin you may want to <strong>check this to import posts from Percolate starting today</strong>. If you leave this <strong>unchecked</strong> the plugin will start importing the first posts you made on Percolate and move forward.
-
-	        </span>
-
-
-
-	        <?php
-		}
-
 	public function userIdNotice()
 	{
 		if (get_option(self::USERID_OPTION) || get_option(self::GROUPID_OPTION)) {
@@ -827,37 +750,42 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 	 */
 	public function importStories()
 	{
-		$posts = self::getPercolatePosts();
+    $limit = 30; 
+    $offset = 0; //for initial step, this wil update within following loop
+    $total = 1; //for initial step, this wil update within following loop
+    
+    while( intval($offset) < intval($total) ) {
+      
+  		$posts = self::getPercolatePosts($offset, $limit);		
+  		
+  		$pagination = $posts['pagination'];
+  		$total = $pagination['total']; 
+  		$offset = intval($offset) + 30;
+  		
+  		$objects = $posts['data'];
+  		$last_startId = get_option(self::STARTID_OPTION);
 
-		$objects = $posts['objects'];
-		$data = $posts['data'];
-		$startId = $data['last_id'];
-		$last_startId = get_option(self::STARTID_OPTION);
-		$perc_permalinks = array();
-		// Check to see if the last_id coming from the percolate API is larger than that is what is
-		// stored in the wp db, if its smaller than something is wrong and we don't update the start_at_id and don't
-		// do the import.
-		if(intval($last_startId) < intval($startId)){
-			if ($objects) {
-				foreach ($objects as $object) {
-				  array_push($perc_permalinks, self::importStory($object));
-				}
-				//post the permalinks to percolate
-				//if (!empty($perc_permalinks)) {
-				//	foreach ($perc_permalinks as $perc_permalink) {
-				//		self::postToPercolate($perc_permalink);
-				//	}
-				//}
-			
-			}
-			update_option(self::LASTIMPORT_OPTION, time());
+  		// Check to see if the last_id coming from the percolate API is larger than that is what is
+  		// stored in the wp db, if its smaller than something is wrong and we don't update the start_at_id and don't
+  		// do the import.
 
-			if($startId){
-				update_option(self::STARTID_OPTION, $startId);
-				update_option(self::IMPORT_MOSTRECENT_OPTION, 0);
-			}
-
-		}
+  			if ($objects) {
+  				foreach ($objects as $object) {
+  				  $startId = $object['id'];
+				  
+  				  if(intval($last_startId) < intval($startId)) { 
+  				   self::importStory($object);
+  				  }
+				  
+  				}
+  				
+  				update_option(self::STARTID_OPTION, $startId); 
+  				    
+  		  } 
+  	}
+  	
+  	update_option(self::LASTIMPORT_OPTION, time());
+		
 	}
 
 	/**
@@ -872,10 +800,10 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		$body = $object['body'];
 		$analytics_array = $object['analytics'];
 		$short_url = $object['short_url'];
-		$more_sources = $object['more_sources'];
 		$link_array =  $object['link'];
 		$url_array = $link_array['url'];
 		$media_array = $object['media'];
+		$percolate_id = $object['id'];
 
 		$linkId = $object['id'];
 
@@ -896,8 +824,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		}
 
 		$post = array();
-		$post['post_title']=html_entity_decode($link_array['title']);
-
+		$post['post_title']=html_entity_decode($object['title']); //apiV3 feature
 
 		if (!trim($post['post_title'])) {
 			$post['post_title']='[no title]';
@@ -911,9 +838,9 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 		// utc timezone adjustment
 		if (0 == $offset){
-			$post['post_date']=date('Y-m-d H:i:s', strtotime($object['posted_on']));
+			$post['post_date']=date('Y-m-d H:i:s', strtotime($object['created_at']));
 		}else{
-			$post['post_date']=date('Y-m-d H:i:s', strtotime($object['posted_on']." ".$offset." hours"));
+			$post['post_date']=date('Y-m-d H:i:s', strtotime($object['created_at']." ".$offset." hours"));
 		}
 
 		$post['post_status']=get_option(self::POSTSTATUS_OPTION);
@@ -933,9 +860,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			}
 		}else{
 			//story author
-			// comes like this "user": {"username": "joe", "id": 9}
-			$author = $object['user'];
-			$author_id = $author['id'];
+			$author_id = $object['user_id'];
 			//get group authors
 			$group_authors = get_option(self::GROUPAUTHORS_OPTION);
 			$group_authors_array = json_decode($group_authors);
@@ -960,26 +885,19 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		wp_set_post_tags($postId, $tags_s);
 		}
 
-
-
-
 		$ver = floatval(phpversion());
 
-		update_post_meta($postId, self::M_DOMAIN, $url_array['hostname']);
-		update_post_meta($postId, self::M_ADDEDON, strtotime($object['posted_on']));
-		update_post_meta($postId, self::M_LINKID, $link_array['urlid']);
+		update_post_meta($postId, self::M_ADDEDON, strtotime($object['created_at']));
+		update_post_meta($postId, self::M_LINKID, $link_array['id']);
 		update_post_meta($postId, self::M_ORIGINALDESCRIPTION, html_entity_decode($link_array['description']));
-		update_post_meta($postId, self::M_ORIGINALTITLE, html_entity_decode($link_array['title']));
-		if( $ver > 5.2 ){
-			update_post_meta($postId, self::M_SOURCES, $more_sources);
-
-		}else{
-			update_post_meta($postId, self::M_SOURCES, $more_sources);
-		}
-		update_post_meta($postId, self::M_URL, $url_array['url']);
+		update_post_meta($postId, self::M_ORIGINALTITLE, html_entity_decode($link_array['title'])); 
+		update_post_meta($postId, self::M_URL, $url_array);
 		update_post_meta($postId, self::M_SHORTURL, $short_url);
 		update_post_meta($postId, self::M_USERDESCRIPTION, html_entity_decode($link_array['description']));
-		update_post_meta($postId, self::M_USERTITLE, $link_array['title']);
+		update_post_meta($postId, self::M_USERTITLE, $object['title']);
+		update_post_meta($postId, self::M_PERCOLATEID, $percolate_id);
+		
+		
 		//add or update media
 		update_post_meta($postId, self::M_MEDIA,$media_array);
 
@@ -1019,7 +937,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		}
 	}
 
-	public function getPercolatePosts() {
+	public function getPercolatePosts($offset,$limit) {
 
 		$apiKey = get_option(self::APIKEY_OPTION);
 		if($apiKey){
@@ -1037,32 +955,13 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		}else{
 			$group_id=get_option(self::GROUPID_OPTION);
 			$method = "groups/".$group_id."/posts/";
-		}
-
-
-		$importMostRecent = get_option(self::IMPORT_MOSTRECENT_OPTION);
-
-		// Use the start id in the db only if Import Most Recent option is not selected.
-		if ($importMostRecent!=1){
-			// Get start id
-			$startId = get_option(self::STARTID_OPTION);
-			// Check for last post id and add as a parameter
-			if($startId){
-				$options['start_at_id'] = $startId; 
-			}
-		}
-
-
-		if($importMostRecent==1){
-			$options['scroll']="True";
-		}
-
-		// Make the actual call to the API
-		if($options['api_key']){
-			$options['count']=5;
-
-			return self::callPercolateApi($method , $options);
-		}
+    }
+    
+    $options['order_direction'] = 'asc'; //apiV3 feature
+    $options['limit'] = $limit; //apiV3 feature 
+    $options['offset'] = $offset; //apiV3 feature 
+   
+		return self::callPercolateApi($method , $options);
 	}
 
 
@@ -1109,68 +1008,74 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		return true;
 		
 	}
-
-
+	
+	//tweet a tweet for that posts with a link to the wordpress permalink.
+	public function permalink_post_back($postId) {
+	  
+	  	$perc_permalink = get_post_meta($postId, self::M_POSTEDPERMALINK, true);
+	  	$percolate_id = get_post_meta($post->ID, self::M_PERCOLATEID, true);
+    	self::postToPercolate( array("post_id" => $percolate_id, "permalink" => $perc_permalink) );
+    
+	}
 	
 	protected static function callPercolateApi($method, $fields=array(), $jsonFields=array())
 
 	{
 
 		$url = self::API_BASE . "$method";
-
-		if ($fields) {
-			$tokens = array();
-			foreach ($fields as $key=>$val) {
-				$tokens[]="$key=$val";
+		
+			if ($fields) {
+				$tokens = array();
+				foreach ($fields as $key=>$val) {
+					$tokens[]="$key=$val";
+				}
+				$url.="?" . implode('&', $tokens);
 			}
-			$url.="?" . implode('&', $tokens);
-		}
-
-
-		/* call url*/
-		$curl_handle = curl_init($url);
-		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
-		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl_handle, CURLOPT_HEADER, 0);
-	
-		/* json post fields */
-		if ($jsonFields) {
-			curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
-			curl_setopt($curl_handle, CURLOPT_POSTFIELDS,json_encode($jsonFields));
-		}else{
-			curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array('Expect:'));
-		}
+		    
+			/* call url*/
+			$curl_handle = curl_init($url);
+			curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
+			curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($curl_handle, CURLOPT_HEADER, 0);
+		
+			/* json post fields */
+			if ($jsonFields) {
+				curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
+				curl_setopt($curl_handle, CURLOPT_POSTFIELDS,json_encode($jsonFields));
+			}else{
+				curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array('Expect:'));
+			}
+				
+			$buffer = curl_exec($curl_handle);
 			
-		$buffer = curl_exec($curl_handle);
+			$status = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
+			
+			curl_close($curl_handle);
+			
+			$data = json_decode( $buffer, true );
 		
-		$status = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
-		
-		curl_close($curl_handle);
-		
-		$data = json_decode( $buffer, true );
-	
-		if ($status != 200) {
-		
-			$message = "An unknown error occurred communicating with Percolate ($status) - $buffer";
-		
-			if ($data) {
-		
-				if ($data['error']) {
-					$message = $data['error'];
+			if ($status != 200) {
+			
+				$message = "An unknown error occurred communicating with Percolate ($status) - $buffer";
+			
+				if ($data) {
+			
+					if ($data['error']) {
+						$message = $data['error'];
+					}
+			
+					if (array_key_exists('request', $data)) {
+						$message .= ' -- Request: '.$data['request'];
+					}
+				} else {
+					$message = "No Data received.";
 				}
-		
-				if (array_key_exists('request', $data)) {
-					$message .= ' -- Request: '.$data['request'];
-				}
-			} else {
-				$message = "No Data received.";
+			
+				throw new Exception($message, $status);
 			}
 		
-			throw new Exception($message, $status);
-		}
-
-		
-		$data = json_decode( $buffer, true );
+			
+			$data = json_decode( $buffer, true );
 
 		return $data;
 
@@ -1269,7 +1174,7 @@ add_action('admin_menu', array('PercolateImport', 'adminMenu'));
 add_action('save_post', array('PercolateImport', 'updatePost'));
 add_action('admin_print_footer_scripts', array('PercolateImport', 'adminScripts'));
 add_action('admin_notices', array('PercolateImport','userIdNotice'));
-
+add_action('publish_post', array('PercolateImport','permalink_post_back')); //apiV3 feature
 
 // The plugin github updater
 include_once('updater.php');
