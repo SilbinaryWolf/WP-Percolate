@@ -898,6 +898,11 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		update_post_meta($postId, self::M_PERCOLATEID, $percolate_id);
 		
 		
+		// v2 Compatibility, copy the large image to p_img at the root of the the media_array.
+		if ($media_array['type'] == 'image') {
+			$media_array['p_img'] = $media_array['images']['large'];
+		}
+
 		//add or update media
 		update_post_meta($postId, self::M_MEDIA,$media_array);
 
