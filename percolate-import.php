@@ -957,9 +957,11 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			$method = "groups/".$group_id."/posts/";
     }
     
+    $options['statuses'] = 'published'; //apiV3 feature
     $options['order_direction'] = 'desc'; //apiV3 feature
     $options['limit'] = $limit; //apiV3 feature 
     $options['offset'] = $offset; //apiV3 feature 
+
    
 		return self::callPercolateApi($method , $options);
 	}
