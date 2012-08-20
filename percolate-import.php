@@ -40,7 +40,7 @@ class PercolateImport
 
 	//const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
 
-	const API_BASE='http://percolate.com/api/v3/';
+	const API_BASE='http://www.qa.prclt.net/api/v3/';
 
 	const M_LINKID='percolate_link_id';
 	const M_ADDEDON='percolate_added_on';
@@ -827,7 +827,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		$post['post_title']=html_entity_decode($object['title']); //apiV3 feature
 
 		if (!trim($post['post_title'])) {
-			$post['post_title']='[no title]';
+			$post['post_title']=html_entity_decode($link_array['title']);
 		}
 
 		$post['post_content']=$body;
@@ -957,7 +957,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			$method = "groups/".$group_id."/posts/";
     }
     
-    $options['order_direction'] = 'asc'; //apiV3 feature
+    $options['order_direction'] = 'desc'; //apiV3 feature
     $options['limit'] = $limit; //apiV3 feature 
     $options['offset'] = $offset; //apiV3 feature 
    
@@ -1009,11 +1009,11 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		
 	}
 	
-	//tweet a tweet for that posts with a link to the wordpress permalink.
+	// Post the wordpress permalink back to percolate.
 	public function permalink_post_back($postId) {
 	  
 	  	$perc_permalink = get_post_meta($postId, self::M_POSTEDPERMALINK, true);
-	  	$percolate_id = get_post_meta($post->ID, self::M_PERCOLATEID, true);
+	  	$percolate_id = get_post_meta($postId, self::M_PERCOLATEID, true);
     	self::postToPercolate( array("post_id" => $percolate_id, "permalink" => $perc_permalink) );
     
 	}
