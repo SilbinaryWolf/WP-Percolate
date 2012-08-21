@@ -40,13 +40,14 @@ class PercolateImport
 
 	//const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
 
-	const API_BASE='http://www.qa.prclt.net/api/v3/';
+	//const API_BASE='http://www.qa.prclt.net/api/v3/';
+	const API_BASE='http://percolate.com/api/v3/';
 
 	const M_LINKID='percolate_link_id';
 	const M_ADDEDON='percolate_added_on';
 	const M_ORIGINALTITLE='percolate_original_title';
 	const M_USERTITLE='percolate_user_title';
-	//const M_DOMAIN='percolate_domain';
+	const M_DOMAIN='percolate_domain';
 	const M_ORIGINALDESCRIPTION='percolate_original_description';
 	const M_USERDESCRIPTION='percolate_user_description';
 	const M_URL='percolate_url';
@@ -887,6 +888,11 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 		$ver = floatval(phpversion());
 
+				
+
+
+		update_post_meta($postId, self::M_DOMAIN, parse_url($url_array, PHP_URL_HOST));
+
 		update_post_meta($postId, self::M_ADDEDON, strtotime($object['created_at']));
 		update_post_meta($postId, self::M_LINKID, $link_array['id']);
 		update_post_meta($postId, self::M_ORIGINALDESCRIPTION, html_entity_decode($link_array['description']));
@@ -900,7 +906,9 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		
 		// v2 Compatibility, copy the large image to p_img at the root of the the media_array.
 		if ($media_array['type'] == 'image') {
-			$media_array['p_img'] = $media_array['images']['large'];
+			$media_array['p_img'] = $media_array['images']['large']['url'];
+		} else if ($media_array['type'] == 'video') {
+			$media_array['t_img'] = $media_array['images'][1]['url'];
 		}
 
 		//add or update media
@@ -1006,7 +1014,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		$method = 'publish/public';
 		
 		try {
-			self::callPercolateApi($method , $options, $jsonFields);
+			self::callPercolateApi($method, $options, $jsonFields);
 		} catch (Exception $e) {
 			//try posting again
 			call_user_func(__FUNCTION__,$jsonFields);
@@ -1084,6 +1092,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			
 			$data = json_decode( $buffer, true );
 
+		
 		return $data;
 
 
@@ -1181,7 +1190,7 @@ add_action('admin_menu', array('PercolateImport', 'adminMenu'));
 add_action('save_post', array('PercolateImport', 'updatePost'));
 add_action('admin_print_footer_scripts', array('PercolateImport', 'adminScripts'));
 add_action('admin_notices', array('PercolateImport','userIdNotice'));
-add_action('publish_post', array('PercolateImport','permalink_post_back')); //apiV3 feature
+// add_action('publish_post', array('PercolateImport','permalink_post_back')); //apiV3 feature
 
 // The plugin github updater
 include_once('updater.php');
