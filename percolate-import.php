@@ -7,7 +7,7 @@ Plugin Name: WP Percolate
 Plugin URI: http://percolate.org
 Description: This plugin turns Percolate posts into Wordpress entries.
 Author: Percolate Industries, Inc.
-Version: 3.1.2
+Version: 3.1.2 b1
 Author URI: http://percolate.org
 */
 
@@ -40,8 +40,8 @@ class PercolateImport
 
 	//const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
 
-	//const API_BASE='http://www.qa.prclt.net/api/v3/';
-	const API_BASE='http://percolate.com/api/v3/';
+	const API_BASE='http://www.qa.prclt.net/api/v3/';
+	//const API_BASE='http://percolate.com/api/v3/';
 
 	const M_LINKID='percolate_link_id';
 	const M_ADDEDON='percolate_added_on';
@@ -337,8 +337,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 	public function mediaMetaBox($post){
 		$mediaMeta = get_post_meta($post->ID, self::M_MEDIA);
-
-		if ($mediaMeta) {
+		if (!empty($mediaMeta[0])) {
 		foreach($mediaMeta as $media_js){
 			// Get the media type
 			//$medias= json_decode($media_js);
@@ -347,29 +346,28 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			echo "<h4>Type: " . $mediaType . "</h4>";
 			echo "<input type='hidden' value='" . $mediaType . "' id='media_type' />";
 
-			if ($mediaType === "image") {
-				$p_img = $media['src']; //$p_img = $media['p_img']; //apiV3 feature
-				$p_img_width = $media['images']['large']['width'];//apiV3 feature
-				$p_img_height = $media['images']['large']['height']; //apiV3 feature
-				
-				echo "<img src='$p_img' id='m_media' width='$p_img_width' height='$p_img_height' />"; //echo "<img src='$p_img' id='m_media' />"; narada
-			}
-			if ($mediaType === "video") {
-				$video_url = $media['url'];
+				if ($mediaType === "image") {
+					$p_img = $media['src']; //$p_img = $media['p_img']; //apiV3 feature
+					$p_img_width = $media['images']['large']['width'];//apiV3 feature
+					$p_img_height = $media['images']['large']['height']; //apiV3 feature
+					
+					echo "<img src='$p_img' id='m_media' width='$p_img_width' height='$p_img_height' />"; //echo "<img src='$p_img' id='m_media' />"; narada
+				}
+				if ($mediaType === "video") {
+					$video_url = $media['url'];
 
-				if(strstr($video_url, "vimeo")) {
-					echo '<iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe><br /><br /><br /><h4>Copy This Embed Code.</h4><textarea style="width:90%;color:#CCC;" id="m_media_video"><iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe></textarea>';
+					if(strstr($video_url, "vimeo")) {
+						echo '<iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe><br /><br /><br /><h4>Copy This Embed Code.</h4><textarea style="width:90%;color:#CCC;" id="m_media_video"><iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe></textarea>';
+					}
+					if(strstr($video_url, "youtube")) {
+						echo '<iframe title="YouTube video player" width="520" height="320" src="'.$video_url.'?wmode=transparent&amp;rel=0" frameborder="0" type="text/html"></iframe><br /><br /><br /><h4>Copy This Embed Code.</h4><textarea style="width:90%;color:#CCC;" id="m_media_video"><iframe title="YouTube video player" width="520" height="320" src="'.$video_url.'?wmode=transparent&amp;rel=0" frameborder="0" type="text/html"></iframe></textarea>';
+					}
 				}
-				if(strstr($video_url, "youtube")) {
-					echo '<iframe title="YouTube video player" width="520" height="320" src="'.$video_url.'?wmode=transparent&amp;rel=0" frameborder="0" type="text/html"></iframe><br /><br /><br /><h4>Copy This Embed Code.</h4><textarea style="width:90%;color:#CCC;" id="m_media_video"><iframe title="YouTube video player" width="520" height="320" src="'.$video_url.'?wmode=transparent&amp;rel=0" frameborder="0" type="text/html"></iframe></textarea>';
+				if ($mediaType === "quote") {
+					$quote_text = $media['text'];
+					echo '<blockquote>$quote_text</blockquote><textarea style="width:90%;color:#CCC;" id="m_media_quote"><blockquote>' . $quote_text . '</blockquote></textarea>';
 				}
 			}
-			if ($mediaType === "quote") {
-				$quote_text = $media['text'];
-				echo '<blockquote>$quote_text</blockquote><textarea style="width:90%;color:#CCC;" id="m_media_quote"><blockquote>' . $quote_text . '</blockquote></textarea>';
-			}
-			}
-		}
 
 	?>
 	<script type="text/javascript">
@@ -410,6 +408,11 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 	  	<input type="button" class="select-media-button" value="Insert <?php echo $mediaType ?> into post body." />
 	   </div>
 	<?php
+	} else {
+			echo "<p>There wasn't any media imported from Percolate.</p>";
+		}
+
+
 	}
 
 	//posted permalink to percolate
@@ -470,6 +473,10 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		echo $userType != 1 ?  "checked=\"checked\"" :  "" ;
 		?> />
 		   	     	Individual
+		   	
+		   	<!-- @beta For 3.0 Beta hide the group -->
+		   	<div style="display:none">
+		   	
 		   	<input type="radio" name="<?php echo self::USERTYPE_OPTION; ?>"
 		   	     	id="percapi-user-type-group" value="1"
 					 <?php
@@ -477,6 +484,8 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 ?>
 		   	      />
 		   	     	Group
+		   	     </div>
+				<!-- @beta For 3.0 Beta hide the group -->
 			<input type="hidden" name="init_user_type" id="init_user_type" value="<?php echo $userType;?>">
 		</span>
 	<?php
@@ -776,11 +785,15 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 				  
   				  if(intval($last_startId) < intval($startId)) { 
   				   self::importStory($object);
+  				  
+  				   // update the startID with the last id that was imported.
+  				   update_option(self::STARTID_OPTION, $startId);
   				  }
 				  
+  					
   				}
   				
-  				update_option(self::STARTID_OPTION, $startId); 
+  				 
   				    
   		  } 
   	}
@@ -1190,7 +1203,7 @@ add_action('admin_menu', array('PercolateImport', 'adminMenu'));
 add_action('save_post', array('PercolateImport', 'updatePost'));
 add_action('admin_print_footer_scripts', array('PercolateImport', 'adminScripts'));
 add_action('admin_notices', array('PercolateImport','userIdNotice'));
-// add_action('publish_post', array('PercolateImport','permalink_post_back')); //apiV3 feature
+add_action('publish_post', array('PercolateImport','permalink_post_back')); //apiV3 feature
 
 // The plugin github updater
 include_once('updater.php');
