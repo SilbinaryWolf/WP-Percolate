@@ -3,11 +3,11 @@
  * @package Percolate_Import
  */
 /*
-Plugin Name: WP Percolate
+Plugin Name: WP Percolate 
 Plugin URI: http://percolate.org
-Description: This plugin turns Percolate posts into Wordpress entries.
+Description: This plugin turns Percolate posts into Wordpress entries. (b1)
 Author: Percolate Industries, Inc.
-Version: 3.1.2 b1
+Version: 3.1.2
 Author URI: http://percolate.org
 */
 
