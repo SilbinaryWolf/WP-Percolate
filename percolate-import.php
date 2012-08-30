@@ -40,8 +40,8 @@ class PercolateImport
 
 	//const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
 
-	//const API_BASE='http://www.qa.prclt.net/api/v3/';
-	const API_BASE='http://percolate.com/api/v3/';
+	const API_BASE='http://www.qa.prclt.net/api/v3/';
+	//const API_BASE='http://percolate.com/api/v3/';
 
 	const M_LINKID='percolate_link_id';
 	const M_ADDEDON='percolate_added_on';
@@ -277,7 +277,7 @@ class PercolateImport
 		register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
 
 		//Import process
-	    self::checkImport();
+	  self::checkImport();
 		// TODO: do we still need this?
 
 		// self::checkUpdate();
@@ -474,8 +474,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		?> />
 		   	     	Individual
 		   	
-		   	<!-- @beta For 3.0 Beta hide the group -->
-		   	<div style="display:none">
+
 		   	
 		   	<input type="radio" name="<?php echo self::USERTYPE_OPTION; ?>"
 		   	     	id="percapi-user-type-group" value="1"
@@ -484,8 +483,8 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 ?>
 		   	      />
 		   	     	Group
-		   	     </div>
-				<!-- @beta For 3.0 Beta hide the group -->
+		   	    
+
 			<input type="hidden" name="init_user_type" id="init_user_type" value="<?php echo $userType;?>">
 		</span>
 	<?php
@@ -587,7 +586,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 				<tr>
 					<th>
 						Group Members
-				            <input type="button" id="refresh_memberform" value="<?php _e('Refresh') ?>" />
+				            <a href="#" id="refresh_memberform">refresh</a>
 
 					</th>
 				 	<th>
@@ -603,8 +602,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 			$percolate_users = self::getGroupUsers($group_id);
 
-			$objects = $percolate_users['objects'];
-
+			$objects = $percolate_users['data'];
 
 			if(is_array($objects)){
 
@@ -732,7 +730,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		if( isset($_REQUEST['settings-updated']) && $_REQUEST['settings-updated'] == 'true' && get_option(PercolateImport::IMPORT_OVERRIDE_OPTION) == 1 )
 		{
 			$last_id = get_option(self::STARTID_OPTION);
-?>
+		?>
         <div id="stories_imported" class="updated settings-error">
         <p>
             <strong>Stories Imported. Last id: <?php echo ($last_id); ?></strong>
@@ -763,9 +761,10 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
     $limit = 30; 
     $offset = 0; //for initial step, this wil update within following loop
     $total = 1; //for initial step, this wil update within following loop
-    
+
     while( intval($offset) < intval($total) ) {
       
+  		
   		$posts = self::getPercolatePosts($offset, $limit);		
   		
   		$pagination = $posts['pagination'];
@@ -916,13 +915,16 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		update_post_meta($postId, self::M_USERTITLE, $object['title']);
 		update_post_meta($postId, self::M_PERCOLATEID, $percolate_id);
 		
-		
-		// v2 Compatibility, copy the large image to p_img at the root of the the media_array.
-		if ($media_array['type'] == 'image') {
-			$media_array['p_img'] = $media_array['images']['large']['url'];
-		} else if ($media_array['type'] == 'video') {
-			$media_array['t_img'] = $media_array['images'][1]['url'];
+		if (isset($media_array['type'])) 
+		{
+			// v2 Compatibility, copy the large image to p_img at the root of the the media_array.
+			if ($media_array['type'] == 'image') {
+				$media_array['p_img'] = $media_array['images']['large']['url'];
+			} else if ($media_array['type'] == 'video') {
+				$media_array['t_img'] = $media_array['images'][1]['url'];
+			}
 		}
+
 
 		//add or update media
 		update_post_meta($postId, self::M_MEDIA,$media_array);
@@ -964,8 +966,9 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 	}
 
 	public function getPercolatePosts($offset,$limit) {
-
+		
 		$apiKey = get_option(self::APIKEY_OPTION);
+		
 		if($apiKey){
 			$options['api_key'] = $apiKey;
 		}else{
@@ -977,10 +980,10 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 		if($userType!=1){
 			$user_id = get_option(self::USERID_OPTION);
-			$method = "users/".$user_id."/posts/";
+			$method = "users/".$user_id."/posts";
 		}else{
 			$group_id=get_option(self::GROUPID_OPTION);
-			$method = "groups/".$group_id."/posts/";
+			$method = "groups/".$group_id."/posts";
     }
     
     $options['statuses'] = 'published'; //apiV3 feature
