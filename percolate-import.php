@@ -40,7 +40,8 @@ class PercolateImport
 
 	//const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
 
-	const API_BASE='http://percolate.com/api/v3/';
+	//const API_BASE='http://percolate.com/api/v3/';
+	const API_BASE='http://www.qa.prclt.net/api/v3/';
 
 	const M_LINKID='percolate_link_id';
 	const M_ADDEDON='percolate_added_on';
@@ -919,6 +920,8 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			// v2 Compatibility, copy the large image to p_img at the root of the the media_array.
 			if ($media_array['type'] == 'image') {
 				$media_array['p_img'] = $media_array['images']['large']['url'];
+				$media_array['height'] = $media_array['images']['large']['height'];
+				$media_array['width'] = $media_array['images']['large']['width'];
 			} else if ($media_array['type'] == 'video') {
 				$media_array['t_img'] = $media_array['images'][1]['url'];
 			}
@@ -986,6 +989,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
     }
     
     $options['statuses'] = 'published'; //apiV3 feature
+    $options['service_id'] = '12'; // .com service - apiV3 feature
     $options['order_direction'] = 'desc'; //apiV3 feature
     $options['limit'] = $limit; //apiV3 feature 
     $options['offset'] = $offset; //apiV3 feature 
@@ -1044,7 +1048,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 	  
 	  	$perc_permalink = get_post_meta($postId, self::M_POSTEDPERMALINK, true);
 	  	$percolate_id = get_post_meta($postId, self::M_PERCOLATEID, true);
-    	self::postToPercolate( array("post_id" => $percolate_id, "permalink" => $perc_permalink) );
+    	self::postToPercolate( array("post_id" => $percolate_id, "permalink" => urlencode($perc_permalink)) );
     
 	}
 	
