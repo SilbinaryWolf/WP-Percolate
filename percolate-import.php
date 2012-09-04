@@ -40,8 +40,8 @@ class PercolateImport
 
 	//const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
 
-	//const API_BASE='http://percolate.com/api/v3/';
-	const API_BASE='http://www.qa.prclt.net/api/v3/';
+	const API_BASE='http://percolate.com/api/v3/';
+	//const API_BASE='http://www.qa.prclt.net/api/v3/';
 
 	const M_LINKID='percolate_link_id';
 	const M_ADDEDON='percolate_added_on';
@@ -757,7 +757,8 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 	 * Call the percolate API and try to import stories
 	 */
 	public function importStories()
-	{
+	{   
+
     $limit = 30; 
     $offset = 0; //for initial step, this wil update within following loop
     $total = 1; //for initial step, this wil update within following loop
@@ -797,8 +798,6 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
   		  } 
   	}
   	
-  	update_option(self::LASTIMPORT_OPTION, time());
-		
 	}
 
 	/**
@@ -958,8 +957,13 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 		if ( ((time() - get_option(self::LASTIMPORT_OPTION)) > self::IMPORT_INTERVAL) || get_option( self::IMPORT_OVERRIDE_OPTION ) == 1 ) {
 			try{
+				// update the lastimport here so we reset it even if posts aren't imported.
+				update_option(self::LASTIMPORT_OPTION, time());
+				
+				// And try the import
 				self::importStories();
 			}
+
 			catch (Exception $e)
 			{
 
