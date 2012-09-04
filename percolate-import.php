@@ -365,7 +365,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 				}
 				if ($mediaType === "quote") {
 					$quote_text = $media['text'];
-					echo '<blockquote>$quote_text</blockquote><textarea style="width:90%;color:#CCC;" id="m_media_quote"><blockquote>' . $quote_text . '</blockquote></textarea>';
+					echo '<blockquote>' . $quote_text . '</blockquote><textarea style="width:90%;color:#CCC;" id="m_media_quote"><blockquote>' . $quote_text . '</blockquote></textarea>';
 				}
 			}
 
@@ -989,7 +989,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
     }
     
     $options['statuses'] = 'published'; //apiV3 feature
-    $options['service_id'] = '12'; // .com service - apiV3 feature
+    $options['service_ids'] = '12'; // .com service - apiV3 feature
     $options['order_direction'] = 'desc'; //apiV3 feature
     $options['limit'] = $limit; //apiV3 feature 
     $options['offset'] = $offset; //apiV3 feature 
