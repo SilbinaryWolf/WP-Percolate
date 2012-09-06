@@ -41,7 +41,6 @@ class PercolateImport
 	//const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
 
 	const API_BASE='http://percolate.com/api/v3/';
-	//const API_BASE='http://www.qa.prclt.net/api/v3/';
 
 	const M_LINKID='percolate_link_id';
 	const M_ADDEDON='percolate_added_on';
