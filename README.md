@@ -42,7 +42,7 @@ _Method of Deployment_
 
 --------------------------------------------------
 _Please do not remove this version declaration_
-~Current Version:3.1.2~
+~Current Version:3.2.0~
 
 
 
