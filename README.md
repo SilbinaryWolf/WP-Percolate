@@ -9,6 +9,12 @@ In order to use this plugin you will need an API key issued to you from Percolat
 Changelog
 -----------
 
+### 3.2.0
+
+* Now works with api v3.0 
+* Titles entered in Percolate get mapped to titles in Wordpress.
+
+
 ### 3.1.2
 
 * Bug: Fix for not importing the full post body. 
