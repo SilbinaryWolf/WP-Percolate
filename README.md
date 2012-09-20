@@ -9,6 +9,12 @@ In order to use this plugin you will need an API key issued to you from Percolat
 Changelog
 -----------
 
+### 3.2.1
+
+* Fix issue with last imported ID validation during import
+* Fix issue with postback callback function when auto import is run in the admin
+* Update to debug section, assing last imported time and next import times.
+
 ### 3.2.0
 
 * Now works with api v3.0 
