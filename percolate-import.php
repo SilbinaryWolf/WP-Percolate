@@ -782,12 +782,13 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
   				foreach ($objects as $object) {
   				  $startId = $object['id'];
 				  
-  				  if(intval($last_startId) < intval($startId)) { 
+  				   
+  				  //if(intval($last_startId) < intval($startId)) { 
   				   self::importStory($object);
   				  
   				   // update the startID with the last id that was imported.
   				   update_option(self::STARTID_OPTION, $startId);
-  				  }
+  				  //}
 				  
   					
   				}
@@ -818,6 +819,8 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 		$linkId = $object['id'];
 
+		// We use this to check for posts that are already imported. 
+		// TODO: Find a better way to do this
 		$postName = 'perc_' . $linkId;
 
 		$posts = $wpdb->get_results(
@@ -1038,8 +1041,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		try {
 			self::callPercolateApi($method, $options, $jsonFields);
 		} catch (Exception $e) {
-			//try posting again
-			call_user_func(__FUNCTION__,$jsonFields);
+			// error
 		}
 		
 		return true;
@@ -1150,7 +1152,8 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		wp_schedule_event(time(), 'minute', 'percolate_import_event');
 	}
 	function deactivateImport(){
-		wp_clear_scheduled_hook('percolate_import_event');
+		$timestamp = wp_next_scheduled( 'percolate_import_event');
+		wp_clear_scheduled_hook($timestamp, 'minute', 'percolate_import_event');
 	}
 
 	function scheduleImport( $schedules ) {

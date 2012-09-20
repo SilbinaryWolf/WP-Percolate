@@ -19,13 +19,23 @@
 
 
 <div class="perc-debug" style="display:none;">
+<?php 
+
+$next_wp_cron = wp_next_scheduled('percolate_import_event'); 
+$blogtime = current_time('timestamp'); 
+$blogtime_formatted = strftime("%l", $blogtime); 
+
+$time_offset = get_option('gmt_offset');
+$last_imported = get_option(PercolateImport::LASTIMPORT_OPTION);
+?>
+
 <pre>
-<?php print_r(PercolateImport::LASTIMPORT_OPTION . ' = ' . get_option(PercolateImport::LASTIMPORT_OPTION)) ?>
-
-<?php print_r(PercolateImport::IMPORT_OVERRIDE_OPTION . ' = ' . get_option(PercolateImport::IMPORT_OVERRIDE_OPTION)) ?>
-
-<?php echo 'Next import in '; print_r((time() - get_option(PercolateImport::LASTIMPORT_OPTION)) - PercolateImport::IMPORT_INTERVAL); echo ' seconds';?>
-
+<?php
+echo "\nLast imported at: <strong>" . $blogtime_formatted . gmstrftime(":%M%p", $last_imported). "</strong>";
+echo "\nOverride import iption: <strong>" . get_option(PercolateImport::IMPORT_OVERRIDE_OPTION) . "</strong>";
+echo "\nNext import in <strong>T"; print_r((time() - get_option(PercolateImport::LASTIMPORT_OPTION)) - PercolateImport::IMPORT_INTERVAL); echo ' seconds</strong>';
+echo "\nNext wp-cron scheduled for:<strong>".$blogtime_formatted.strftime(":%M%p", $next_wp_cron) . "</strong>";
+?>
 </pre>
 
 </div>
