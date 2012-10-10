@@ -345,31 +345,33 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			echo "<h4>Type: " . $mediaType . "</h4>";
 			echo "<input type='hidden' value='" . $mediaType . "' id='media_type' />";
 
-				if ($mediaType === "image") {
-          
+				if ($mediaType === "image") {           
 					// $p_img = $media['src']; //$p_img = $media['p_img']; //apiV3 feature
 					$p_img =  $media['images']['large']['url'];
           $p_img_width = $media['images']['large']['width'];//apiV3 feature
 					$p_img_height = $media['images']['large']['height']; //apiV3 feature
 					
-          echo "<input type='radio' name='image-size' value='large'>";
-          echo "<img src='$p_img' id='m_media' width='$p_img_width' height='$p_img_height' />"; //echo "<img src='$p_img' id='m_media' />"; narada
+          echo "<input type='radio' name='image-size' value='large' style='display:none;'>";
+          echo "<img src='$p_img' id='m_media' width='$p_img_width' height='$p_img_height' class='media_image' size='large'/>"; //echo "<img src='$p_img' id='m_media' />"; narada
           echo "</input>";
           $p_img_medium_url = $media['images']['medium']['url'];//apiV3 feature
 					$p_img_medium_width = $media['images']['medium']['width'];//apiV3 feature
 					$p_img_medium_height = $media['images']['medium']['height']; //apiV3 feature
           
-          echo "<input type='radio' name='image-size' value='medium'>";
-          echo "<img src='$p_img_medium_url' id='m_media_m' width='$p_img_medium_width' height='$p_img_medium_height' />"; 
+          echo "<input type='radio' name='image-size' value='medium' style='display:none;'>";
+          echo "<img src='$p_img_medium_url' id='m_media_m' width='$p_img_medium_width' height='$p_img_medium_height' class='media_image' size='medium' />"; 
           echo "</input>";
           $p_img_small_url = $media['images']['small']['url'];//apiV3 feature
 					$p_img_small_width = $media['images']['small']['width'];//apiV3 feature
 					$p_img_small_height = $media['images']['small']['height']; //apiV3 feature
           
-          echo "<input type='radio' name='image-size' value='small'>";
-          echo "<img src='$p_img_small_url' id='m_media_s' width='$p_img_small_width' height='$p_img_small_height' />"; 
+          echo "<input type='radio' name='image-size' value='small' style='display:none;'>";
+          echo "<img src='$p_img_small_url' id='m_media_s' width='$p_img_small_width' height='$p_img_small_height' class='media_image' size='small'/>"; 
           echo "</input>";
 
+					$p_img_orginal =  $media['src'];
+          echo "<input type='radio' name='image-size' value='original'> Original Size </input>";
+          echo "<img src='$p_img_orginal' id='m_media_org' class='media_image' size='large' style='display:none;'/>";           
 				}
 				if ($mediaType === "video") {
 					$video_url = $media['url'];
@@ -411,6 +413,9 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
                   } else if (image_size == "small") {
                     p_img =$("#m_media_s").attr('src');
                     embedContent = '<img src="'+ p_img +'" alt="" />';                  
+                  } else if (image_size == "original") {
+                    p_img =$("#m_media_org").attr('src');
+                    embedContent = '<img src="'+ p_img +'" alt="" />';                  
                   }
                   
 								} else if (mType == 'video') {
@@ -424,12 +429,22 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		              send_to_editor(embedContent);
 		              switchEditors.go('content', 'tinymce');
 
-	            });
-
-
-
+	            });                 
 	        })(jQuery);
 	    });
+      
+      jQuery(document).ready(function () {
+        jQuery(".media_image").click(function(){              
+          jQuery(".media_image").each(function(){
+            $(this).css('border', 'none');
+          });
+          $(this).css('border', 'solid 2px black');
+          var image_size = $(this).attr('size');
+          var check_radio = "input[value='" + image_size + "']";
+          jQuery(check_radio).attr('checked', true);
+        });
+      });
+              
 	    </script>
 		 <div class="add-source-input">
 	  	<br /><br />
