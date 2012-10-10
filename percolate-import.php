@@ -436,10 +436,10 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
       jQuery(document).ready(function () {
         jQuery(".media_image").click(function(){              
           jQuery(".media_image").each(function(){
-            $(this).css('border', 'none');
+            jQuery(this).css('border', 'none');
           });
-          $(this).css('border', 'solid 2px black');
-          var image_size = $(this).attr('size');
+          jQuery(this).css('border', 'solid 2px black');
+          var image_size = jQuery(this).attr('size');
           var check_radio = "input[value='" + image_size + "']";
           jQuery(check_radio).attr('checked', true);
         });
