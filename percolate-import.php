@@ -40,7 +40,7 @@ class PercolateImport
 
 	//const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
 
-	const API_BASE='http://percolate.com/api/v3/';
+	const API_BASE='http://www.qa.prclt.net/api/v3/';
 
 	const M_LINKID='percolate_link_id';
 	const M_ADDEDON='percolate_added_on';
@@ -346,11 +346,30 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			echo "<input type='hidden' value='" . $mediaType . "' id='media_type' />";
 
 				if ($mediaType === "image") {
-					$p_img = $media['src']; //$p_img = $media['p_img']; //apiV3 feature
-					$p_img_width = $media['images']['large']['width'];//apiV3 feature
+          
+					// $p_img = $media['src']; //$p_img = $media['p_img']; //apiV3 feature
+					$p_img =  $media['images']['large']['url'];
+          $p_img_width = $media['images']['large']['width'];//apiV3 feature
 					$p_img_height = $media['images']['large']['height']; //apiV3 feature
 					
-					echo "<img src='$p_img' id='m_media' width='$p_img_width' height='$p_img_height' />"; //echo "<img src='$p_img' id='m_media' />"; narada
+          echo "<input type='radio' name='image-size' value='large'>";
+          echo "<img src='$p_img' id='m_media' width='$p_img_width' height='$p_img_height' />"; //echo "<img src='$p_img' id='m_media' />"; narada
+          echo "</input>";
+          $p_img_medium_url = $media['images']['medium']['url'];//apiV3 feature
+					$p_img_medium_width = $media['images']['medium']['width'];//apiV3 feature
+					$p_img_medium_height = $media['images']['medium']['height']; //apiV3 feature
+          
+          echo "<input type='radio' name='image-size' value='medium'>";
+          echo "<img src='$p_img_medium_url' id='m_media_m' width='$p_img_medium_width' height='$p_img_medium_height' />"; 
+          echo "</input>";
+          $p_img_small_url = $media['images']['small']['url'];//apiV3 feature
+					$p_img_small_width = $media['images']['small']['width'];//apiV3 feature
+					$p_img_small_height = $media['images']['small']['height']; //apiV3 feature
+          
+          echo "<input type='radio' name='image-size' value='small'>";
+          echo "<img src='$p_img_small_url' id='m_media_s' width='$p_img_small_width' height='$p_img_small_height' />"; 
+          echo "</input>";
+
 				}
 				if ($mediaType === "video") {
 					$video_url = $media['url'];
@@ -382,8 +401,18 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 	            	mType = $("#media_type").val();
 
 	            	if (mType == 'image' ) {
-		              p_img =$("#m_media").attr('src');
-		              embedContent = '<img src="'+ p_img +'" alt="" />';
+                  var image_size = $("input[name='image-size']:checked").val();
+                  if (image_size == "large") {
+                    p_img =$("#m_media").attr('src');
+                    embedContent = '<img src="'+ p_img +'" alt="" />';
+                  } else if (image_size == "medium") {
+                    p_img =$("#m_media_m").attr('src');
+                    embedContent = '<img src="'+ p_img +'" alt="" />';                  
+                  } else if (image_size == "small") {
+                    p_img =$("#m_media_s").attr('src');
+                    embedContent = '<img src="'+ p_img +'" alt="" />';                  
+                  }
+                  
 								} else if (mType == 'video') {
 									embedContent = $("textarea#m_media_video").val();
 								}	else if (mType == 'quote') {
