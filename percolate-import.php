@@ -864,14 +864,14 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 		// utc timezone adjustment if there is an offset set in wordpress.
 		if (0 == $offset){
-      if ($object['schedules']['type'] == 'public'){
+      if ($object['schedules'][1]['type'] == 'public'){
         $post['post_date']=date('Y-m-d H:i:s', strtotime($object['schedules']['published_at']));
       }
       else{
         $post['post_date']=date('Y-m-d H:i:s', strtotime($object['created_at']));
       }
 		}else{
-      if ($object['schedules']['type'] == 'public'){
+      if ($object['schedules'][1]['type'] == 'public'){
         $post['post_date']=date('Y-m-d H:i:s', strtotime($object['schedules']['published_at']." ".$offset." hours"));
       }
 			else {
