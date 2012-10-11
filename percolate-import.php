@@ -848,9 +848,21 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 		$post['post_name']=$postName;
 
+		
+
+
+
+		// Set the post_date for the wordpress post.
+		//  =====
+		//  TODO: 
+		//	Change this to its not created_at but $object['schedules']['published_at'] 
+		//  if the $object['schedules']['type'] == 'public'
+		//  Also need to adjust the time with the timezone set the scheduled node $object['schedules']['timezone']
+		//  This should match the offset set in wordpress, if there is one. 
+
 		$offset =  get_option('gmt_offset');
 
-		// utc timezone adjustment
+		// utc timezone adjustment if there is an offset set in wordpress.
 		if (0 == $offset){
 			$post['post_date']=date('Y-m-d H:i:s', strtotime($object['created_at']));
 		}else{
