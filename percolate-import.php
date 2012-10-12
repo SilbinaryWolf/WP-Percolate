@@ -40,7 +40,7 @@ class PercolateImport
 
 	//const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
 
-	const API_BASE= 'http://percolate.com/api/v3/';
+	const API_BASE='http://percolate.com/api/v3/';
 
 	const M_LINKID='percolate_link_id';
 	const M_ADDEDON='percolate_added_on';
@@ -866,17 +866,20 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
     foreach($object['schedules'] as $schedule){
       if ($schedule['type'] == 'public'){
         $publish_date = $schedule['published_at'];
+        $timezone = $schedule['timezone'];
       }
     }
     
 		if (0 != $offset){
-      $date = $publish_date." ".$offset." hours";
+      $date = $publish_date; //." ".$offset." hours";
     }
     else{
-      $date = $publish_date;
+      // maybe apply $timezone offset here ?
+      $date = $publish_date; //." ".$timezone." hours";
 		}
+    $date = strtotime($date);
     
-    $post['post_date'] = date('Y-m-d H:i:s', strtotime($date));
+    $post['post_date'] = date('Y-m-d H:i:s', $date);
 
 		$post['post_status']=get_option(self::POSTSTATUS_OPTION);
 
