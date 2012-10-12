@@ -459,6 +459,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
           var image_size = jQuery(this).attr('size');
           var check_radio = "input[value='" + image_size + "']";
           jQuery(check_radio).attr('checked', true);
+          jQuery("input[value='original']").attr('checked', false);
         });
       });
               
