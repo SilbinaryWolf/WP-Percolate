@@ -40,7 +40,7 @@ class PercolateImport
 
 	//const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
 
-	const API_BASE='http://percolate.com/api/v3/';
+	const API_BASE= 'http://percolate.com/api/v3/';
 
 	const M_LINKID='percolate_link_id';
 	const M_ADDEDON='percolate_added_on';
@@ -863,21 +863,20 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		$offset =  get_option('gmt_offset');
 
 		// utc timezone adjustment if there is an offset set in wordpress.
-		if (0 == $offset){
-      if ($object['schedules'][1]['type'] == 'public'){
-        $post['post_date']=date('Y-m-d H:i:s', strtotime($object['schedules']['published_at']));
+    foreach($object['schedules'] as $schedule){
+      if ($schedule['type'] == 'public'){
+        $publish_date = $schedule['published_at'];
       }
-      else{
-        $post['post_date']=date('Y-m-d H:i:s', strtotime($object['created_at']));
-      }
-		}else{
-      if ($object['schedules'][1]['type'] == 'public'){
-        $post['post_date']=date('Y-m-d H:i:s', strtotime($object['schedules']['published_at']." ".$offset." hours"));
-      }
-			else {
-        $post['post_date']=date('Y-m-d H:i:s', strtotime($object['created_at']." ".$offset." hours"));
-      }
+    }
+    
+		if (0 != $offset){
+      $date = $publish_date." ".$offset." hours";
+    }
+    else{
+      $date = $publish_date;
 		}
+    
+    $post['post_date'] = date('Y-m-d H:i:s', strtotime($date));
 
 		$post['post_status']=get_option(self::POSTSTATUS_OPTION);
 
