@@ -2,6 +2,11 @@
     $(document).ready(function () {
         var ANIMATE_SPEED=800;
         
+        $('.perc-debug-toggle').click(function () {
+          $('.perc-debug').toggle();
+          return false;
+        });
+
         $('.perc-import-button').click(function () {
             var summary=$(this).closest('.story-text'),
                 container=$(this).closest('.story'),

@@ -11,8 +11,31 @@
 
 	    <input type="hidden" name="percolateimport_override" value="0" id="override_import" />
 	    <input type="button" id="import_stories_now" value="Import your stories now" />
-	    &nbsp;&nbsp;Last imported on <?=date( 'm/d/Y g:i a', get_option(PercolateImport::LASTIMPORT_OPTION))?> - <small>ID: <?php echo get_option(PercolateImport::STARTID_OPTION) ?></small>
+	    &nbsp;&nbsp;Last imported on <?=date( 'm/d/Y g:i a', get_option(PercolateImport::LASTIMPORT_OPTION))?> - <small>ID: <?php echo get_option(PercolateImport::STARTID_OPTION) ?> <a href="#" class="perc-debug-toggle" style=''>Debug</a></small>
 
 	</p>
     </form>
 </div>	
+
+
+<div class="perc-debug" style="display:none;">
+<?php 
+
+$next_wp_cron = wp_next_scheduled('percolate_import_event'); 
+$blogtime = current_time('timestamp'); 
+$blogtime_formatted = strftime("%l", $blogtime); 
+
+$time_offset = get_option('gmt_offset');
+$last_imported = get_option(PercolateImport::LASTIMPORT_OPTION);
+?>
+
+<pre>
+<?php
+echo "\nLast imported at: <strong>" . $blogtime_formatted . gmstrftime(":%M%p", $last_imported). "</strong>";
+echo "\nOverride import iption: <strong>" . get_option(PercolateImport::IMPORT_OVERRIDE_OPTION) . "</strong>";
+echo "\nNext import in <strong>T"; print_r((time() - get_option(PercolateImport::LASTIMPORT_OPTION)) - PercolateImport::IMPORT_INTERVAL); echo ' seconds</strong>';
+echo "\nNext wp-cron scheduled for:<strong>".$blogtime_formatted.strftime(":%M%p", $next_wp_cron) . "</strong>";
+?>
+</pre>
+
+</div>
