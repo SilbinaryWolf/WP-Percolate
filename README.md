@@ -9,6 +9,11 @@ In order to use this plugin you will need an API key issued to you from Percolat
 Changelog
 -----------
 
+### 3.2.3
+
+* Allow user to select 3 different image sizes
+* Imports post base on publish date
+
 ### 3.2.1
 
 * Fix issue with last imported ID validation during import
