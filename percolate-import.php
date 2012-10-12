@@ -377,7 +377,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
           echo "</input>";
 
 					
-          echo "<br /><br /><input type='radio' name='image-size' value='original'> Or insert the original image size. ($original_width x $original_height)</input>";
+          echo "<br /><br /><input type='radio' id='original-radio' name='image-size' value='original'> Or insert the original image size. ($original_width x $original_height)</input>";
           echo "<img src='$original_url' id='m_media_org' class='media_image' size='large' style='display:none;'/>";           
 				}
 				if ($mediaType === "video") {
@@ -460,6 +460,11 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
           var check_radio = "input[value='" + image_size + "']";
           jQuery(check_radio).attr('checked', true);
           jQuery("input[value='original']").attr('checked', false);
+        });
+        jQuery("#original-radio").click(function(){  
+          jQuery(".media_image").each(function(){
+            jQuery(this).css('border', 'solid 3px #f9f9f9');
+          });        
         });
       });
               
