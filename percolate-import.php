@@ -346,6 +346,13 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			echo "<input type='hidden' value='" . $mediaType . "' id='media_type' />";
 
 				if ($mediaType === "image") {           
+					
+
+					$original_url = $media['images']['original']['url'];
+					$original_width = $media['images']['original']['width'];
+					$original_height = $media['images']['original']['height'];
+
+
 					// $p_img = $media['src']; //$p_img = $media['p_img']; //apiV3 feature
 					$p_img =  $media['images']['large']['url'];
           $p_img_width = $media['images']['large']['width'];//apiV3 feature
@@ -369,9 +376,9 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
           echo "<img src='$p_img_small_url' id='m_media_s' width='$p_img_small_width' height='$p_img_small_height' class='media_image' size='small'/>"; 
           echo "</input>";
 
-					$p_img_orginal =  $media['src'];
-          echo "<input type='radio' name='image-size' value='original'> Original Size </input>";
-          echo "<img src='$p_img_orginal' id='m_media_org' class='media_image' size='large' style='display:none;'/>";           
+					
+          echo "<br /><br /><input type='radio' name='image-size' value='original'> Or insert the original image size. ($original_width x $original_height)</input>";
+          echo "<img src='$original_url' id='m_media_org' class='media_image' size='large' style='display:none;'/>";           
 				}
 				if ($mediaType === "video") {
 					$video_url = $media['url'];
@@ -390,6 +397,16 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			}
 
 	?>
+
+	<style>
+		img.media_image {
+			margin-right:5px;
+			border:solid 3px #f9f9f9;
+		}
+
+
+	</style>
+
 	<script type="text/javascript">
 	    jQuery(function () {
 	        (function($){
@@ -436,9 +453,9 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
       jQuery(document).ready(function () {
         jQuery(".media_image").click(function(){              
           jQuery(".media_image").each(function(){
-            jQuery(this).css('border', 'none');
+            jQuery(this).css('border', 'solid 3px #f9f9f9');
           });
-          jQuery(this).css('border', 'solid 2px black');
+          jQuery(this).css('border', 'solid 3px #00a6ee');
           var image_size = jQuery(this).attr('size');
           var check_radio = "input[value='" + image_size + "']";
           jQuery(check_radio).attr('checked', true);
