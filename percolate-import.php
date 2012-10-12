@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <?php
 /**
  * @package Percolate_Import
@@ -918,13 +917,24 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 		$offset =  get_option('gmt_offset');
 
-		// utc timezone adjustment
-		if (0 == $offset){
-			$post['post_date']=date('Y-m-d H:i:s', strtotime($object['created_at']));
-		}else{
-			$post['post_date']=date('Y-m-d H:i:s', strtotime($object['created_at']." ".$offset." hours"));
+		// utc timezone adjustment if there is an offset set in wordpress.
+    foreach($object['schedules'] as $schedule){
+      if ($schedule['type'] == 'public'){
+        $publish_date = $schedule['published_at'];
+        $timezone = $schedule['timezone'];
+      }
+    }
+    
+		if (0 != $offset){
+      $date = $publish_date; //." ".$offset." hours";
+    }
+    else{
+      // maybe apply $timezone offset here ?
+      $date = $publish_date; //." ".$timezone." hours";
 		}
-
+    $date = strtotime($date);
+    
+    $post['post_date'] = date('Y-m-d H:i:s', $date);
 		$post['post_status']=get_option(self::POSTSTATUS_OPTION);
 
 
@@ -1308,4 +1318,5 @@ function percolate_check_updates_action_callback(){
 }
 
 }
+
 ?>
