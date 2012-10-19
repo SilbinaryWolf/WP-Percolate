@@ -828,8 +828,10 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
     $limit = 30; 
     $offset = 0; //for initial step, this wil update within following loop
     $total = 1; //for initial step, this wil update within following loop
-
-    while( intval($offset) < intval($total) ) {
+    
+    // Ed.C 10-19-2012 Commenting out loop so users import most 30 recent posts
+    // TODO Add condition check to import all posts
+    //while( intval($offset) < intval($total) ) {
       
   		
   		$posts = self::getPercolatePosts($offset, $limit);		
@@ -863,7 +865,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
   				 
   				    
   		  } 
-  	}
+  	//}
   	
 	}
 
