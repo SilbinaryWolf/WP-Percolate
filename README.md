@@ -8,6 +8,9 @@ In order to use this plugin you will need an API key issued to you from Percolat
 
 Changelog
 -----------
+### 3.2.3
+
+* Imports most recent 30 posts
 
 ### 3.2.2
 
