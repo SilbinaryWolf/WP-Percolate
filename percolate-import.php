@@ -1142,8 +1142,8 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 	protected static function callPercolateApi($method, $fields=array(), $jsonFields=array())
 	{
     // If PERCOLATE_API_BASE is defined in wp-config.php, use it instead of API_BASE
-    if (defined(PERCOLATE_API_BASE)) {
-      $url =  PERCOLATE_API_BASE . "$method";
+    if (defined('PERCOLATE_API_BASE')) {
+      $url =  constant('PERCOLATE_API_BASE') . "$method";
     }
     else{
       $url = self::API_BASE . "$method";
