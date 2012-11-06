@@ -42,7 +42,9 @@ class PercolateImport
 
 	//const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
 
-	const API_BASE='http://percolate.com/api/v3/';
+  //Used in callPercolateApi function. PERCOLATE_BASE_API, defined in wp-config.php
+  //shall take precedence over API_BASE constant.
+	const API_BASE='http://percolate.com/api/v3/'; 
 
 	const M_LINKID='percolate_link_id';
 	const M_ADDEDON='percolate_added_on';
@@ -1139,6 +1141,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 	
 	protected static function callPercolateApi($method, $fields=array(), $jsonFields=array())
 	{
+    // If PERCOLATE_API_BASE is defined in wp-config.php, use it instead of API_BASE
     if (defined(PERCOLATE_API_BASE)) {
       $url =  PERCOLATE_API_BASE . "$method";
     }
