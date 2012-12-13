@@ -893,8 +893,6 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 		// We use this to check for posts that are already imported. 
 		// TODO: Find a better way to do this
-		$postName = $linkId;
-
 		$posts = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT meta_id, post_id, meta_key, meta_value
@@ -917,6 +915,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 		$post['post_content']=$body;
 
+    $postName = sanitize_title($post['post_title']);
 		$post['post_name']=$postName;
 
 		$offset =  get_option('gmt_offset');
