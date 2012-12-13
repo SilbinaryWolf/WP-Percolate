@@ -893,15 +893,14 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 		// We use this to check for posts that are already imported. 
 		// TODO: Find a better way to do this
-		$postName = 'perc_' . $linkId;
+		$postName = $linkId;
 
 		$posts = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT ID, post_name, post_parent
-                FROM $wpdb->posts
-                WHERE post_name = %s AND (post_type = %s OR post_type = 'attachment')",
-				$postName,
-				'post'
+				"SELECT meta_id, post_id, meta_key, meta_value
+                FROM $wpdb->postmeta
+                WHERE meta_value = %s AND (meta_key='percolate_id')",
+				$percolate_id
 			)
 		);
 
