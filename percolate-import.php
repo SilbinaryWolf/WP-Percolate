@@ -929,15 +929,24 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
       }
     }
     
-		if (0 != $offset){
-      $date = $publish_date; //." ".$offset." hours";
+    // Trying to fix 1970 bug
+    if ($publish_date == NULL){
+      foreach($object['schedules'] as $schedule){
+        if ($schedule['published_at'] != NULL){
+          $publish_date = $schedule['published_at'];
+        }
+      }    
+    }
+    
+    // Still trying to fix 1970 bug
+		if ($publish_date == NULL){
+      $date = $object['created_at']." ".$offset." hours";
     }
     else{
-      // maybe apply $timezone offset here ?
-      $date = $publish_date; //." ".$timezone." hours";
+      $date = $publish_date; 
 		}
-    $date = strtotime($date);
     
+    $date = strtotime($date);
     $post['post_date'] = date('Y-m-d H:i:s', $date);
 		$post['post_status']=get_option(self::POSTSTATUS_OPTION);
 
