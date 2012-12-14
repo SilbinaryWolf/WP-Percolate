@@ -5,13 +5,13 @@ $time_offset = get_option('gmt_offset');
 
 // Last Imported
 $last_imported = get_option(PercolateImport::LASTIMPORT_OPTION);
-$formatted_last_imported = date('Y-m-d h:i:s', $last_imported);
-$formatted_date = date('Y-m-d h:i:s', strtotime($time_offset . " hours", strtotime($formatted_last_imported)));
+$formatted_last_imported = date('Y-m-d g:i:sa', $last_imported);
+$formatted_date = date('Y-m-d g:i:sa', strtotime($time_offset . " hours", strtotime($formatted_last_imported)));
 
 
 $next_wp_cron = wp_next_scheduled('percolate_import_event'); 
-$formatted_next_wp_cron = date('Y-m-d h:i:s', $next_wp_cron);
-$offset_next_wp_cron = date('Y-m-d h:i:s', strtotime($time_offset . " hours", strtotime($formatted_next_wp_cron)));
+$formatted_next_wp_cron = date('Y-m-d g:i:sa', $next_wp_cron);
+$offset_next_wp_cron = date('Y-m-d g:i:sa', strtotime($time_offset . " hours", strtotime($formatted_next_wp_cron)));
 
 ?>
 
@@ -28,7 +28,7 @@ $offset_next_wp_cron = date('Y-m-d h:i:s', strtotime($time_offset . " hours", st
 
 	    <input type="hidden" name="percolateimport_override" value="0" id="override_import" />
 	    <input type="button" id="import_stories_now" value="Import your stories now" />
-	    &nbsp;&nbsp;Last imported on <?= $formatted_date ?> - <small>ID: <?php echo get_option(PercolateImport::STARTID_OPTION) ?> <a href="#" class="perc-debug-toggle" style=''>Debug</a></small>
+	    &nbsp;&nbsp;Last imported on <?= $formatted_date ?> - ID: <?php echo get_option(PercolateImport::STARTID_OPTION) ?> <a href="#" class="perc-debug-toggle" style=''> Debug</a>
 
 	</p>
     </form>
