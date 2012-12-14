@@ -821,7 +821,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		?>
         <div id="stories_imported" class="updated settings-error">
         <p>
-            <strong>Stories Imported. Last id: <?php echo ($last_id); ?></strong>
+            <strong>Stories Imported. Most Recent Percolate ID: <?php echo ($last_id); ?></strong>
         </p>
         </div>
         <?php
@@ -863,7 +863,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
   		$offset = intval($offset) + 30;
   		
   		$objects = $posts['data'];
-  		$last_startId = get_option(self::STARTID_OPTION);
+  		//$last_startId = get_option(self::STARTID_OPTION);
 
   		// Check to see if the last_id coming from the percolate API is larger than that is what is
   		// stored in the wp db, if its smaller than something is wrong and we don't update the start_at_id and don't
@@ -945,7 +945,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		// utc timezone adjustment if there is an offset set in wordpress.
     foreach($object['schedules'] as $schedule){
       if ($schedule['type'] == 'public'){
-        $publish_date = $schedule['published_at'];
+        $publish_date = NULL;
         $timezone = $schedule['timezone'];
       }
     }
@@ -1188,8 +1188,13 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 				}
 				$url.="?" . implode('&', $tokens);
 			}
-		  
-      
+
+
+			if (WP_DEBUG) {
+				error_log("------ Calling API ------ \nURL: ".$url."\n", 0);
+		  }  
+
+
 			/* call url*/
 			$curl_handle = curl_init($url);
 			curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
