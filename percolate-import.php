@@ -945,8 +945,8 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		// utc timezone adjustment if there is an offset set in wordpress.
     foreach($object['schedules'] as $schedule){
       if ($schedule['type'] == 'public'){
-        $publish_date = NULL;
-        $timezone = $schedule['timezone'];
+        $publish_date = $schedule['published_at'];
+        //$timezone = $schedule['timezone'];
       }
     }
     
