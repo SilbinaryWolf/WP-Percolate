@@ -850,16 +850,18 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
   		// do the import.
 
   			if ($objects) {
+          // update the startID with the last id that was imported.
+          $startId = $objects[0]['id'];
+          update_option(self::STARTID_OPTION, $startId);
+               
   				foreach ($objects as $object) {
+            
             if ($object['external'] == false) {
               $startId = $object['id'];
-            
                
               //if(intval($last_startId) < intval($startId)) { 
                self::importStory($object);
               
-               // update the startID with the last id that was imported.
-               update_option(self::STARTID_OPTION, $startId);
               //}
             }
   					
