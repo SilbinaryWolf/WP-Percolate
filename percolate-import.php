@@ -264,6 +264,26 @@ class PercolateImport
     //  self::SETTINGS_SECTION
     // );
 
+    if (is_admin() && current_user_can('manage_options') ) { // note the use of is_admin() to double check that this is happening in the admin
+      $config = array(
+        'slug' => plugin_basename(__FILE__),
+        'proper_folder_name' => 'WP-Percolate',
+        'api_url' => 'https://api.github.com/repos/percolate/WP-Percolate',
+        'raw_url' => 'https://raw.github.com/percolate/WP-Percolate/master',
+        'github_url' => 'https://github.com/percolate/WP-Percolate',
+        'zip_url' => 'https://github.com/percolate/WP-Percolate/zipball/master',
+        'sslverify' => false,
+        'requires' => "3.1.0",
+        'tested' => "3.3.1", //$wp_version
+      );
+      GLOBAL $gitHubUpdater;
+      $gitHubUpdater = new GitHubUpdater($config);
+      //reset the transients to allow update checks
+      function percolate_check_updates_action_callback(){
+        global $gitHubUpdater;
+        $gitHubUpdater->delete_transients();
+      }
+    }
 
 		register_setting(self::SETTINGS_PAGE, self::USERTYPE_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::GROUPID_OPTION);
@@ -1168,7 +1188,8 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 				}
 				$url.="?" . implode('&', $tokens);
 			}
-		    
+		  
+      
 			/* call url*/
 			$curl_handle = curl_init($url);
 			curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
@@ -1317,26 +1338,6 @@ add_action('publish_post', array('PercolateImport','permalink_post_back')); //ap
 
 // The plugin github updater
 include_once('updater.php');
-if (is_admin()) { // note the use of is_admin() to double check that this is happening in the admin
-	$config = array(
-		'slug' => plugin_basename(__FILE__),
-		'proper_folder_name' => 'WP-Percolate',
-		'api_url' => 'https://api.github.com/repos/percolate/WP-Percolate',
-		'raw_url' => 'https://raw.github.com/percolate/WP-Percolate/master',
-		'github_url' => 'https://github.com/percolate/WP-Percolate',
-		'zip_url' => 'https://github.com/percolate/WP-Percolate/zipball/master',
-		'sslverify' => false,
-		'requires' => "3.1.0",
-		'tested' => "3.3.1", //$wp_version
-		);
-GLOBAL $gitHubUpdater;
-$gitHubUpdater = new GitHubUpdater($config);
-//reset the transients to allow update checks
-function percolate_check_updates_action_callback(){
-  global $gitHubUpdater;
-  $gitHubUpdater->delete_transients();
-}
 
-}
 
 ?>
