@@ -8,6 +8,16 @@ In order to use this plugin you will need an API key issued to you from Percolat
 
 Changelog
 -----------
+
+### 3.2.4
+
+* Fixing issue where update script was run when admin-ajax.php was used by requests not in the admin.
+* Adding fallback when a published_at date can not be found for a post, now falls back to the created_at date with the timezone offset set in wordpress.
+* Adding a check for external=false, so the plugin only imports posts that are made via percolate.
+* Update to the how the plugin checks for existing posts in wordpress, checking against the meta value for existing post ID instead of post_name (slug).
+* Updated the post_name so posts have Title-of-the-post in the url instead of "perc_23423".
+
+
 ### 3.2.3
 
 * Imports most recent 30 posts
