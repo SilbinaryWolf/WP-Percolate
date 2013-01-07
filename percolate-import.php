@@ -943,18 +943,18 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		$offset =  get_option('gmt_offset');
 
 		// utc timezone adjustment if there is an offset set in wordpress.
-    foreach($object['schedules'] as $schedule){
-      if ($schedule['type'] == 'public'){
-        $publish_date = $schedule['published_at'];
+    foreach($object['services'] as $service){
+      if ($service['type'] == 'public'){
+        $publish_date = $service['published_at'];
         //$timezone = $schedule['timezone'];
       }
     }
     
     // Trying to fix 1970 bug
     if ($publish_date == NULL){
-      foreach($object['schedules'] as $schedule){
-        if ($schedule['published_at'] != NULL){
-          $publish_date = $schedule['published_at'];
+      foreach($object['services'] as $service){
+        if ($service['published_at'] != NULL){
+          $publish_date = $service['published_at'];
         }
       }    
     }
