@@ -473,15 +473,16 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 	    });
       
       jQuery(document).ready(function () {
-        jQuery(".media_image").click(function(){              
+        jQuery(".media_image").click(function(){       
+        	jQuery("input[name='image-size']").prop('checked', false);       
           jQuery(".media_image").each(function(){
             jQuery(this).css('border', 'solid 3px #f9f9f9');
           });
           jQuery(this).css('border', 'solid 3px #00a6ee');
           var image_size = jQuery(this).attr('size');
           var check_radio = "input[value='" + image_size + "']";
-          jQuery(check_radio).attr('checked', true);
-          jQuery("input[value='original']").attr('checked', false);
+          jQuery(check_radio).prop('checked', true);
+          jQuery("input[value='original']").prop('checked', false);
         });
         jQuery("#original-radio").click(function(){  
           jQuery(".media_image").each(function(){
