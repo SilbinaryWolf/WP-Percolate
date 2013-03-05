@@ -1002,6 +1002,8 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 		}
 
+        $post['post_type'] = $_POST['post_type'];
+
 		$postId = wp_insert_post($post);
 
 		if ($tags_array) {
