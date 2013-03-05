@@ -30,8 +30,6 @@ $offset_next_wp_cron = date('Y-m-d g:i:sa', strtotime($time_offset . " hours", s
         <select name="post_type">
             <?php
             $args=array(
-                'public'   => true,
-                '_builtin' => true
             );
             $output = 'names'; // names or objects, note names is the default
             $operator = 'and'; // 'and' or 'or'
