@@ -40,7 +40,7 @@ class PercolateImport
 
 	const IMPORT_OVERRIDE_OPTION='percolateimport_override';
 
-    const POSTTYPE_OPTION='percolateimport_posttype';
+  const POSTTYPE_OPTION='percolateimport_posttype';
 
 	//const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
 
@@ -77,6 +77,7 @@ class PercolateImport
 		if (get_option(self::LASTIMPORT_OPTION) == FALSE ) update_option(self::LASTIMPORT_OPTION, '0');
 		if (get_option(self::STARTID_OPTION) == FALSE ) update_option(self::STARTID_OPTION, '0');
 		if (get_option(self::POSTSTATUS_OPTION) == FALSE ) update_option(self::POSTSTATUS_OPTION, 'draft');
+		if (get_option(self::POSTTYPE_OPTION) == FALSE ) update_option(self::POSTTYPE_OPTION, 'post');
 
     // $recentOption = get_option(self::IMPORT_MOSTRECENT_OPTION);
     // if (!isset($recentOption) || !$recentOption || $recentOption == '') update_option(self::IMPORT_MOSTRECENT_OPTION,0);
@@ -108,12 +109,13 @@ class PercolateImport
 
 	public function adminInit()
 	{
+		$postTypeSlug = get_option(self::POSTTYPE_OPTION);
 		//Edit form additions
 		add_meta_box(
 			'percolate-info',
 			'Original Description',
 			array('PercolateImport','infoMetaBox'),
-			'post',
+			$postTypeSlug,
 			'normal',
 			'high'
 		);
@@ -123,7 +125,7 @@ class PercolateImport
 			'percolate-url',
 			'Percolate URL',
 			array('PercolateImport','urlMetaBox'),
-			'post',
+			$postTypeSlug,
 			'normal',
 			'high'
 		);
@@ -132,7 +134,7 @@ class PercolateImport
 			'percolate-media',
 			'Percolate Media',
 			array('PercolateImport','mediaMetaBox'),
-			'post',
+			$postTypeSlug,
 			'normal',
 			'high'
 		);
@@ -141,7 +143,7 @@ class PercolateImport
 			'percolate-short-url',
 			'Percolate Short Url',
 			array('PercolateImport','shortUrl'),
-			'post',
+			$postTypeSlug,
 			'normal',
 			'high'
 		);
@@ -150,7 +152,7 @@ class PercolateImport
 			'percolate_id',
 			'Percolate ID',
 			array('PercolateImport','percolateId'),
-			'post',
+			$postTypeSlug,
 			'normal',
 			'high'
 		);
@@ -159,7 +161,7 @@ class PercolateImport
 			'posted_permalink',
 			'Posted Permalink to Percolate',
 			array('PercolateImport','postedPermalink'),
-			'post',
+			$postTypeSlug,
 			'normal',
 			'high'
 		);
