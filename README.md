@@ -9,6 +9,10 @@ In order to use this plugin you will need an API key issued to you from Percolat
 Changelog
 -----------
 
+### 3.2.5
+
+* Added settings option to select custom post type for percolate posts. Defaults standard wordpress post.
+
 ### 3.2.4
 
 * Fixing issue where update script was run when admin-ajax.php was used by requests not in the admin.
