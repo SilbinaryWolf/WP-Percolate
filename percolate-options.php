@@ -27,19 +27,6 @@ $offset_next_wp_cron = date('Y-m-d g:i:sa', strtotime($time_offset . " hours", s
 	<p class="submit">
 
 	    <input type="hidden" name="percolateimport_override" value="0" id="override_import" />
-        <select name="post_type">
-            <?php
-            $args=array(
-            );
-            $output = 'names'; // names or objects, note names is the default
-            $operator = 'and'; // 'and' or 'or'
-            $post_types=get_post_types($args,$output,$operator);
-            foreach ($post_types as $post_type ) {
-                echo '<option value="'. $post_type. '">'. $post_type. '</option>';
-            }
-
-            ?>
-        </select>
 	    <input type="button" id="import_stories_now" value="Import your stories now" />
 
 	    &nbsp;&nbsp;Last imported on <?= $formatted_date ?> - ID: <?php echo get_option(PercolateImport::STARTID_OPTION) ?> <a href="#" class="perc-debug-toggle" style=''> Debug</a>

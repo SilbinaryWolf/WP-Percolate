@@ -40,6 +40,8 @@ class PercolateImport
 
 	const IMPORT_OVERRIDE_OPTION='percolateimport_override';
 
+    const POSTTYPE_OPTION='percolateimport_posttype';
+
 	//const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
 
   //Used in callPercolateApi function. PERCOLATE_BASE_API, defined in wp-config.php
@@ -244,7 +246,13 @@ class PercolateImport
 			self::SETTINGS_SECTION
 		);
 
-
+        add_settings_field(
+            self::POSTTYPE_OPTION,
+            "Post Type",
+            array('PercolateImport', 'settingsPostTypeDisplay'),
+            self::SETTINGS_PAGE,
+            self::SETTINGS_SECTION
+        );
 /*
 		add_settings_field(
 			self::EX_CATEGORY_OPTION,
@@ -298,7 +306,7 @@ class PercolateImport
 		//register_setting(self::SETTINGS_PAGE, self::IMPORT_MOSTRECENT_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::ALLSOURCES_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
-
+        register_setting(self::SETTINGS_PAGE, self::POSTTYPE_OPTION);
 		//Import process
 	  self::checkImport();
 		// TODO: do we still need this?
@@ -764,6 +772,28 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         <?php
 	}
 
+    public function settingsPostTypeDisplay()
+    {
+        $postTypeID = get_option(self::POSTTYPE_OPTION);
+        ?>
+        <select name="percolateimport_posttype">
+            <?php
+            $args=array(
+                'public'   => true,
+            );
+            $output = 'names'; // names or objects, note names is the default
+            $operator = 'and'; // 'and' or 'or'
+            $post_types=get_post_types($args,$output,$operator);
+            foreach ($post_types as $post_type ) {
+                echo '<option '. ($post_type == $postTypeID ? 'selected="selected"' : '') .
+                     'value="'. $post_type. '">'. $post_type. '</option>';
+            }
+
+            ?>
+        </select> New posts imported from percolate will be set to this post type
+        <?php
+    }
+
 	public function userIdNotice()
 	{
 		if (get_option(self::USERID_OPTION) || get_option(self::GROUPID_OPTION)) {
@@ -1002,7 +1032,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 		}
 
-        $post['post_type'] = $_POST['post_type'];
+        $post['post_type'] = get_option(self::POSTTYPE_OPTION);
 
 		$postId = wp_insert_post($post);
 
@@ -1346,6 +1376,5 @@ add_action('publish_post', array('PercolateImport','permalink_post_back')); //ap
 
 // The plugin github updater
 include_once('updater.php');
-
 
 ?>
