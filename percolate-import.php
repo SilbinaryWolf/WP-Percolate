@@ -283,8 +283,8 @@ class PercolateImport
         'github_url' => 'https://github.com/percolate/WP-Percolate',
         'zip_url' => 'https://github.com/percolate/WP-Percolate/zipball/master',
         'sslverify' => false,
-        'requires' => "3.1.0",
-        'tested' => "3.5", //$wp_version
+				'requires' => "3.2.0",
+				'tested' => "3.5.1", //$wp_version
       );
       GLOBAL $gitHubUpdater;
       $gitHubUpdater = new GitHubUpdater($config);
