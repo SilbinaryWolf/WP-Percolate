@@ -9,6 +9,9 @@ In order to use this plugin you will need an API key issued to you from Percolat
 Changelog
 -----------
 
+### 3.2.5
+* Allow users to set post type for percolate imported stories
+
 ### 3.2.4
 
 * Fixing issue where update script was run when admin-ajax.php was used by requests not in the admin.
