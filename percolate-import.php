@@ -717,7 +717,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 			$percolate_users = self::getGroupUsers($group_id);
 
-			$objects = $percolate_users['data'];
+			$objects = $percolate_users['users'];
 
 			if(is_array($objects)){
 
@@ -857,40 +857,55 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         $default_license_id = $result['default_license_id'];
         if ($default_license_id){
             $result = self::getChannels($default_license_id);
-            $channels = array();
-            foreach ($result['data'] as $channel){
-                array_push($channels, array('id' => $channel['id'], 'name' =>$channel['name']));
-            }
-            if($channels){
-                //error_log(serialize($channels));
-                //error_log(get_option(self::CHANNEL_ID_OPTION));
+            if(!$result){
                 ?>
                 <span class="percapi-channel-id-control channel-id">
 
-                    <?php
-                        echo '<select name="' . self::CHANNEL_ID_OPTION . '">';
-                        if(get_option(self::CHANNEL_ID_OPTION)=='0'){
-                            echo '<option value="0" selected="selected">Choose a Channel</option>';
-                        }else{
-                            echo '<option value="0">Choose a Channel</option>';
+                <?php
+                echo '<select name="' . self::CHANNEL_ID_OPTION . '">';
+                    echo '<option value="0" selected="selected">Choose a Channel</option>';
 
-                        }
-
-                        foreach($channels as $channel_option){
-                            if (get_option(self::CHANNEL_ID_OPTION) ==  $channel_option['id']){
-                                echo '<option selected="selected" value="' . $channel_option['id'] . '">' . $channel_option['name'] . "</option>";
-
-                            }else{
-                                echo '<option value="' . $channel_option['id'] . '">' . $channel_option['name'] . "</option>";
-                            }
-                        }
                     ?>
                     </select>
                 </span>
                 <?php
 
             }else{
+                $channels = array();
+                foreach ($result['data'] as $channel){
+                    array_push($channels, array('id' => $channel['id'], 'name' =>$channel['name']));
+                }
+                if($channels){
+                    //error_log(serialize($channels));
+                    //error_log(get_option(self::CHANNEL_ID_OPTION));
+                    ?>
+                    <span class="percapi-channel-id-control channel-id">
 
+                        <?php
+                            echo '<select name="' . self::CHANNEL_ID_OPTION . '">';
+                            if(get_option(self::CHANNEL_ID_OPTION)=='0'){
+                                echo '<option value="0" selected="selected">Choose a Channel</option>';
+                            }else{
+                                echo '<option value="0">Choose a Channel</option>';
+
+                            }
+
+                            foreach($channels as $channel_option){
+                                if (get_option(self::CHANNEL_ID_OPTION) ==  $channel_option['id']){
+                                    echo '<option selected="selected" value="' . $channel_option['id'] . '">' . $channel_option['name'] . "</option>";
+
+                                }else{
+                                    echo '<option value="' . $channel_option['id'] . '">' . $channel_option['name'] . "</option>";
+                                }
+                            }
+                        ?>
+                        </select>
+                    </span>
+                    <?php
+
+                }else{
+
+                }
             }
         }else{
 
@@ -1202,12 +1217,11 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
             return array();
         }
 
-        $userType = get_option(self::USERTYPE_OPTION);
+        $user_id = get_option(self::USERID_OPTION);
 
-        if($userType!=1){
-            $user_id = get_option(self::USERID_OPTION);
+        if($user_id){
         }else{
-            error_log("no user type");
+            error_log("no user id");
             return array();
         }
 
@@ -1248,16 +1262,16 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         if($apiKey){
             $options['api_key'] = $apiKey;
         }else{
-            //no api key return empty array for now
+            error_log('no api key');
             return array();
         }
 
-        $userType = get_option(self::USERTYPE_OPTION);
+        $user_id = get_option(self::USERID_OPTION);
 
-        if($userType!=1){
-            $user_id = get_option(self::USERID_OPTION);
+        if($user_id){
             $method = "me";
         }else{
+            error_log('no usertype');
             return array();
         }
 
@@ -1266,6 +1280,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
         }
         else{
+            error_log('no user id or api key');
             return array();
         }
         try {
@@ -1312,15 +1327,44 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 	//get group users
 	public function getGroupUsers($groupId){
-		$apiKey = get_option(self::APIKEY_OPTION);
-		if($apiKey){
-			$options['api_key'] = $apiKey;
-		}else{
-			//no api key return empty array for now
-			return array();
-		}
+        $result = self::getDefaultLicenseId();
+        $default_license_id = $result['default_license_id'];
+        if ($default_license_id){
 
-		$method = 'groups/'.$groupId.'/users';
+        }
+        else{
+            error_log('no default license');
+            return array();
+        }
+
+        $apiKey = get_option(self::APIKEY_OPTION);
+
+        if($apiKey){
+            $options['api_key'] = $apiKey;
+        }else{
+            error_log('no api key');
+            return array();
+        }
+
+        $user_id = get_option(self::USERID_OPTION);
+
+        if($user_id){
+
+        }else{
+            error_log('no user id');
+            return array();
+        }
+
+        if ($user_id and $apiKey){
+            $options['api_key'] = $user_id . "_" . $apiKey;
+        }
+        else{
+            return array();
+        }
+
+
+
+		$method = 'licenses/'.$default_license_id;
 		//echo "<pre>"; print_r(self::callPercolateApi($method , $options)); echo "</pre>";
 		try {
 		   	return self::callPercolateApi($method , $options);
@@ -1383,9 +1427,9 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			}
 
 
-			if (WP_DEBUG) {
+			//if (WP_DEBUG) {
 				error_log("------ Calling API ------ \nURL: ".$url."\n", 0);
-		    }
+		    //}
 
 
 			/* call url*/
