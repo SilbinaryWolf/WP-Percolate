@@ -172,9 +172,23 @@
 	
   function checkRequiredOptions(){
 	type = $('input:radio[name=percolateimport_usertype]:checked').val();
-	user_group_id=$(".user-group-id").val();
-	user_id=$(".user-id").val();
+	user_group_id = $(".user-group-id").val();
+  api_key = $("#percapi_api_key").val();
+	user_id = $(".user-id").val();
 	
+
+
+
+  if ($(".fn-channel-id").length ) {
+    channel_id = $(".fn-channel-id").val();
+
+    if (!channel_id) {
+      $(".fn-channel-error").show();
+      $(".fn-channel-error-help").css("color", "#cc0000");
+      return false;
+    }
+  }
+
 	if(type==0){
 		if(user_id==''){
 			alert("User ID is required!");

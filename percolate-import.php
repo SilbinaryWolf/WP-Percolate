@@ -171,6 +171,10 @@ class PercolateImport
 		);
 
 		//Settings
+
+
+
+
 		add_settings_section(
 			self::SETTINGS_SECTION,
 			"Percolate API Settings",
@@ -196,13 +200,27 @@ class PercolateImport
 			self::SETTINGS_SECTION
 		);
 
-		add_settings_field(
-			self::USERID_OPTION,
-			"Percolate User ID",
-			array('PercolateImport', 'settingsUserIdDisplay'),
-			self::SETTINGS_PAGE,
-			self::SETTINGS_SECTION
-		);
+		// add_settings_field(
+		// 	self::USERID_OPTION,
+		// 	"Percolate User ID",
+		// 	array('PercolateImport', 'settingsUserIdDisplay'),
+		// 	self::SETTINGS_PAGE,
+		// 	self::SETTINGS_SECTION
+		// );
+
+
+
+  if (get_option(self::APIKEY_OPTION)) {
+   
+
+    add_settings_field(
+        self::CHANNEL_ID_OPTION,
+        "Website",
+        array('PercolateImport', 'settingsChannelIdDisplay'),
+        self::SETTINGS_PAGE,
+        self::SETTINGS_SECTION
+    );
+
 
 		add_settings_field(
 			self::GROUPID_OPTION,
@@ -252,23 +270,15 @@ class PercolateImport
 			self::SETTINGS_SECTION
 		);
 
-        add_settings_field(
-            self::POSTTYPE_OPTION,
-            "Post Type",
-            array('PercolateImport', 'settingsPostTypeDisplay'),
-            self::SETTINGS_PAGE,
-            self::SETTINGS_SECTION
-        );
+    add_settings_field(
+        self::POSTTYPE_OPTION,
+        "Post Type",
+        array('PercolateImport', 'settingsPostTypeDisplay'),
+        self::SETTINGS_PAGE,
+        self::SETTINGS_SECTION
+    );
 
-        add_settings_field(
-            self::CHANNEL_ID_OPTION,
-            "Channel",
-            array('PercolateImport', 'settingsChannelIdDisplay'),
-            self::SETTINGS_PAGE,
-            self::SETTINGS_SECTION
-        );
-
-
+    }
 
 /*
 		add_settings_field(
@@ -315,7 +325,7 @@ class PercolateImport
 		register_setting(self::SETTINGS_PAGE, self::APIKEY_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::DEFGRPAUTHORID_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::GROUPAUTHORS_OPTION);
-		register_setting(self::SETTINGS_PAGE, self::USERID_OPTION);
+		//register_setting(self::SETTINGS_PAGE, self::USERID_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::POSTSTATUS_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::AUTHORID_OPTION);
 		register_setting(self::SETTINGS_PAGE, self::CATEGORY_OPTION);
@@ -608,7 +618,9 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 	public function settingsUserIdDisplay()
 	{
+
 ?>
+
         <span class="percapi-userid-control user-type-indi">
         <input size="5" type="text" class="user-id" name="<?php echo self::USERID_OPTION; ?>"
             id="percapi_user_id"
@@ -834,6 +846,25 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		echo '</p></div>';
 	}
 
+  public function apiKeyNotice()
+  {
+    if (get_option(self::APIKEY_OPTION)) {
+      return;
+    }
+
+    echo '<div class="error">';
+    echo '<p>';
+    echo '<strong>' . __('Notice:') . '</strong> ';
+    _e(
+      "You haven't entered your Percolate API Key yet. "
+    );
+    printf(
+      '<a href="%s">' . __('Percolate Settings Page') . '</a>',
+      admin_url('options-general.php?page=percolate')
+    );
+    echo '</p></div>';
+  }  
+
 
 	public function postStatusDisplay()
 	{
@@ -853,7 +884,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
     public function settingsChannelIdDisplay()
     {
 
-        $result = self::getDefaultLicenseId();
+        $result = self::getUserProfile();
         $default_license_id = $result['default_license_id'];
         if ($default_license_id){
             $result = self::getChannels($default_license_id);
@@ -863,7 +894,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
                 <?php
                 echo '<select name="' . self::CHANNEL_ID_OPTION . '">';
-                    echo '<option value="0" selected="selected">Choose a Channel</option>';
+                    echo '<option value="0">Choose a Channel</option>';
 
                     ?>
                     </select>
@@ -873,7 +904,12 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
             }else{
                 $channels = array();
                 foreach ($result['data'] as $channel){
-                    array_push($channels, array('id' => $channel['id'], 'name' =>$channel['name']));
+                    
+                    // Only return "public" sites, these are our .com sites. We don't want 
+                    // to show tumblr or other channels like that. 
+                    if ($channel['type'] == "public") {
+                      array_push($channels, array('id' => $channel['id'], 'name' =>$channel['name']));
+                    }
                 }
                 if($channels){
                     //error_log(serialize($channels));
@@ -881,12 +917,16 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
                     ?>
                     <span class="percapi-channel-id-control channel-id">
 
+                      <div class="error fn-channel-error" style="display:none;">
+                        <p>Please select which website you're publishing to.</p>
+                      </div>
+
                         <?php
-                            echo '<select name="' . self::CHANNEL_ID_OPTION . '">';
+                            echo '<select class="fn-channel-id" name="' . self::CHANNEL_ID_OPTION . '">';
                             if(get_option(self::CHANNEL_ID_OPTION)=='0'){
-                                echo '<option value="0" selected="selected">Choose a Channel</option>';
+                                echo '<option disabled="true" selected="selected">Choose a Channel...</option>';
                             }else{
-                                echo '<option value="0">Choose a Channel</option>';
+                                echo '<option disabled="true" selected="selected">Choose a Channel...</option>';
 
                             }
 
@@ -899,7 +939,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
                                 }
                             }
                         ?>
-                        </select>
+                        </select> <span class="fn-channel-error-help">Which site are you publishing to.</span>
                     </span>
                     <?php
 
@@ -928,8 +968,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 	{
 		if( isset($_REQUEST['settings-updated']) && $_REQUEST['settings-updated'] == 'true' && get_option(PercolateImport::IMPORT_OVERRIDE_OPTION) == 1 )
 		{
-			$last_id = get_option(self::STARTID_OPTION);
-		?>
+			$last_id = get_option(self::STARTID_OPTION);?>
         <div id="stories_imported" class="updated settings-error">
         <p>
             <strong>Stories Imported. Most Recent Percolate ID: <?php echo ($last_id); ?></strong>
@@ -937,7 +976,14 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         </div>
         <?php
 			update_option(self::IMPORT_OVERRIDE_OPTION, 0);
-		}
+		
+    // If we are updating the settings, lets get any updated info from the api for this user.
+    } else if (isset($_REQUEST['settings-updated']) && $_REQUEST['settings-updated'] == 'true'){
+    
+        $result = self::getUserProfile();
+        $user_profile_id = $result['id'];
+        update_option(self::USERID_OPTION, $user_profile_id);
+    }
 
 		load_template(dirname(__FILE__) . '/percolate-options.php');
 	}
@@ -1209,29 +1255,16 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			return array();
 		}
 
-        $result = self::getDefaultLicenseId();
+        $result = self::getUserProfile();
         $default_license_id = $result['default_license_id'];
         if ($default_license_id){
         }else{
             error_log("no default license id");
             return array();
         }
+      
+        $options['api_key'] =  $apiKey;
 
-        $user_id = get_option(self::USERID_OPTION);
-
-        if($user_id){
-        }else{
-            error_log("no user id");
-            return array();
-        }
-
-        if ($user_id and $apiKey){
-            $options['api_key'] =  $apiKey;
-        }
-        else{
-            error_log("could not create api key with user id");
-            return array();
-        }
 
         $channel_id = get_option(self::CHANNEL_ID_OPTION);
         if($channel_id){
@@ -1255,32 +1288,15 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 	}
 
 
-    public function getDefaultLicenseId() {
+    public function getUserProfile() {
 
         $apiKey = get_option(self::APIKEY_OPTION);
 
         if($apiKey){
             $options['api_key'] = $apiKey;
-        }else{
-            error_log('no api key');
-            return array();
-        }
-
-        $user_id = get_option(self::USERID_OPTION);
-
-        if($user_id){
             $method = "me";
         }else{
-            error_log('no usertype');
-            return array();
-        }
-
-        if ($user_id and $apiKey){
-            $options['api_key'] = $user_id . "_" . $apiKey;
-
-        }
-        else{
-            error_log('no user id or api key');
+            error_log('no api key');
             return array();
         }
         try {
@@ -1289,6 +1305,8 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
             return array();
         }
     }
+
+
 
     public function getChannels($default_license_id) {
 
@@ -1327,7 +1345,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 	//get group users
 	public function getGroupUsers($groupId){
-        $result = self::getDefaultLicenseId();
+        $result = self::getUserProfile();
         $default_license_id = $result['default_license_id'];
         if ($default_license_id){
 
@@ -1575,7 +1593,8 @@ add_action('admin_init', array('PercolateImport','adminInit'));
 add_action('admin_menu', array('PercolateImport', 'adminMenu'));
 add_action('save_post', array('PercolateImport', 'updatePost'));
 add_action('admin_print_footer_scripts', array('PercolateImport', 'adminScripts'));
-add_action('admin_notices', array('PercolateImport','userIdNotice'));
+//add_action('admin_notices', array('PercolateImport','userIdNotice'));
+add_action('admin_notices', array('PercolateImport','apiKeyNotice'));
 add_action('publish_post', array('PercolateImport','permalink_post_back')); //apiV3 feature
 
 // The plugin github updater
