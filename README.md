@@ -8,6 +8,9 @@ In order to use this plugin you will need an API key issued to you from Percolat
 
 Changelog
 -----------
+### 3.2.6
+
+*Supports updated API using license ID.
 
 ### 3.2.5
 
@@ -71,7 +74,7 @@ _Method of Deployment_
 
 --------------------------------------------------
 _Please do not remove this version declaration_
-~Current Version:3.2.5~
+~Current Version:3.2.6~
 
 
 
