@@ -1226,7 +1226,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         }
 
         if ($user_id and $apiKey){
-            $options['api_key'] = $user_id . "_" . $apiKey;
+            $options['api_key'] =  $apiKey;
         }
         else{
             error_log("could not create api key with user id");
@@ -1310,7 +1310,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         }
 
         if ($user_id and $apiKey){
-            $options['api_key'] = $user_id . "_" . $apiKey;
+            $options['api_key'] =  $apiKey;
         }
         else{
             return array();
@@ -1356,7 +1356,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         }
 
         if ($user_id and $apiKey){
-            $options['api_key'] = $user_id . "_" . $apiKey;
+            $options['api_key'] =  $apiKey;
         }
         else{
             return array();
