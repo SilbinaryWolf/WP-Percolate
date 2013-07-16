@@ -10,297 +10,266 @@ Author: Percolate Industries, Inc.
 Version: 3.3.0-dev
 Author URI: http://wp.percolate.com
 
-
 */
 
 class PercolateImport
 {
-	const SETTINGS_SECTION='percolate_api_settings';
-	const SETTINGS_PAGE='percolate';
+  const SETTINGS_SECTION='percolate_api_settings';
+  const SETTINGS_PAGE='percolate';
 
-	const IMPORT_INTERVAL=300;
+  const IMPORT_INTERVAL=300;
 
-	const USERTYPE_OPTION='percolateimport_usertype';
-	const GROUPID_OPTION='percolateimport_groupid';
-	const DEFGRPAUTHORID_OPTION='percolateimport_defgrpauthorid';
-	const GROUPAUTHORS_OPTION='percolateimport_groupauthorids';
-	const USERID_OPTION='percolateimport_userid';
-	const AUTHORID_OPTION='percolateimport_authorid';
+  const USERTYPE_OPTION='percolateimport_usertype';
+  const GROUPID_OPTION='percolateimport_groupid';
+  const DEFGRPAUTHORID_OPTION='percolateimport_defgrpauthorid';
+  const GROUPAUTHORS_OPTION='percolateimport_groupauthorids';
+  const USERID_OPTION='percolateimport_userid';
+  const AUTHORID_OPTION='percolateimport_authorid';
 
-	const LASTIMPORT_OPTION='percolateimport_lastimported';
-	// const LASTID_OPTION='percolateimport_lastid';
+  const LASTIMPORT_OPTION='percolateimport_lastimported';
+  // const LASTID_OPTION='percolateimport_lastid';
 
-	const STARTID_OPTION='percolateimport_startid';
-	const APIKEY_OPTION='percolateimport_apikey';
+  const STARTID_OPTION='percolateimport_startid';
+  const APIKEY_OPTION='percolateimport_apikey';
 
-	const POSTSTATUS_OPTION='percolateimport_poststatus';
-	const CATEGORY_OPTION='percolate_category';
-	const EX_CATEGORY_OPTION='ex_percolate_category';
-	const ALLSOURCES_OPTION='percolate_allsources';
+  const POSTSTATUS_OPTION='percolateimport_poststatus';
+  const CATEGORY_OPTION='percolate_category';
+  const EX_CATEGORY_OPTION='ex_percolate_category';
+  const ALLSOURCES_OPTION='percolate_allsources';
 
-	const IMPORT_OVERRIDE_OPTION='percolateimport_override';
+  const IMPORT_OVERRIDE_OPTION='percolateimport_override';
 
   const POSTTYPE_OPTION='percolateimport_posttype';
 
-	//const IMPORT_MOSTRECENT_OPTION='percolateimport_recent';
-
   //Used in callPercolateApi function. PERCOLATE_BASE_API, defined in wp-config.php
   //shall take precedence over API_BASE constant.
-	const API_BASE='http://percolate.com/api/v3/';
+  const API_BASE='http://percolate.com/api/v3/';
 
-	const M_LINKID='percolate_link_id';
-	const M_ADDEDON='percolate_added_on';
-	const M_ORIGINALTITLE='percolate_original_title';
-	const M_USERTITLE='percolate_user_title';
-	const M_DOMAIN='percolate_domain';
-	const M_ORIGINALDESCRIPTION='percolate_original_description';
-	const M_USERDESCRIPTION='percolate_user_description';
-	const M_URL='percolate_url';
-	const M_SHORTURL='percolate_shorturl';
-	const M_SOURCES='percolate_sources';
-	const M_FEATUREDSOURCE='percolate_featured_source';
-	const M_SOURCETITLES='percolate_source_titles';
-	const M_USE='percolate_use';
-	const IMPORT_VERSION = '1.0';
-	const M_MEDIA='percolate_media';
-	const M_POSTEDPERMALINK = 'posted_permalink';
-	const M_PERCOLATEID = 'percolate_id';
+  const M_LINKID='percolate_link_id';
+  const M_ADDEDON='percolate_added_on';
+  const M_ORIGINALTITLE='percolate_original_title';
+  const M_USERTITLE='percolate_user_title';
+  const M_DOMAIN='percolate_domain';
+  const M_ORIGINALDESCRIPTION='percolate_original_description';
+  const M_USERDESCRIPTION='percolate_user_description';
+  const M_URL='percolate_url';
+  const M_SHORTURL='percolate_shorturl';
+  const M_SOURCES='percolate_sources';
+  const M_FEATUREDSOURCE='percolate_featured_source';
+  const M_SOURCETITLES='percolate_source_titles';
+  const M_USE='percolate_use';
+  const IMPORT_VERSION = '1.0';
+  const M_MEDIA='percolate_media';
+  const M_POSTEDPERMALINK = 'posted_permalink';
+  const M_PERCOLATEID = 'percolate_id';
 
-    const CHANNEL_ID_OPTION = 'percolateimport_channel_id';
+  const CHANNEL_ID_OPTION = 'percolateimport_channel_id';
 
-	/** INSTALL AND INIT CODE **/
+  /** INSTALL AND INIT CODE **/
 
-	public function install()
-	{
-		// Check to see if the plugin options were already installed, if not then set the default values.
-		if (get_option(self::USERID_OPTION) == FALSE ) update_option(self::USERID_OPTION, '0');
-		if (get_option(self::USERTYPE_OPTION) == FALSE ) update_option(self::USERTYPE_OPTION, '0');
-		//if (get_option(self::GROUPID_OPTION) == FALSE ) update_option(self::GROUPID_OPTION, '0');
-		if (get_option(self::LASTIMPORT_OPTION) == FALSE ) update_option(self::LASTIMPORT_OPTION, '0');
-		if (get_option(self::STARTID_OPTION) == FALSE ) update_option(self::STARTID_OPTION, '0');
-		if (get_option(self::POSTSTATUS_OPTION) == FALSE ) update_option(self::POSTSTATUS_OPTION, 'draft');
-		if (get_option(self::POSTTYPE_OPTION) == FALSE ) update_option(self::POSTTYPE_OPTION, 'post');
+  public function install()
+  {
+    // Check to see if the plugin options were already installed, if not then set the default values.
+    if (get_option(self::USERID_OPTION) == FALSE ) update_option(self::USERID_OPTION, '0');
+    if (get_option(self::USERTYPE_OPTION) == FALSE ) update_option(self::USERTYPE_OPTION, '0');
+    //if (get_option(self::GROUPID_OPTION) == FALSE ) update_option(self::GROUPID_OPTION, '0');
+    if (get_option(self::LASTIMPORT_OPTION) == FALSE ) update_option(self::LASTIMPORT_OPTION, '0');
+    if (get_option(self::STARTID_OPTION) == FALSE ) update_option(self::STARTID_OPTION, '0');
+    if (get_option(self::POSTSTATUS_OPTION) == FALSE ) update_option(self::POSTSTATUS_OPTION, 'draft');
+    if (get_option(self::POSTTYPE_OPTION) == FALSE ) update_option(self::POSTTYPE_OPTION, 'post');
     if (get_option(self::CHANNEL_ID_OPTION) == FALSE ) update_option(self::CHANNEL_ID_OPTION, '0');
 
 
-        // $recentOption = get_option(self::IMPORT_MOSTRECENT_OPTION);
+    // $recentOption = get_option(self::IMPORT_MOSTRECENT_OPTION);
     // if (!isset($recentOption) || !$recentOption || $recentOption == '') update_option(self::IMPORT_MOSTRECENT_OPTION,0);
-		if (get_option(self::ALLSOURCES_OPTION) == FALSE ) update_option(self::ALLSOURCES_OPTION, '0');
-	}
+    if (get_option(self::ALLSOURCES_OPTION) == FALSE ) update_option(self::ALLSOURCES_OPTION, '0');
+  }
 
 
 
 
-	public function init()
-	{
-		//echo "<pre>"; print_r(self::getPercolateStories()); echo "</pre>";
-	}
+  public function init()
+  {
 
-	public function addRewrite($wpRewrite)
-	{
+  }
 
-	}
+  public function addRewrite($wpRewrite)
+  {
 
-	public function queryVars($pubicQueryVars)
-	{
+  }
 
-	}
+  public function queryVars($pubicQueryVars)
+  {
 
-	public function adminScripts()
-	{
-		echo '<script type="text/javascript" src="' . plugin_dir_url(__File__) . 'percimport.js"></script>';
-	}
+  }
 
-	public function adminInit() {
+  public function adminScripts()
+  {
+    echo '<script type="text/javascript" src="' . plugin_dir_url(__File__) . 'percimport.js"></script>';
+  }
 
 
-		$postTypeSlug = get_option(self::POSTTYPE_OPTION);
-		//Edit form additions
-		add_meta_box(
-			'percolate-info',
-			'Original Description',
-			array('PercolateImport','infoMetaBox'),
-			$postTypeSlug,
-			'normal',
-			'high'
-		);
+  //=========================================
+  // Admin 
+  //=========================================
+  public function adminInit() {
+
+    // Get the post type set in the options. 
+    $postTypeSlug = get_option(self::POSTTYPE_OPTION);
+    
+    //----------------------
+    // Meta boxes for percolate posts
+    //----------------------
+    add_meta_box(
+      'percolate-info',
+      'Original Description',
+      array('PercolateImport','infoMetaBox'),
+      $postTypeSlug,
+      'normal',
+      'high'
+    );
+
+    add_meta_box(
+      'percolate-url',
+      'Percolate URL',
+      array('PercolateImport','urlMetaBox'),
+      $postTypeSlug,
+      'normal',
+      'high'
+    );
+
+    add_meta_box(
+      'percolate-media',
+      'Percolate Media',
+      array('PercolateImport','mediaMetaBox'),
+      $postTypeSlug,
+      'normal',
+      'high'
+    );
+
+    add_meta_box(
+      'percolate-short-url',
+      'Percolate Short Url',
+      array('PercolateImport','shortUrl'),
+      $postTypeSlug,
+      'normal',
+      'high'
+    );
+
+    add_meta_box(
+      'percolate_id',
+      'Percolate ID',
+      array('PercolateImport','percolateId'),
+      $postTypeSlug,
+      'normal',
+      'high'
+    );
+
+    add_meta_box(
+      'posted_permalink',
+      'Posted Permalink to Percolate',
+      array('PercolateImport','postedPermalink'),
+      $postTypeSlug,
+      'normal',
+      'high'
+    );
 
 
-		add_meta_box(
-			'percolate-url',
-			'Percolate URL',
-			array('PercolateImport','urlMetaBox'),
-			$postTypeSlug,
-			'normal',
-			'high'
-		);
+    //----------------------
+    // Plugin Settings
+    //----------------------
 
-		add_meta_box(
-			'percolate-media',
-			'Percolate Media',
-			array('PercolateImport','mediaMetaBox'),
-			$postTypeSlug,
-			'normal',
-			'high'
-		);
+    // Setup the settings section
+    add_settings_section(
+      self::SETTINGS_SECTION,
+      "Percolate API Settings",
+      array('PercolateImport','settingsSectionHeader'),
+      self::SETTINGS_PAGE
+    );
 
-		add_meta_box(
-			'percolate-short-url',
-			'Percolate Short Url',
-			array('PercolateImport','shortUrl'),
-			$postTypeSlug,
-			'normal',
-			'high'
-		);
-
-		add_meta_box(
-			'percolate_id',
-			'Percolate ID',
-			array('PercolateImport','percolateId'),
-			$postTypeSlug,
-			'normal',
-			'high'
-		);
-
-		add_meta_box(
-			'posted_permalink',
-			'Posted Permalink to Percolate',
-			array('PercolateImport','postedPermalink'),
-			$postTypeSlug,
-			'normal',
-			'high'
-		);
-
-		//Settings
-
-
-
-
-		add_settings_section(
-			self::SETTINGS_SECTION,
-			"Percolate API Settings",
-			array('PercolateImport','settingsSectionHeader'),
-			self::SETTINGS_PAGE
-		);
-
-
-		add_settings_field(
-			self::USERTYPE_OPTION,
-			"Percolate User Type",
-			array('PercolateImport', 'settingsUserTypeDisplay'),
-			self::SETTINGS_PAGE,
-			self::SETTINGS_SECTION
-		);
-
-
-		add_settings_field(
-			self::APIKEY_OPTION,
-			"Percolate API KEY",
-			array('PercolateImport','settingsApiKeyDisplay'),
-			self::SETTINGS_PAGE,
-			self::SETTINGS_SECTION
-		);
-
-		// add_settings_field(
-		// 	self::USERID_OPTION,
-		// 	"Percolate User ID",
-		// 	array('PercolateImport', 'settingsUserIdDisplay'),
-		// 	self::SETTINGS_PAGE,
-		// 	self::SETTINGS_SECTION
-		// );
-
-
-
-  if (get_option(self::APIKEY_OPTION)) {
-   
 
     add_settings_field(
+      self::USERTYPE_OPTION,
+      "Percolate User Type",
+      array('PercolateImport', 'settingsUserTypeDisplay'),
+      self::SETTINGS_PAGE,
+      self::SETTINGS_SECTION
+    );
+
+
+    add_settings_field(
+      self::APIKEY_OPTION,
+      "Percolate API KEY",
+      array('PercolateImport','settingsApiKeyDisplay'),
+      self::SETTINGS_PAGE,
+      self::SETTINGS_SECTION
+    );
+
+    // Only show the API Key first, then once 
+    // that is set, show the rest of the settings. 
+    if (get_option(self::APIKEY_OPTION)) {
+     
+      add_settings_field(
         self::CHANNEL_ID_OPTION,
         "Website",
         array('PercolateImport', 'settingsChannelIdDisplay'),
         self::SETTINGS_PAGE,
         self::SETTINGS_SECTION
-    );
+      );
 
+      add_settings_field(
+        self::POSTSTATUS_OPTION,
+        "Publish Status",
+        array('PercolateImport', 'postStatusDisplay'),
+        self::SETTINGS_PAGE,
+        self::SETTINGS_SECTION
+      );
 
-		// add_settings_field(
-		// 	self::GROUPID_OPTION,
-		// 	"Percolate Group ID",
-		// 	array('PercolateImport', 'settingsGroupIdDisplay'),
-		// 	self::SETTINGS_PAGE,
-		// 	self::SETTINGS_SECTION
-		// );
+      add_settings_field(
+        self::AUTHORID_OPTION,
+        "Author",
+        array('PercolateImport', 'settingsAuthorDisplay'),
+        self::SETTINGS_PAGE,
+        self::SETTINGS_SECTION
+      );
 
-		add_settings_field(
-			self::POSTSTATUS_OPTION,
-			"Publish Status",
-			array('PercolateImport', 'postStatusDisplay'),
-			self::SETTINGS_PAGE,
-			self::SETTINGS_SECTION
-		);
+      add_settings_field(
+        self::DEFGRPAUTHORID_OPTION,
+        "Default Group Author",
+        array('PercolateImport', 'settingsDefGrpAuthorDisplay'),
+        self::SETTINGS_PAGE,
+        self::SETTINGS_SECTION
+      );
 
-		add_settings_field(
-			self::AUTHORID_OPTION,
-			"Author",
-			array('PercolateImport', 'settingsAuthorDisplay'),
-			self::SETTINGS_PAGE,
-			self::SETTINGS_SECTION
-		);
+      add_settings_field(
+        self::GROUPAUTHORS_OPTION,
+        "Group Authors",
+        array('PercolateImport', 'settingsGroupAuthorsDisplay'),
+        self::SETTINGS_PAGE,
+        self::SETTINGS_SECTION
+      );
 
-		add_settings_field(
-			self::DEFGRPAUTHORID_OPTION,
-			"Default Group Author",
-			array('PercolateImport', 'settingsDefGrpAuthorDisplay'),
-			self::SETTINGS_PAGE,
-			self::SETTINGS_SECTION
-		);
+      add_settings_field(
+        self::CATEGORY_OPTION,
+        "Category",
+        array('PercolateImport', 'settingsCategoryDisplay'),
+        self::SETTINGS_PAGE,
+        self::SETTINGS_SECTION
+      );
 
-		add_settings_field(
-			self::GROUPAUTHORS_OPTION,
-			"Group Authors",
-			array('PercolateImport', 'settingsGroupAuthorsDisplay'),
-			self::SETTINGS_PAGE,
-			self::SETTINGS_SECTION
-		);
-
-		add_settings_field(
-			self::CATEGORY_OPTION,
-			"Category",
-			array('PercolateImport', 'settingsCategoryDisplay'),
-			self::SETTINGS_PAGE,
-			self::SETTINGS_SECTION
-		);
-
-    add_settings_field(
+      add_settings_field(
         self::POSTTYPE_OPTION,
         "Post Type",
         array('PercolateImport', 'settingsPostTypeDisplay'),
         self::SETTINGS_PAGE,
         self::SETTINGS_SECTION
-    );
+      );
 
-    }
-
-/*
-		add_settings_field(
-			self::EX_CATEGORY_OPTION,
-			"Exclude Category",
-			array('PercolateImport', 'settingsExcludeCategoryDisplay'),
-			self::SETTINGS_PAGE,
-			self::SETTINGS_SECTION
-		);
-*/
+    } // End if APIKEY_OPTION
 
 
-    // add_settings_field(
-    //  self::IMPORT_MOSTRECENT_OPTION,
-    //  "On initial import start from the most recent posts and go forward",
-    //  array('PercolateImport', 'settingsImportRecentDisplay'),
-    //  self::SETTINGS_PAGE,
-    //  self::SETTINGS_SECTION
-    // );
-
-    if (is_admin() && current_user_can('manage_options') ) { // note the use of is_admin() to double check that this is happening in the admin
+    // note the use of is_admin() to double check that this is happening in the admin
+    if (is_admin() && current_user_can('manage_options') ) { 
       $config = array(
         'slug' => plugin_basename(__FILE__),
         'proper_folder_name' => 'WP-Percolate',
@@ -309,8 +278,8 @@ class PercolateImport
         'github_url' => 'https://github.com/percolate/WP-Percolate',
         'zip_url' => 'https://github.com/percolate/WP-Percolate/zipball/master',
         'sslverify' => false,
-				'requires' => "3.2.0",
-				'tested' => "3.5.1", //$wp_version
+        'requires' => "3.2.0",
+        'tested' => "3.5.1", //$wp_version
       );
       GLOBAL $gitHubUpdater;
       $gitHubUpdater = new GitHubUpdater($config);
@@ -321,115 +290,90 @@ class PercolateImport
       }
     }
 
-		register_setting(self::SETTINGS_PAGE, self::USERTYPE_OPTION);
-		register_setting(self::SETTINGS_PAGE, self::GROUPID_OPTION);
-		register_setting(self::SETTINGS_PAGE, self::APIKEY_OPTION);
-		register_setting(self::SETTINGS_PAGE, self::DEFGRPAUTHORID_OPTION);
-		register_setting(self::SETTINGS_PAGE, self::GROUPAUTHORS_OPTION);
-		//register_setting(self::SETTINGS_PAGE, self::USERID_OPTION);
-		register_setting(self::SETTINGS_PAGE, self::POSTSTATUS_OPTION);
-		register_setting(self::SETTINGS_PAGE, self::AUTHORID_OPTION);
-		register_setting(self::SETTINGS_PAGE, self::CATEGORY_OPTION);
-		//register_setting(self::SETTINGS_PAGE, self::EX_CATEGORY_OPTION);
-		//register_setting(self::SETTINGS_PAGE, self::IMPORT_MOSTRECENT_OPTION);
-		register_setting(self::SETTINGS_PAGE, self::ALLSOURCES_OPTION);
-		register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
-        register_setting(self::SETTINGS_PAGE, self::POSTTYPE_OPTION);
-        register_setting(self::SETTINGS_PAGE, self::CHANNEL_ID_OPTION);
-		//Import process
-	  self::checkImport();
-		// TODO: do we still need this?
+    register_setting(self::SETTINGS_PAGE, self::USERTYPE_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::GROUPID_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::APIKEY_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::DEFGRPAUTHORID_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::GROUPAUTHORS_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::POSTSTATUS_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::AUTHORID_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::CATEGORY_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::ALLSOURCES_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::POSTTYPE_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::CHANNEL_ID_OPTION);
+    //Import process
+    self::checkImport();
 
-		// self::checkUpdate();
-	}
+  }
 
-/*
-function percoalte_plugin_action_links( $links, $file ) {
-	if ( $file == plugin_basename( dirname(__FILE__).'/percolate-import.php' ) ) {
-		$links[] = '<a href="'.admin_url('options-general.php?page=percolate').'">'.__('Settings').'</a>';
-	}
-
-	return $links;
-}
-
-add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
-*/
+  //----------------------
+  // Plugin Settings
+  //----------------------
+  
+  public function urlMetaBox($post) {
+    $url = get_post_meta($post->ID, self::M_URL, true);
+    echo $url;
+  }
 
 
+  public function shortUrl($post) {
+    $url = get_post_meta($post->ID, self::M_SHORTURL, true);
+    echo $url;
+  }
 
-
-
-
-	/** POST META BOXES **/
-	public function urlMetaBox($post)
-	{
-		$url = get_post_meta($post->ID, self::M_URL, true);
-?>
-        <?php echo 	$url ?>
-        <?php
-	}
-
-
-		public function shortUrl($post)
-		{
-			$url = get_post_meta($post->ID, self::M_SHORTURL, true);
-	?>
-	        <?php echo $url ?>
-	        <?php
-		}
-
-	public function infoMetaBox($post)
-	{
-		$userTitle = get_post_meta($post->ID, self::M_USERTITLE, true);
-		$originalTitle = get_post_meta($post->ID, self::M_ORIGINALTITLE, true);
-		$userDescription = get_post_meta($post->ID, self::M_USERDESCRIPTION, true);
-		$originalDescription = get_post_meta($post->ID, self::M_ORIGINALDESCRIPTION, true);
-		//use post id
-		$linkId = get_post_meta($post->ID, self::M_LINKID, true);
-		if (!$linkId) {
-			echo '<p class="nonessential">Not a Percolate post.</p>';
-			return;
-		}
-?>
+  public function infoMetaBox($post)
+  {
+    $userTitle = get_post_meta($post->ID, self::M_USERTITLE, true);
+    $originalTitle = get_post_meta($post->ID, self::M_ORIGINALTITLE, true);
+    $userDescription = get_post_meta($post->ID, self::M_USERDESCRIPTION, true);
+    $originalDescription = get_post_meta($post->ID, self::M_ORIGINALDESCRIPTION, true);
+    //use post id
+    $linkId = get_post_meta($post->ID, self::M_LINKID, true);
+    if (!$linkId) {
+      echo '<p class="nonessential">Not a Percolate post.</p>';
+      return;
+    }
+  ?>
         <?php echo $originalDescription; ?>
         <?php
-	}
+  }
 
-	public function mediaMetaBox($post){
-		$mediaMeta = get_post_meta($post->ID, self::M_MEDIA);
-		if (!empty($mediaMeta[0])) {
-		foreach($mediaMeta as $media_js){
-			// Get the media type
-			//$medias= json_decode($media_js);
-			$media=$media_js;
-			$mediaType = $media['type'];
-			echo "<h4>Type: " . $mediaType . "</h4>";
-			echo "<input type='hidden' value='" . $mediaType . "' id='media_type' />";
+  public function mediaMetaBox($post){
+    $mediaMeta = get_post_meta($post->ID, self::M_MEDIA);
+    if (!empty($mediaMeta[0])) {
+    foreach($mediaMeta as $media_js){
+      // Get the media type
+      //$medias= json_decode($media_js);
+      $media=$media_js;
+      $mediaType = $media['type'];
+      echo "<h4>Type: " . $mediaType . "</h4>";
+      echo "<input type='hidden' value='" . $mediaType . "' id='media_type' />";
 
-				if ($mediaType === "image") {
-					$original_url = $media['images']['original']['url'];
-					$original_width = $media['images']['original']['width'];
-					$original_height = $media['images']['original']['height'];
+        if ($mediaType === "image") {
+          $original_url = $media['images']['original']['url'];
+          $original_width = $media['images']['original']['width'];
+          $original_height = $media['images']['original']['height'];
 
 
-					// $p_img = $media['src']; //$p_img = $media['p_img']; //apiV3 feature
-					$p_img =  $media['images']['large']['url'];
+          // $p_img = $media['src']; //$p_img = $media['p_img']; //apiV3 feature
+          $p_img =  $media['images']['large']['url'];
           $p_img_width = $media['images']['large']['width'];//apiV3 feature
-					$p_img_height = $media['images']['large']['height']; //apiV3 feature
+          $p_img_height = $media['images']['large']['height']; //apiV3 feature
 
           echo "<input type='radio' name='image-size' value='large' style='display:none;'>";
           echo "<img src='$p_img' id='m_media' width='$p_img_width' height='$p_img_height' class='media_image' size='large'/>"; //echo "<img src='$p_img' id='m_media' />"; narada
           echo "</input>";
           $p_img_medium_url = $media['images']['medium']['url'];//apiV3 feature
-					$p_img_medium_width = $media['images']['medium']['width'];//apiV3 feature
-					$p_img_medium_height = $media['images']['medium']['height']; //apiV3 feature
+          $p_img_medium_width = $media['images']['medium']['width'];//apiV3 feature
+          $p_img_medium_height = $media['images']['medium']['height']; //apiV3 feature
 
           echo "<input type='radio' name='image-size' value='medium' style='display:none;'>";
           echo "<img src='$p_img_medium_url' id='m_media_m' width='$p_img_medium_width' height='$p_img_medium_height' class='media_image' size='medium' />";
           echo "</input>";
           $p_img_small_url = $media['images']['small']['url'];//apiV3 feature
-					$p_img_small_width = $media['images']['small']['width'];//apiV3 feature
-					$p_img_small_height = $media['images']['small']['height']; //apiV3 feature
+          $p_img_small_width = $media['images']['small']['width'];//apiV3 feature
+          $p_img_small_height = $media['images']['small']['height']; //apiV3 feature
 
           echo "<input type='radio' name='image-size' value='small' style='display:none;'>";
           echo "<img src='$p_img_small_url' id='m_media_s' width='$p_img_small_width' height='$p_img_small_height' class='media_image' size='small'/>";
@@ -438,47 +382,45 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
           echo "<br /><br /><input type='radio' id='original-radio' name='image-size' value='original'> Or insert the original image size. ($original_width x $original_height)</input>";
           echo "<img src='$original_url' id='m_media_org' class='media_image' size='large' style='display:none;'/>";
-				}
-				if ($mediaType === "video") {
-					$video_url = $media['url'];
+        }
+        if ($mediaType === "video") {
+          $video_url = $media['url'];
 
-					if(strstr($video_url, "vimeo")) {
-						echo '<iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe><br /><br /><br /><h4>Copy This Embed Code.</h4><textarea style="width:90%;color:#CCC;" id="m_media_video"><iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe></textarea>';
-					}
-					if(strstr($video_url, "youtube")) {
-						echo '<iframe title="YouTube video player" width="520" height="320" src="'.$video_url.'?wmode=transparent&amp;rel=0" frameborder="0" type="text/html"></iframe><br /><br /><br /><h4>Copy This Embed Code.</h4><textarea style="width:90%;color:#CCC;" id="m_media_video"><iframe title="YouTube video player" width="520" height="320" src="'.$video_url.'?wmode=transparent&amp;rel=0" frameborder="0" type="text/html"></iframe></textarea>';
-					}
-				}
-				if ($mediaType === "quote") {
-					$quote_text = $media['text'];
-					echo '<blockquote>' . $quote_text . '</blockquote><textarea style="width:90%;color:#CCC;" id="m_media_quote"><blockquote>' . $quote_text . '</blockquote></textarea>';
-				}
-			}
+          if(strstr($video_url, "vimeo")) {
+            echo '<iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe><br /><br /><br /><h4>Copy This Embed Code.</h4><textarea style="width:90%;color:#CCC;" id="m_media_video"><iframe src="'.$video_url.'?title=0&amp;byline=0&amp;portrait=0&amp;color=ffffff" width="520" height="290" frameborder="0" param="" name="wmode" value="opaque"></iframe></textarea>';
+          }
+          if(strstr($video_url, "youtube")) {
+            echo '<iframe title="YouTube video player" width="520" height="320" src="'.$video_url.'?wmode=transparent&amp;rel=0" frameborder="0" type="text/html"></iframe><br /><br /><br /><h4>Copy This Embed Code.</h4><textarea style="width:90%;color:#CCC;" id="m_media_video"><iframe title="YouTube video player" width="520" height="320" src="'.$video_url.'?wmode=transparent&amp;rel=0" frameborder="0" type="text/html"></iframe></textarea>';
+          }
+        }
+        if ($mediaType === "quote") {
+          $quote_text = $media['text'];
+          echo '<blockquote>' . $quote_text . '</blockquote><textarea style="width:90%;color:#CCC;" id="m_media_quote"><blockquote>' . $quote_text . '</blockquote></textarea>';
+        }
+      }
 
-	?>
+  ?>
 
-	<style>
-		img.media_image {
-			margin-right:5px;
-			border:solid 3px #f9f9f9;
-		}
+  <style>
+    img.media_image {
+      margin-right:5px;
+      border:solid 3px #f9f9f9;
+    }
+  </style>
 
+  <script type="text/javascript">
+      jQuery(function () {
+          (function($){
 
-	</style>
+              if(!$("#media_type").val()){
+                $('.select-media-button').hide();
+              }
 
-	<script type="text/javascript">
-	    jQuery(function () {
-	        (function($){
+              $('.select-media-button').click(function () {
 
-	            if(!$("#media_type").val()){
-	              $('.select-media-button').hide();
-	            }
+                mType = $("#media_type").val();
 
-	            $('.select-media-button').click(function () {
-
-	            	mType = $("#media_type").val();
-
-	            	if (mType == 'image' ) {
+                if (mType == 'image' ) {
                   var image_size = $("input[name='image-size']:checked").val();
                   if (image_size == "large") {
                     p_img =$("#m_media").attr('src');
@@ -494,24 +436,24 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
                     embedContent = '<img src="'+ p_img +'" alt="" />';
                   }
 
-								} else if (mType == 'video') {
-									embedContent = $("textarea#m_media_video").val();
-								}	else if (mType == 'quote') {
-		              embedContent = $("textarea#m_media_quote").val();
-		            }
+                } else if (mType == 'video') {
+                  embedContent = $("textarea#m_media_video").val();
+                } else if (mType == 'quote') {
+                  embedContent = $("textarea#m_media_quote").val();
+                }
 
-		              switchEditors.go('content', 'html');
-									//edInsertContent(edCanvas, embedContent); // This stopped working in 3.3.1
-		              send_to_editor(embedContent);
-		              switchEditors.go('content', 'tinymce');
+                  switchEditors.go('content', 'html');
+                  //edInsertContent(edCanvas, embedContent); // This stopped working in 3.3.1
+                  send_to_editor(embedContent);
+                  switchEditors.go('content', 'tinymce');
 
-	            });
-	        })(jQuery);
-	    });
+              });
+          })(jQuery);
+      });
 
       jQuery(document).ready(function () {
         jQuery(".media_image").click(function(){
-        	jQuery("input[name='image-size']").prop('checked', false);
+          jQuery("input[name='image-size']").prop('checked', false);
           jQuery(".media_image").each(function(){
             jQuery(this).css('border', 'solid 3px #f9f9f9');
           });
@@ -528,40 +470,40 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         });
       });
 
-	    </script>
-		 <div class="add-source-input">
-	  	<br /><br />
-	  	<input type="button" class="select-media-button" value="Insert <?php echo $mediaType ?> into post body." />
-	   </div>
-	<?php
-	} else {
-			echo "<p>There wasn't any media imported from Percolate.</p>";
-		}
+      </script>
+     <div class="add-source-input">
+      <br /><br />
+      <input type="button" class="select-media-button" value="Insert <?php echo $mediaType ?> into post body." />
+     </div>
+  <?php
+  } else {
+      echo "<p>There wasn't any media imported from Percolate.</p>";
+    }
 
 
-	}
+  }
 
-	//posted permalink to percolate
-	public function postedPermalink($post)
-	{
-		$plink = get_post_meta($post->ID, self::M_POSTEDPERMALINK, true);
- 		echo $plink;
-	}
-	// percolate id
-	public function percolateId($post)
-	{
-		$percolateId = get_post_meta($post->ID, self::M_PERCOLATEID, true);
- 		echo $percolateId;
-	}
+  //posted permalink to percolate
+  public function postedPermalink($post)
+  {
+    $plink = get_post_meta($post->ID, self::M_POSTEDPERMALINK, true);
+    echo $plink;
+  }
+  // percolate id
+  public function percolateId($post)
+  {
+    $percolateId = get_post_meta($post->ID, self::M_PERCOLATEID, true);
+    echo $percolateId;
+  }
 
 
 
-	public function updatePost($postId)
-	{
+  public function updatePost($postId)
+  {
 
-		if (wp_is_post_revision($postId)) {
-			return;
-		}
+    if (wp_is_post_revision($postId)) {
+      return;
+    }
 
 
 
@@ -569,56 +511,56 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
     //  update_post_meta($postId, self::M_DOMAIN, $_POST[self::M_DOMAIN]);
     // }
 
-		if (!empty($_POST[self::M_URL])) {
-			update_post_meta($postId, self::M_URL, $_POST[self::M_URL]);
-		}
+    if (!empty($_POST[self::M_URL])) {
+      update_post_meta($postId, self::M_URL, $_POST[self::M_URL]);
+    }
 
-		if (!empty($_POST[self::M_SHORTURL])) {
-			update_post_meta($postId, self::M_SHORTURL, $_POST[self::M_SHORTURL]);
-		}
+    if (!empty($_POST[self::M_SHORTURL])) {
+      update_post_meta($postId, self::M_SHORTURL, $_POST[self::M_SHORTURL]);
+    }
 
 
-	}
+  }
 
 
 /** PERCOLATE SETTINGS **/
 
-	public function settingsSectionHeader()
-	{
-		echo "<p>Settings for Percolate API Integration</p>";
-	}
+  public function settingsSectionHeader()
+  {
+    echo "<p>Settings for Percolate API Integration</p>";
+  }
 
-	public function settingsUserTypeDisplay()
-	{
-		$userType = get_option(self::USERTYPE_OPTION);
+  public function settingsUserTypeDisplay()
+  {
+    $userType = get_option(self::USERTYPE_OPTION);
 ?>
-		<span class="percapi-user-type">
-		   	<input type="radio" name="<?php echo self::USERTYPE_OPTION; ?>"
-		   	     	id="percapi-user-type-individual"  value="0"
-					 <?php
-		echo $userType != 1 ?  "checked=\"checked\"" :  "" ;
-		?> />
-		   	     	Individual
+    <span class="percapi-user-type">
+        <input type="radio" name="<?php echo self::USERTYPE_OPTION; ?>"
+              id="percapi-user-type-individual"  value="0"
+           <?php
+    echo $userType != 1 ?  "checked=\"checked\"" :  "" ;
+    ?> />
+              Individual
 
 
 
-		   	<input type="radio" name="<?php echo self::USERTYPE_OPTION; ?>"
-		   	     	id="percapi-user-type-group" value="1"
-					 <?php
-		echo $userType == 1 ?  "checked=\"checked\"" : "" ;
+        <input type="radio" name="<?php echo self::USERTYPE_OPTION; ?>"
+              id="percapi-user-type-group" value="1"
+           <?php
+    echo $userType == 1 ?  "checked=\"checked\"" : "" ;
 ?>
-		   	      />
-		   	     	Group
+              />
+              Group
 
 
-			<input type="hidden" name="init_user_type" id="init_user_type" value="<?php echo $userType;?>">
-		</span>
-	<?php
-	}
+      <input type="hidden" name="init_user_type" id="init_user_type" value="<?php echo $userType;?>">
+    </span>
+  <?php
+  }
 
 
-	public function settingsUserIdDisplay()
-	{
+  public function settingsUserIdDisplay()
+  {
 
 ?>
 
@@ -629,10 +571,10 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
             User ID for the Percolate API.
         </span>
         <?php
-	}
+  }
 
-	public function settingsGroupIdDisplay()
-	{
+  public function settingsGroupIdDisplay()
+  {
 ?>
         <span class="percapi-usergroupid-control user-type-grp">
         <input size="5" type="text" class="user-group-id" name="<?php echo self::GROUPID_OPTION; ?>"
@@ -641,32 +583,32 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
             Group ID for the Percolate API.
         </span>
         <?php
-	}
+  }
 
 
-	public function settingsApiKeyDisplay()
-	{
-		?>
+  public function settingsApiKeyDisplay()
+  {
+    ?>
     <span class="percapi-apikey-control api-key">
     <input size="44" type="text" class="api-key" name="<?php echo self::APIKEY_OPTION; ?>"
         id="percapi_api_key"
         value="<?php echo get_option(self::APIKEY_OPTION); ?>" />
     </span>
     <?php
-	}
+  }
 
-	public function settingsDefGrpAuthorDisplay()
-	{
-		global $wp_version;
-		if ($wp_version >= "3.1") {
-			$users = get_users();
-		} else {
-			$users = get_users_of_blog();
-		}
+  public function settingsDefGrpAuthorDisplay()
+  {
+    global $wp_version;
+    if ($wp_version >= "3.1") {
+      $users = get_users();
+    } else {
+      $users = get_users_of_blog();
+    }
 
-		$defgrpauthorId = get_option(self::DEFGRPAUTHORID_OPTION);
+    $defgrpauthorId = get_option(self::DEFGRPAUTHORID_OPTION);
 ?>
-		<span class="user-type-grp">
+    <span class="user-type-grp">
         <select name="<?php echo self::DEFGRPAUTHORID_OPTION; ?>">
             <?php foreach ($users as $user): ?>
             <option <?php echo ($user->ID == $defgrpauthorId) ? ' selected="selected" ' : ''; ?>
@@ -674,134 +616,134 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
             <?php endforeach; ?>
         </select> When a Wordpress author does not exit for a corresponding group member assign posts to this Wordpress user.
         <?php
-	}
+  }
 
 
 
 
-	public function settingsAuthorDisplay()
-	{
+  public function settingsAuthorDisplay()
+  {
 
-		global $wp_version;
-		if ($wp_version >= "3.1") {
-			$users = get_users();
-		} else {
-			$users = get_users_of_blog();
-		}
+    global $wp_version;
+    if ($wp_version >= "3.1") {
+      $users = get_users();
+    } else {
+      $users = get_users_of_blog();
+    }
 
 
-		$authorId = get_option(self::AUTHORID_OPTION);
-		//echo "<pre>"; print_r($users); echo "</pre>";
+    $authorId = get_option(self::AUTHORID_OPTION);
+    //echo "<pre>"; print_r($users); echo "</pre>";
 ?>
-		<span class="user-type-indi">
+    <span class="user-type-indi">
         <select name="<?php echo self::AUTHORID_OPTION; ?>">
             <?php foreach ($users as $user): ?>
             <option <?php echo ($user->ID == $authorId) ? ' selected="selected" ' : ''; ?>
                 value="<?php echo $user->ID; ?>"><?php echo $user->display_name; ?></option>
             <?php endforeach; ?>
         </select> New posts imported from percolate will be owned by this user.
-		</span>
+    </span>
         <?php
-	}
+  }
 
-	public function settingsGroupAuthorsDisplay(){
-		$group_authors = get_option(self::GROUPAUTHORS_OPTION);
+  public function settingsGroupAuthorsDisplay(){
+    $group_authors = get_option(self::GROUPAUTHORS_OPTION);
 ?>
-		<span class="user-type-grp">
-				<input type="hidden" name="<?php echo self::GROUPAUTHORS_OPTION ?>" id="<?php echo self::GROUPAUTHORS_OPTION ?>" value="<?php echo empty($group_authors) ? "" : $group_authors ?>"/>
+    <span class="user-type-grp">
+        <input type="hidden" name="<?php echo self::GROUPAUTHORS_OPTION ?>" id="<?php echo self::GROUPAUTHORS_OPTION ?>" value="<?php echo empty($group_authors) ? "" : $group_authors ?>"/>
 
-			<table>
-				<tr>
-					<th>
-						Group Members
-				            <a href="#" id="refresh_memberform">refresh</a>
+      <table>
+        <tr>
+          <th>
+            Group Members
+                    <a href="#" id="refresh_memberform">refresh</a>
 
-					</th>
-				 	<th>
-				 		Wordpress Authors
-				 	</th>
-				 </tr>
-		<?php
+          </th>
+          <th>
+            Wordpress Authors
+          </th>
+         </tr>
+    <?php
 
-		$group_id = get_option(self::GROUPID_OPTION);
-		$group_authors_array = json_decode($group_authors);
+    $group_id = get_option(self::GROUPID_OPTION);
+    $group_authors_array = json_decode($group_authors);
 
-		//if($group_id>0){
+    //if($group_id>0){
 
-			$percolate_users = self::getGroupUsers($group_id);
+      $percolate_users = self::getGroupUsers($group_id);
 
-			$objects = $percolate_users['users'];
+      $objects = $percolate_users['users'];
 
-			if(is_array($objects)){
+      if(is_array($objects)){
 
-				global $wp_version;
-				if ($wp_version >= "3.1") {
-					$users = get_users();
-				} else {
-					$users = get_users_of_blog();
-				}
+        global $wp_version;
+        if ($wp_version >= "3.1") {
+          $users = get_users();
+        } else {
+          $users = get_users_of_blog();
+        }
 
-				foreach ($objects as $puser) {
-					$temp_pid = $puser['id'];
+        foreach ($objects as $puser) {
+          $temp_pid = $puser['id'];
 ?>
-				<tr>
-					<td width="100px;">
-						<?php echo $puser['username'];?>
-					</td>
-					<td>
-						<select name="<?php echo $temp_pid?>" class="group_user_ids" >
-				            <?php foreach ($users as $user):
+        <tr>
+          <td width="100px;">
+            <?php echo $puser['username'];?>
+          </td>
+          <td>
+            <select name="<?php echo $temp_pid?>" class="group_user_ids" >
+                    <?php foreach ($users as $user):
 ?>
 
-										<?php if (isset($group_authors_array->$temp_pid)) { ?>
-				            <option <?php echo ($user->ID == $group_authors_array->$temp_pid) ? ' selected="selected" ' : ''; ?>
-					            value="<?php echo "'".$temp_pid."':'".$user->ID."'"; ?>"><?php echo $user->display_name; ?></option>
-					          <?php } else { ?>
-				            <option value="<?php echo "'".$temp_pid."':'".$user->ID."'"; ?>"><?php echo $user->display_name; ?></option>
-					          <?php } ?>
-				            <?php endforeach; ?>
-							 <option value="new_author">Create New Author</option>
-					    </select>
-					</td>
-				</tr>
-			<?php
-				}
-			}else{
-				echo "Did not find any users with the group id $group_id";
-			}
+                    <?php if (isset($group_authors_array->$temp_pid)) { ?>
+                    <option <?php echo ($user->ID == $group_authors_array->$temp_pid) ? ' selected="selected" ' : ''; ?>
+                      value="<?php echo "'".$temp_pid."':'".$user->ID."'"; ?>"><?php echo $user->display_name; ?></option>
+                    <?php } else { ?>
+                    <option value="<?php echo "'".$temp_pid."':'".$user->ID."'"; ?>"><?php echo $user->display_name; ?></option>
+                    <?php } ?>
+                    <?php endforeach; ?>
+               <option value="new_author">Create New Author</option>
+              </select>
+          </td>
+        </tr>
+      <?php
+        }
+      }else{
+        echo "Did not find any users with the group id $group_id";
+      }
 
-		// }else{
-		// 	echo "Enter a group id and save to view the group users.";
-		// }
+    // }else{
+    //  echo "Enter a group id and save to view the group users.";
+    // }
 ?>
-			</table>
-		</span>
-		<?php
+      </table>
+    </span>
+    <?php
 
-	}
+  }
 
 
-	public function settingsCategoryDisplay()
-	{
-		$categoryId = get_option(self::CATEGORY_OPTION);
-		wp_dropdown_categories('hide_empty=0&name=' . self::CATEGORY_OPTION . '&selected=' . $categoryId);
-		//echo "<pre>"; print_r($users); echo "</pre>";
+  public function settingsCategoryDisplay()
+  {
+    $categoryId = get_option(self::CATEGORY_OPTION);
+    wp_dropdown_categories('hide_empty=0&name=' . self::CATEGORY_OPTION . '&selected=' . $categoryId);
+    //echo "<pre>"; print_r($users); echo "</pre>";
 ?>
         New posts imported from percolate will appear in this category.
 
         <?php
-	}
+  }
 
-	public function settingsExcludeCategoryDisplay()
-	{
-		$ex_categoryId = get_option(self::EX_CATEGORY_OPTION);
-		wp_dropdown_categories('hide_empty=0&show_option_none=None&name=' . self::EX_CATEGORY_OPTION . '&selected=' . $ex_categoryId);
-		//echo "<pre>"; print_r($users); echo "</pre>";
-		?>
+  public function settingsExcludeCategoryDisplay()
+  {
+    $ex_categoryId = get_option(self::EX_CATEGORY_OPTION);
+    wp_dropdown_categories('hide_empty=0&show_option_none=None&name=' . self::EX_CATEGORY_OPTION . '&selected=' . $ex_categoryId);
+    //echo "<pre>"; print_r($users); echo "</pre>";
+    ?>
         Posts assigned to this category will not appear.
 
         <?php
-	}
+  }
 
     public function settingsPostTypeDisplay()
     {
@@ -825,27 +767,27 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         <?php
     }
 
-	public function userIdNotice()
-	{
-		if (get_option(self::USERID_OPTION) || get_option(self::GROUPID_OPTION)) {
-			return;
-		}
+  public function userIdNotice()
+  {
+    if (get_option(self::USERID_OPTION) || get_option(self::GROUPID_OPTION)) {
+      return;
+    }
 
-		echo '<div class="error">';
-		echo '<p>';
-		echo '<strong>' . __('Notice:') . '</strong> ';
-		_e(
-			'You haven&rsquo;t set a Percolate User or Group ID for the Percolate
+    echo '<div class="error">';
+    echo '<p>';
+    echo '<strong>' . __('Notice:') . '</strong> ';
+    _e(
+      'You haven&rsquo;t set a Percolate User or Group ID for the Percolate
             Import plugin. This plugin will not function correctly
             until the user or group ID is set.'
-		);
-		echo '</p><p>';
-		printf(
-			'<a href="%s">' . __('Percolate Settings Page') . '</a>',
-			admin_url('options-general.php?page=percolate')
-		);
-		echo '</p></div>';
-	}
+    );
+    echo '</p><p>';
+    printf(
+      '<a href="%s">' . __('Percolate Settings Page') . '</a>',
+      admin_url('options-general.php?page=percolate')
+    );
+    echo '</p></div>';
+  }
 
   public function apiKeyNotice()
   {
@@ -888,20 +830,20 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 
 
-	public function postStatusDisplay()
-	{
-		$options = array('draft'=>'Enter as Drafts', 'publish'=>'Publish Immediately');
-		$option = get_option(self::POSTSTATUS_OPTION);
-		if (!$option) {
-			$option = 'draft';
-		}
-		echo '<select name="' . self::POSTSTATUS_OPTION . '" >';
-		foreach ($options as $key=>$text) {
-			echo '<option ' . ($key == $option ? 'selected="selected"' : '') .
-				' value="' . $key . '">' . $text . '</option>';
-		}
-		echo '</select>';
-	}
+  public function postStatusDisplay()
+  {
+    $options = array('draft'=>'Enter as Drafts', 'publish'=>'Publish Immediately');
+    $option = get_option(self::POSTSTATUS_OPTION);
+    if (!$option) {
+      $option = 'draft';
+    }
+    echo '<select name="' . self::POSTSTATUS_OPTION . '" >';
+    foreach ($options as $key=>$text) {
+      echo '<option ' . ($key == $option ? 'selected="selected"' : '') .
+        ' value="' . $key . '">' . $text . '</option>';
+    }
+    echo '</select>';
+  }
 
     public function settingsChannelIdDisplay()
     {
@@ -981,35 +923,35 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         }
     }
 
-	public function adminMenu()
-	{
-		add_submenu_page(
-			'options-general.php',
-			'Percolate Settings Page',
-			'Percolate',
-			'administrator',
-			'percolate',
-			array('PercolateImport','settingsPage')
-		);
+  public function adminMenu()
+  {
+    add_submenu_page(
+      'options-general.php',
+      'Percolate Settings Page',
+      'Percolate',
+      'administrator',
+      'percolate',
+      array('PercolateImport','settingsPage')
+    );
 
-	}
+  }
 
 
 
-	public function settingsPage()
-	{
+  public function settingsPage()
+  {
 
-		if( isset($_REQUEST['settings-updated']) && $_REQUEST['settings-updated'] == 'true' && get_option(PercolateImport::IMPORT_OVERRIDE_OPTION) == 1 )
-		{
-			$last_id = get_option(self::STARTID_OPTION);?>
+    if( isset($_REQUEST['settings-updated']) && $_REQUEST['settings-updated'] == 'true' && get_option(PercolateImport::IMPORT_OVERRIDE_OPTION) == 1 )
+    {
+      $last_id = get_option(self::STARTID_OPTION);?>
         <div id="stories_imported" class="updated settings-error">
         <p>
             <strong>Stories Imported. Most Recent Percolate ID: <?php echo ($last_id); ?></strong>
         </p>
         </div>
         <?php
-			update_option(self::IMPORT_OVERRIDE_OPTION, 0);
-		
+      update_option(self::IMPORT_OVERRIDE_OPTION, 0);
+    
     // If we are updating the settings, lets get any updated info from the api for this user.
     } else if (isset($_REQUEST['settings-updated']) && $_REQUEST['settings-updated'] == 'true'){
     
@@ -1018,24 +960,24 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         update_option(self::USERID_OPTION, $user_profile_id);
     }
 
-		load_template(dirname(__FILE__) . '/percolate-options.php');
-	}
+    load_template(dirname(__FILE__) . '/percolate-options.php');
+  }
 
 
-	/** IMPORT SCREEN **/
-	public function renderImportPage()
-	{
-		load_template(dirname(__FILE__) . '/admin-import-page.php');
-	}
+  /** IMPORT SCREEN **/
+  public function renderImportPage()
+  {
+    load_template(dirname(__FILE__) . '/admin-import-page.php');
+  }
 
 
-	/** PERCOLATE API **/
+  /** PERCOLATE API **/
 
-	/**
-	 * Call the percolate API and try to import stories
-	 */
-	public function importStories()
-	{
+  /**
+   * Call the percolate API and try to import stories
+   */
+  public function importStories()
+  {
 
     $limit = 30;
     $offset = 0; //for initial step, this wil update within following loop
@@ -1046,25 +988,25 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
     //while( intval($offset) < intval($total) ) {
 
 
-  		$posts = self::getPercolatePosts($offset, $limit);
+      $posts = self::getPercolatePosts($offset, $limit);
 
-  		$pagination = $posts['pagination'];
-  		$total = $pagination['total'];
-  		$offset = intval($offset) + 30;
+      $pagination = $posts['pagination'];
+      $total = $pagination['total'];
+      $offset = intval($offset) + 30;
 
-  		$objects = $posts['data'];
-  		//$last_startId = get_option(self::STARTID_OPTION);
+      $objects = $posts['data'];
+      //$last_startId = get_option(self::STARTID_OPTION);
 
-  		// Check to see if the last_id coming from the percolate API is larger than that is what is
-  		// stored in the wp db, if its smaller than something is wrong and we don't update the start_at_id and don't
-  		// do the import.
+      // Check to see if the last_id coming from the percolate API is larger than that is what is
+      // stored in the wp db, if its smaller than something is wrong and we don't update the start_at_id and don't
+      // do the import.
 
-  			if ($objects) {
+        if ($objects) {
           // update the startID with the last id that was imported.
           $startId = $objects[0]['id'];
           update_option(self::STARTID_OPTION, $startId);
 
-  				foreach ($objects as $object) {
+          foreach ($objects as $object) {
 
             if ($object['external'] == false) {
               $startId = $object['id'];
@@ -1075,64 +1017,64 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
               //}
             }
 
-  				}
+          }
 
 
 
-  		  }
-  	//}
+        }
+    //}
 
-	}
+  }
 
-	/**
-	 * Add a percolate story to the WP system as a post
-	 **/
-	public function importStory($object)
-	{
-		global $wpdb;
+  /**
+   * Add a percolate story to the WP system as a post
+   **/
+  public function importStory($object)
+  {
+    global $wpdb;
 
 
-		$tags_array =  $object['tags'];
-		$body = $object['body'];
-		$analytics_array = $object['analytics'];
-		$short_url = $object['short_url'];
-		$link_array =  $object['link'];
-		$url_array = $link_array['url'];
-		$media_array = $object['media'];
-		$percolate_id = $object['id'];
+    $tags_array =  $object['tags'];
+    $body = $object['body'];
+    $analytics_array = $object['analytics'];
+    $short_url = $object['short_url'];
+    $link_array =  $object['link'];
+    $url_array = $link_array['url'];
+    $media_array = $object['media'];
+    $percolate_id = $object['id'];
 
-		$linkId = $object['id'];
+    $linkId = $object['id'];
 
-		// We use this to check for posts that are already imported.
-		// TODO: Find a better way to do this
-		$posts = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT meta_id, post_id, meta_key, meta_value
+    // We use this to check for posts that are already imported.
+    // TODO: Find a better way to do this
+    $posts = $wpdb->get_results(
+      $wpdb->prepare(
+        "SELECT meta_id, post_id, meta_key, meta_value
                 FROM $wpdb->postmeta
                 WHERE meta_value = %s AND (meta_key='percolate_id')",
-				$percolate_id
-			)
-		);
+        $percolate_id
+      )
+    );
 
-		if ($posts) {
-			return false;
-		}
+    if ($posts) {
+      return false;
+    }
 
-		$post = array();
-		$post['post_title']=html_entity_decode($object['title']); //apiV3 feature
+    $post = array();
+    $post['post_title']=html_entity_decode($object['title']); //apiV3 feature
 
-		if (!trim($post['post_title'])) {
-			$post['post_title']=html_entity_decode($link_array['title']);
-		}
+    if (!trim($post['post_title'])) {
+      $post['post_title']=html_entity_decode($link_array['title']);
+    }
 
-		$post['post_content']=$body;
+    $post['post_content']=$body;
 
     $postName = sanitize_title($post['post_title']);
-		$post['post_name']=$postName;
+    $post['post_name']=$postName;
 
-		$offset =  get_option('gmt_offset');
+    $offset =  get_option('gmt_offset');
 
-		// utc timezone adjustment if there is an offset set in wordpress.
+    // utc timezone adjustment if there is an offset set in wordpress.
     foreach($object['schedules'] as $schedule){
       if ($schedule['type'] == 'public'){
         $publish_date = $schedule['published_at'];
@@ -1150,143 +1092,143 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
     }
 
     // Still trying to fix 1970 bug
-		if ($publish_date == NULL){
+    if ($publish_date == NULL){
       $date = $object['created_at']." ".$offset." hours";
     }
     else{
       $date = $publish_date;
-		}
+    }
 
     $date = strtotime($date);
     $post['post_date'] = date('Y-m-d H:i:s', $date);
-		$post['post_status']=get_option(self::POSTSTATUS_OPTION);
+    $post['post_status']=get_option(self::POSTSTATUS_OPTION);
 
 
-		if (get_option(self::CATEGORY_OPTION)) {
-			$post['post_category']=array(get_option(self::CATEGORY_OPTION));
-		}
+    if (get_option(self::CATEGORY_OPTION)) {
+      $post['post_category']=array(get_option(self::CATEGORY_OPTION));
+    }
 
 
-		//check user type
-		$userType = get_option(self::USERTYPE_OPTION);
-		if($userType!=1){
-			$authorId = get_option(self::AUTHORID_OPTION);
-			if ($authorId) {
-				$post['post_author']=$authorId;
-			}
-		}else{
-			//story author
-			$author_id = $object['user_id'];
-			//get group authors
-			$group_authors = get_option(self::GROUPAUTHORS_OPTION);
-			$group_authors_array = json_decode($group_authors);
-			//check if the percolate user is mapped to a wp user.
-			$user_id = $group_authors_array->$author_id;
-			if ($user_id !=0){
-				$post['post_author']=$user_id;
-			}else{
-				$post['post_author']=get_option(self::DEFGRPAUTHORID_OPTION);
-			}
+    //check user type
+    $userType = get_option(self::USERTYPE_OPTION);
+    if($userType!=1){
+      $authorId = get_option(self::AUTHORID_OPTION);
+      if ($authorId) {
+        $post['post_author']=$authorId;
+      }
+    }else{
+      //story author
+      $author_id = $object['user_id'];
+      //get group authors
+      $group_authors = get_option(self::GROUPAUTHORS_OPTION);
+      $group_authors_array = json_decode($group_authors);
+      //check if the percolate user is mapped to a wp user.
+      $user_id = $group_authors_array->$author_id;
+      if ($user_id !=0){
+        $post['post_author']=$user_id;
+      }else{
+        $post['post_author']=get_option(self::DEFGRPAUTHORID_OPTION);
+      }
 
 
-		}
+    }
 
         $post['post_type'] = get_option(self::POSTTYPE_OPTION);
 
-		$postId = wp_insert_post($post);
+    $postId = wp_insert_post($post);
 
-		if ($tags_array) {
-			$tags_s = "";
-			foreach($tags_array as $tag){
-			  $tags_s = $tags_s.$tag['tag'] .",";
-			}
-		wp_set_post_tags($postId, $tags_s);
-		}
+    if ($tags_array) {
+      $tags_s = "";
+      foreach($tags_array as $tag){
+        $tags_s = $tags_s.$tag['tag'] .",";
+      }
+    wp_set_post_tags($postId, $tags_s);
+    }
 
-		$ver = floatval(phpversion());
-
-
+    $ver = floatval(phpversion());
 
 
-		update_post_meta($postId, self::M_DOMAIN, parse_url($url_array, PHP_URL_HOST));
-
-		update_post_meta($postId, self::M_ADDEDON, strtotime($object['created_at']));
-		update_post_meta($postId, self::M_LINKID, $link_array['id']);
-		update_post_meta($postId, self::M_ORIGINALDESCRIPTION, html_entity_decode($link_array['description']));
-		update_post_meta($postId, self::M_ORIGINALTITLE, html_entity_decode($link_array['title']));
-		update_post_meta($postId, self::M_URL, $url_array);
-		update_post_meta($postId, self::M_SHORTURL, $short_url);
-		update_post_meta($postId, self::M_USERDESCRIPTION, html_entity_decode($link_array['description']));
-		update_post_meta($postId, self::M_USERTITLE, $object['title']);
-		update_post_meta($postId, self::M_PERCOLATEID, $percolate_id);
-
-		if (isset($media_array['type']))
-		{
-			// v2 Compatibility, copy the large image to p_img at the root of the the media_array.
-			if ($media_array['type'] == 'image') {
-				$media_array['p_img'] = $media_array['images']['large']['url'];
-				$media_array['height'] = $media_array['images']['large']['height'];
-				$media_array['width'] = $media_array['images']['large']['width'];
-			} else if ($media_array['type'] == 'video') {
-				$media_array['t_img'] = $media_array['images'][1]['url'];
-			}
-		}
 
 
-		//add or update media
-		update_post_meta($postId, self::M_MEDIA,$media_array);
+    update_post_meta($postId, self::M_DOMAIN, parse_url($url_array, PHP_URL_HOST));
 
-		do_action('percolate_import_story', $postId);
+    update_post_meta($postId, self::M_ADDEDON, strtotime($object['created_at']));
+    update_post_meta($postId, self::M_LINKID, $link_array['id']);
+    update_post_meta($postId, self::M_ORIGINALDESCRIPTION, html_entity_decode($link_array['description']));
+    update_post_meta($postId, self::M_ORIGINALTITLE, html_entity_decode($link_array['title']));
+    update_post_meta($postId, self::M_URL, $url_array);
+    update_post_meta($postId, self::M_SHORTURL, $short_url);
+    update_post_meta($postId, self::M_USERDESCRIPTION, html_entity_decode($link_array['description']));
+    update_post_meta($postId, self::M_USERTITLE, $object['title']);
+    update_post_meta($postId, self::M_PERCOLATEID, $percolate_id);
 
-		//return an array with permalink and perc id to post back to percolate
-		$plink = get_permalink($postId);
-		update_post_meta($postId, self::M_POSTEDPERMALINK, $plink);
-
-		return array("post_id" => $linkId,
-			         "permalink" => $plink
-			    );
-	}
-
-	public static function getUrl($postId)
-	{
-		$url = get_post_meta($postId, self::M_URL, true);
-
-		return $url;
-	}
-
-	/**
-	 * Check to see if stories have been imported recently
-	 */
-	public function checkImport()
-	{
+    if (isset($media_array['type']))
+    {
+      // v2 Compatibility, copy the large image to p_img at the root of the the media_array.
+      if ($media_array['type'] == 'image') {
+        $media_array['p_img'] = $media_array['images']['large']['url'];
+        $media_array['height'] = $media_array['images']['large']['height'];
+        $media_array['width'] = $media_array['images']['large']['width'];
+      } else if ($media_array['type'] == 'video') {
+        $media_array['t_img'] = $media_array['images'][1]['url'];
+      }
+    }
 
 
-		if ( ((time() - get_option(self::LASTIMPORT_OPTION)) > self::IMPORT_INTERVAL) || get_option( self::IMPORT_OVERRIDE_OPTION ) == 1 ) {
-			try{
-				// update the lastimport here so we reset it even if posts aren't imported.
-				update_option(self::LASTIMPORT_OPTION, time());
+    //add or update media
+    update_post_meta($postId, self::M_MEDIA,$media_array);
 
-				// And try the import
-				self::importStories();
-			}
+    do_action('percolate_import_story', $postId);
 
-			catch (Exception $e)
-			{
+    //return an array with permalink and perc id to post back to percolate
+    $plink = get_permalink($postId);
+    update_post_meta($postId, self::M_POSTEDPERMALINK, $plink);
 
-			}
-		}
-	}
+    return array("post_id" => $linkId,
+               "permalink" => $plink
+          );
+  }
 
-	public function getPercolatePosts($offset,$limit) {
+  public static function getUrl($postId)
+  {
+    $url = get_post_meta($postId, self::M_URL, true);
 
-		$apiKey = get_option(self::APIKEY_OPTION);
+    return $url;
+  }
 
-		if($apiKey){
+  /**
+   * Check to see if stories have been imported recently
+   */
+  public function checkImport()
+  {
+
+
+    if ( ((time() - get_option(self::LASTIMPORT_OPTION)) > self::IMPORT_INTERVAL) || get_option( self::IMPORT_OVERRIDE_OPTION ) == 1 ) {
+      try{
+        // update the lastimport here so we reset it even if posts aren't imported.
+        update_option(self::LASTIMPORT_OPTION, time());
+
+        // And try the import
+        self::importStories();
+      }
+
+      catch (Exception $e)
+      {
+
+      }
+    }
+  }
+
+  public function getPercolatePosts($offset,$limit) {
+
+    $apiKey = get_option(self::APIKEY_OPTION);
+
+    if($apiKey){
         }else{
-			//no api key return empty array for now
+      //no api key return empty array for now
             error_log("no api key");
-			return array();
-		}
+      return array();
+    }
 
         $result = self::getUserProfile();
         $default_license_id = $result['default_license_id'];
@@ -1317,8 +1259,8 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         $options['offset'] = $offset; //apiV3 feature
 
 
-		return self::callPercolateApi($method , $options);
-	}
+    return self::callPercolateApi($method , $options);
+  }
 
 
     public function getUserProfile() {
@@ -1365,8 +1307,8 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         }
     }
 
-	//get group users
-	public function getGroupUsers($groupId){
+  //get group users
+  public function getGroupUsers($groupId){
         $result = self::getUserProfile();
         $default_license_id = $result['default_license_id'];
         if ($default_license_id){
@@ -1404,50 +1346,50 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 
 
-		$method = 'licenses/'.$default_license_id;
-		//echo "<pre>"; print_r(self::callPercolateApi($method , $options)); echo "</pre>";
-		try {
-		   	return self::callPercolateApi($method , $options);
-		} catch (Exception $e) {
-		    return $e;
-		}
+    $method = 'licenses/'.$default_license_id;
+    //echo "<pre>"; print_r(self::callPercolateApi($method , $options)); echo "</pre>";
+    try {
+        return self::callPercolateApi($method , $options);
+    } catch (Exception $e) {
+        return $e;
+    }
 
 
-	}
+  }
 
-	//post to percolate
-	public function postToPercolate($jsonFields){
-		$apiKey = get_option(self::APIKEY_OPTION);
-		if($apiKey){
-			$options['api_key'] = $apiKey;
-		}else{
-			//no api key return false
-			return false;
-		}
+  //post to percolate
+  public function postToPercolate($jsonFields){
+    $apiKey = get_option(self::APIKEY_OPTION);
+    if($apiKey){
+      $options['api_key'] = $apiKey;
+    }else{
+      //no api key return false
+      return false;
+    }
 
-		$method = 'publish/public';
+    $method = 'publish/public';
 
-		try {
-			self::callPercolateApi($method, $options, $jsonFields);
-		} catch (Exception $e) {
-			// error
-		}
+    try {
+      self::callPercolateApi($method, $options, $jsonFields);
+    } catch (Exception $e) {
+      // error
+    }
 
-		return true;
+    return true;
 
-	}
+  }
 
-	// Post the wordpress permalink back to percolate.
-	public function permalink_post_back($postId) {
+  // Post the wordpress permalink back to percolate.
+  public function permalink_post_back($postId) {
 
-	  	$perc_permalink = get_post_meta($postId, self::M_POSTEDPERMALINK, true);
-	  	$percolate_id = get_post_meta($postId, self::M_PERCOLATEID, true);
-    	self::postToPercolate( array("post_id" => $percolate_id, "permalink" => urlencode($perc_permalink)) );
+      $perc_permalink = get_post_meta($postId, self::M_POSTEDPERMALINK, true);
+      $percolate_id = get_post_meta($postId, self::M_PERCOLATEID, true);
+      self::postToPercolate( array("post_id" => $percolate_id, "permalink" => urlencode($perc_permalink)) );
 
-	}
+  }
 
-	protected static function callPercolateApi($method, $fields=array(), $jsonFields=array())
-	{
+  protected static function callPercolateApi($method, $fields=array(), $jsonFields=array())
+  {
     // If PERCOLATE_API_BASE is defined in wp-config.php, use it instead of API_BASE
     if (defined('PERCOLATE_API_BASE')) {
       $url =  constant('PERCOLATE_API_BASE') . "$method";
@@ -1458,76 +1400,76 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 
 
 
-			if ($fields) {
-				$tokens = array();
-				foreach ($fields as $key=>$val) {
-					$tokens[]="$key=$val";
-				}
-				$url.="?" . implode('&', $tokens);
-			}
+      if ($fields) {
+        $tokens = array();
+        foreach ($fields as $key=>$val) {
+          $tokens[]="$key=$val";
+        }
+        $url.="?" . implode('&', $tokens);
+      }
 
 
-			//if (WP_DEBUG) {
-				error_log("------ Calling API ------ \nURL: ".$url."\n", 0);
-		    //}
+      //if (WP_DEBUG) {
+        error_log("------ Calling API ------ \nURL: ".$url."\n", 0);
+        //}
 
 
-			/* call url*/
-			$curl_handle = curl_init($url);
-			curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
-			curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($curl_handle, CURLOPT_HEADER, 0);
+      /* call url*/
+      $curl_handle = curl_init($url);
+      curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
+      curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+      curl_setopt($curl_handle, CURLOPT_HEADER, 0);
 
-			/* json post fields */
-			if ($jsonFields) {
-				curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
-				curl_setopt($curl_handle, CURLOPT_POSTFIELDS,json_encode($jsonFields));
-			}else{
-				curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array('Expect:'));
-			}
+      /* json post fields */
+      if ($jsonFields) {
+        curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
+        curl_setopt($curl_handle, CURLOPT_POSTFIELDS,json_encode($jsonFields));
+      }else{
+        curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array('Expect:'));
+      }
 
-			$buffer = curl_exec($curl_handle);
+      $buffer = curl_exec($curl_handle);
 
-			$status = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
+      $status = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
 
-			curl_close($curl_handle);
+      curl_close($curl_handle);
 
-			$data = json_decode( $buffer, true );
+      $data = json_decode( $buffer, true );
 
-			if ($status != 200) {
+      if ($status != 200) {
 
-				$message = "An unknown error occurred communicating with Percolate ($status) - $buffer";
+        $message = "An unknown error occurred communicating with Percolate ($status) - $buffer";
 
-				if ($data) {
+        if ($data) {
 
-					if ($data['error']) {
-						$message = $data['error'];
-					}
+          if ($data['error']) {
+            $message = $data['error'];
+          }
 
-					if (array_key_exists('request', $data)) {
-						$message .= ' -- Request: '.$data['request'];
-					}
-				} else {
-					$message = "No Data received.";
-				}
+          if (array_key_exists('request', $data)) {
+            $message .= ' -- Request: '.$data['request'];
+          }
+        } else {
+          $message = "No Data received.";
+        }
 
-				throw new Exception($message, $status);
-			}
-
-
-			$data = json_decode( $buffer, true );
+        throw new Exception($message, $status);
+      }
 
 
-		return $data;
+      $data = json_decode( $buffer, true );
 
 
-	}
+    return $data;
 
-	function checkUpdate()
-	{
-		$message = self::callPercolateApi('check_version', array('version'=>self::IMPORT_VERSION));
 
-		if( $message['message'] ) {
+  }
+
+  function checkUpdate()
+  {
+    $message = self::callPercolateApi('check_version', array('version'=>self::IMPORT_VERSION));
+
+    if( $message['message'] ) {
 ?>
     <script type="text/javascript">
         if( document.getElementById('wpbody-content') ) {
@@ -1546,24 +1488,24 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
         }
     </script>
     <?php
-		}
-	}
+    }
+  }
 
-	function activateImport(){
-		wp_schedule_event(time(), 'minute', 'percolate_import_event');
-	}
-	function deactivateImport(){
-		$timestamp = wp_next_scheduled( 'percolate_import_event');
-		wp_clear_scheduled_hook($timestamp, 'minute', 'percolate_import_event');
-	}
+  function activateImport(){
+    wp_schedule_event(time(), 'minute', 'percolate_import_event');
+  }
+  function deactivateImport(){
+    $timestamp = wp_next_scheduled( 'percolate_import_event');
+    wp_clear_scheduled_hook($timestamp, 'minute', 'percolate_import_event');
+  }
 
-	function scheduleImport( $schedules ) {
-		$schedules['minute'] = array(
-			'interval' => 300,
-			'display' => __('Once 300 seconds')
-		);
-	return $schedules;
-	}
+  function scheduleImport( $schedules ) {
+    $schedules['minute'] = array(
+      'interval' => 300,
+      'display' => __('Once 300 seconds')
+    );
+  return $schedules;
+  }
 
 }
 
@@ -1584,9 +1526,9 @@ function percolate_plugin_check_updates_link($links) {
 }
 //load this javascript to admin header
 function percolate_plugin_check_updates_js(){
-	?>
-	<script type='text/javascript'>
-	jQuery(document).ready(function(){jQuery('#percolate_update_check').click(function(){jQuery(this).html("Checking...");var data = {action: 'percolate_check_updates_action'};jQuery.post('/wp-admin/admin-ajax.php', data, function(response){window.location.reload();});});});</script>
+  ?>
+  <script type='text/javascript'>
+  jQuery(document).ready(function(){jQuery('#percolate_update_check').click(function(){jQuery(this).html("Checking...");var data = {action: 'percolate_check_updates_action'};jQuery.post('/wp-admin/admin-ajax.php', data, function(response){window.location.reload();});});});</script>
 <?php
 }
 
