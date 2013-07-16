@@ -15,6 +15,12 @@ $offset_next_wp_cron = date('Y-m-d g:i:sa', strtotime($time_offset . " hours", s
 
 ?>
 
+<style type="text/css" media="screen">
+
+.inline-error { color:#e6133d;}
+
+</style>
+
 <div class="wrap">
     <h2>Percolate Options</h2>
     <form method="post" action="options.php" id="percolate_options">

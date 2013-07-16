@@ -189,22 +189,24 @@
     }
   }
 
-	if(type==0){
-		if(user_id==''){
-			alert("User ID is required!");
-			return false;
-		}else{
-			return true;
-		}
+
+  return true;
+	// if(type==0){
+	// 	if(user_id==''){
+	// 		alert("User ID is required!");
+	// 		return false;
+	// 	}else{
+	// 		return true;
+	// 	}
 		
-	}else{
-		if(user_group_id==''){
-			alert("Group ID is required!");
-			return false;
-		}else{
-			return true;
-		}
-	}
+	// }else{
+	// 	if(user_group_id==''){
+	// 		alert("Group ID is required!");
+	// 		return false;
+	// 	}else{
+	// 		return true;
+	// 	}
+	// }
   
   }
 

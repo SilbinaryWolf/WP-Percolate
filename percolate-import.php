@@ -75,12 +75,12 @@ class PercolateImport
 		// Check to see if the plugin options were already installed, if not then set the default values.
 		if (get_option(self::USERID_OPTION) == FALSE ) update_option(self::USERID_OPTION, '0');
 		if (get_option(self::USERTYPE_OPTION) == FALSE ) update_option(self::USERTYPE_OPTION, '0');
-		if (get_option(self::GROUPID_OPTION) == FALSE ) update_option(self::GROUPID_OPTION, '0');
+		//if (get_option(self::GROUPID_OPTION) == FALSE ) update_option(self::GROUPID_OPTION, '0');
 		if (get_option(self::LASTIMPORT_OPTION) == FALSE ) update_option(self::LASTIMPORT_OPTION, '0');
 		if (get_option(self::STARTID_OPTION) == FALSE ) update_option(self::STARTID_OPTION, '0');
 		if (get_option(self::POSTSTATUS_OPTION) == FALSE ) update_option(self::POSTSTATUS_OPTION, 'draft');
 		if (get_option(self::POSTTYPE_OPTION) == FALSE ) update_option(self::POSTTYPE_OPTION, 'post');
-        if (get_option(self::CHANNEL_ID_OPTION) == FALSE ) update_option(self::CHANNEL_ID_OPTION, '0');
+    if (get_option(self::CHANNEL_ID_OPTION) == FALSE ) update_option(self::CHANNEL_ID_OPTION, '0');
 
 
         // $recentOption = get_option(self::IMPORT_MOSTRECENT_OPTION);
@@ -111,8 +111,9 @@ class PercolateImport
 		echo '<script type="text/javascript" src="' . plugin_dir_url(__File__) . 'percimport.js"></script>';
 	}
 
-	public function adminInit()
-	{
+	public function adminInit() {
+
+
 		$postTypeSlug = get_option(self::POSTTYPE_OPTION);
 		//Edit form additions
 		add_meta_box(
@@ -222,13 +223,13 @@ class PercolateImport
     );
 
 
-		add_settings_field(
-			self::GROUPID_OPTION,
-			"Percolate Group ID",
-			array('PercolateImport', 'settingsGroupIdDisplay'),
-			self::SETTINGS_PAGE,
-			self::SETTINGS_SECTION
-		);
+		// add_settings_field(
+		// 	self::GROUPID_OPTION,
+		// 	"Percolate Group ID",
+		// 	array('PercolateImport', 'settingsGroupIdDisplay'),
+		// 	self::SETTINGS_PAGE,
+		// 	self::SETTINGS_SECTION
+		// );
 
 		add_settings_field(
 			self::POSTSTATUS_OPTION,
@@ -725,7 +726,7 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 		$group_id = get_option(self::GROUPID_OPTION);
 		$group_authors_array = json_decode($group_authors);
 
-		if($group_id>0){
+		//if($group_id>0){
 
 			$percolate_users = self::getGroupUsers($group_id);
 
@@ -769,9 +770,9 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 				echo "Did not find any users with the group id $group_id";
 			}
 
-		}else{
-			echo "Enter a group id and save to view the group users.";
-		}
+		// }else{
+		// 	echo "Enter a group id and save to view the group users.";
+		// }
 ?>
 			</table>
 		</span>
@@ -866,6 +867,27 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
   }  
 
 
+  public function channelIdNotice()
+  {
+    if (!get_option(self::CHANNEL_ID_OPTION) && get_option(self::APIKEY_OPTION)) {
+    
+      echo '<div class="error">';
+      echo '<p>';
+      echo '<strong>' . __('Notice:') . '</strong> ';
+      _e(
+        "Please set which site are you publishing to. The Percolate plugin will not work until you set this."
+      );
+      printf(' <a href="%s">' . __('Go to the Percolate settings page') . '</a>', admin_url('options-general.php?page=percolate'));
+      echo '</p></div>';
+
+    }
+  }  
+
+
+
+
+
+
 	public function postStatusDisplay()
 	{
 		$options = array('draft'=>'Enter as Drafts', 'publish'=>'Publish Immediately');
@@ -939,7 +961,14 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
                                 }
                             }
                         ?>
-                        </select> <span class="fn-channel-error-help">Which site are you publishing to.</span>
+                        </select> 
+                        <?php 
+                          if (get_option(self::CHANNEL_ID_OPTION)) {
+                            echo '<span class="fn-channel-error-help">Which site are you publishing to.</span>';
+                          } else {
+                            echo '<span class="fn-channel-error-help inline-error">Which site are you publishing to.</span>';
+                          }
+                        ?>
                     </span>
                     <?php
 
@@ -962,10 +991,14 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
 			'percolate',
 			array('PercolateImport','settingsPage')
 		);
+
 	}
+
+
 
 	public function settingsPage()
 	{
+
 		if( isset($_REQUEST['settings-updated']) && $_REQUEST['settings-updated'] == 'true' && get_option(PercolateImport::IMPORT_OVERRIDE_OPTION) == 1 )
 		{
 			$last_id = get_option(self::STARTID_OPTION);?>
@@ -1319,20 +1352,9 @@ add_filter( 'plugin_action_links', 'percoalte_plugin_action_links');
             return array();
         }
 
-        $userType = get_option(self::USERTYPE_OPTION);
 
-        if($userType!=1){
-            $user_id = get_option(self::USERID_OPTION);
-        }else{
-            return array();
-        }
 
-        if ($user_id and $apiKey){
-            $options['api_key'] =  $apiKey;
-        }
-        else{
-            return array();
-        }
+    
 
         $method = "licenses/" . $default_license_id . "/publishing/channels";
 
@@ -1595,7 +1617,9 @@ add_action('save_post', array('PercolateImport', 'updatePost'));
 add_action('admin_print_footer_scripts', array('PercolateImport', 'adminScripts'));
 //add_action('admin_notices', array('PercolateImport','userIdNotice'));
 add_action('admin_notices', array('PercolateImport','apiKeyNotice'));
+add_action('admin_notices', array('PercolateImport','channelIdNotice'));
 add_action('publish_post', array('PercolateImport','permalink_post_back')); //apiV3 feature
+
 
 // The plugin github updater
 include_once('updater.php');
