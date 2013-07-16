@@ -1360,7 +1360,6 @@ class PercolateImport
   //post to percolate
   public function postToPercolate($jsonFields){
     $apiKey = get_option(self::APIKEY_OPTION);
-    $channel_id = get_option(self::CHANNEL_ID_OPTION);
     
     if($apiKey){
       $options['api_key'] = $apiKey;
@@ -1370,7 +1369,7 @@ class PercolateImport
     }
     
     // Add the channel id to the published public endpoint
-    $method = "publish/public/" . $channel_id;
+    $method = "publish/public";
 
     try {
       self::callPercolateApi($method, $options, $jsonFields);
@@ -1387,7 +1386,9 @@ class PercolateImport
 
       $perc_permalink = get_post_meta($postId, self::M_POSTEDPERMALINK, true);
       $percolate_id = get_post_meta($postId, self::M_PERCOLATEID, true);
-      self::postToPercolate( array("post_id" => $percolate_id, "permalink" => urlencode($perc_permalink)) );
+      $channel_id = get_option(self::CHANNEL_ID_OPTION);
+      
+      self::postToPercolate( array("channel_id" => $channel_id, "post_id" => $percolate_id, "permalink" => urlencode($perc_permalink)) );
 
   }
 
