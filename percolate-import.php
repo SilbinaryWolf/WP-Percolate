@@ -308,9 +308,9 @@ class PercolateImport
   }
 
   //----------------------
-  // Plugin Settings
+  // Meta Boxes for Percoalte Posts
   //----------------------
-  
+
   public function urlMetaBox($post) {
     $url = get_post_meta($post->ID, self::M_URL, true);
     echo $url;
@@ -1360,14 +1360,17 @@ class PercolateImport
   //post to percolate
   public function postToPercolate($jsonFields){
     $apiKey = get_option(self::APIKEY_OPTION);
+    $channel_id = get_option(self::CHANNEL_ID_OPTION);
+    
     if($apiKey){
       $options['api_key'] = $apiKey;
     }else{
       //no api key return false
       return false;
     }
-
-    $method = 'publish/public';
+    
+    // Add the channel id to the published public endpoint
+    $method = "publish/public/" . $channel_id;
 
     try {
       self::callPercolateApi($method, $options, $jsonFields);
