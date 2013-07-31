@@ -1076,7 +1076,7 @@ class PercolateImport
 
     // utc timezone adjustment if there is an offset set in wordpress.
     foreach($object['schedules'] as $schedule){
-      if ($schedule['type'] == 'public'){
+      if ($schedule['type'] == 'public' && $schedule['channel']['id'] == get_option(self::CHANNEL_ID_OPTION)){
         $publish_date = $schedule['published_at'];
         //$timezone = $schedule['timezone'];
       }
