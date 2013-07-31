@@ -7,7 +7,7 @@ Plugin Name: WP Percolate
 Plugin URI: http://percolate.com
 Description: This plugin turns Percolate posts into Wordpress entries.
 Author: Percolate Industries, Inc.
-Version: 3.3.0-dev01
+Version: 3.3.0-dev02
 Author URI: http://wp.percolate.com
 
 */
