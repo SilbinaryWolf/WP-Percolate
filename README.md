@@ -8,9 +8,14 @@ In order to use this plugin you will need an API key issued to you from Percolat
 
 Changelog
 -----------
+
+### 3.3.0
+
+* Updated plugin to pull from a users's license, enabling channel specific posting.
+
 ### 3.2.6
 
-*Supports updated API using license ID.
+* Supports updated API using license ID.
 
 ### 3.2.5
 

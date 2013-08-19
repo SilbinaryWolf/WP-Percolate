@@ -235,7 +235,7 @@ class PercolateImport
 
       add_settings_field(
         self::DEFGRPAUTHORID_OPTION,
-        "Default Group Author",
+        "Default License Author",
         array('PercolateImport', 'settingsDefGrpAuthorDisplay'),
         self::SETTINGS_PAGE,
         self::SETTINGS_SECTION
@@ -243,7 +243,7 @@ class PercolateImport
 
       add_settings_field(
         self::GROUPAUTHORS_OPTION,
-        "Group Authors",
+        "License Authors",
         array('PercolateImport', 'settingsGroupAuthorsDisplay'),
         self::SETTINGS_PAGE,
         self::SETTINGS_SECTION
@@ -540,17 +540,17 @@ class PercolateImport
            <?php
     echo $userType != 1 ?  "checked=\"checked\"" :  "" ;
     ?> />
-              Individual
+              Single Percolate User
 
 
-
+        <br />
         <input type="radio" name="<?php echo self::USERTYPE_OPTION; ?>"
               id="percapi-user-type-group" value="1"
            <?php
     echo $userType == 1 ?  "checked=\"checked\"" : "" ;
 ?>
               />
-              Group
+              Multiple Percolate Users
 
 
       <input type="hidden" name="init_user_type" id="init_user_type" value="<?php echo $userType;?>">
@@ -614,7 +614,7 @@ class PercolateImport
             <option <?php echo ($user->ID == $defgrpauthorId) ? ' selected="selected" ' : ''; ?>
                 value="<?php echo $user->ID; ?>"><?php echo $user->display_name; ?></option>
             <?php endforeach; ?>
-        </select> When a Wordpress author does not exit for a corresponding group member assign posts to this Wordpress user.
+        </select> When a Wordpress author does not exist for a corresponding license author, assign posts to this Wordpress user.
         <?php
   }
 
@@ -655,7 +655,7 @@ class PercolateImport
       <table>
         <tr>
           <th>
-            Group Members
+            License Authors
                     <a href="#" id="refresh_memberform">refresh</a>
 
           </th>
