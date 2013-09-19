@@ -29,7 +29,7 @@ class GitHubUpdater {
 				'zip_url' => 'https://github.com/percolate/WP-Percolate/zipball/master',
 				'sslverify' => false,
 				'requires' => "3.2.0",
-				'tested' => "3.5.1", //$wp_version
+				'tested' => "3.6.1", //$wp_version
 				);	
 	
 			// Get the config values from the actual plugin we will be updating.
