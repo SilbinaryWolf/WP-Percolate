@@ -1,4 +1,4 @@
-This is the plugin for importing stories from Percolate into Wordpress. It requires Wordpress 3.1 and is tested up to 3.5.1.
+This is the plugin for importing stories from Percolate into Wordpress. It requires Wordpress 3.1 and is tested up to 3.6.1.
 
 Get Started
 -----------
