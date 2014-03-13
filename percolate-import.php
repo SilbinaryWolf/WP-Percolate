@@ -7,7 +7,7 @@ Plugin Name: WP Percolate
 Plugin URI: http://percolate.com
 Description: This plugin turns Percolate posts into Wordpress entries.
 Author: Percolate Industries, Inc.
-Version: 3.3.0
+Version: 3.3.x
 Author URI: http://wp.percolate.com
 
 */
@@ -110,13 +110,13 @@ class PercolateImport
 
 
   //=========================================
-  // Admin 
+  // Admin
   //=========================================
   public function adminInit() {
 
-    // Get the post type set in the options. 
+    // Get the post type set in the options.
     $postTypeSlug = get_option(self::POSTTYPE_OPTION);
-    
+
     //----------------------
     // Meta boxes for percolate posts
     //----------------------
@@ -205,10 +205,10 @@ class PercolateImport
       self::SETTINGS_SECTION
     );
 
-    // Only show the API Key first, then once 
-    // that is set, show the rest of the settings. 
+    // Only show the API Key first, then once
+    // that is set, show the rest of the settings.
     if (get_option(self::APIKEY_OPTION)) {
-     
+
       add_settings_field(
         self::CHANNEL_ID_OPTION,
         "Website",
@@ -269,7 +269,7 @@ class PercolateImport
 
 
     // note the use of is_admin() to double check that this is happening in the admin
-    if (is_admin() && current_user_can('manage_options') ) { 
+    if (is_admin() && current_user_can('manage_options') ) {
       $config = array(
         'slug' => plugin_basename(__FILE__),
         'proper_folder_name' => 'WP-Percolate',
@@ -806,13 +806,13 @@ class PercolateImport
       admin_url('options-general.php?page=percolate')
     );
     echo '</p></div>';
-  }  
+  }
 
 
   public function channelIdNotice()
   {
     if (!get_option(self::CHANNEL_ID_OPTION) && get_option(self::APIKEY_OPTION)) {
-    
+
       echo '<div class="error">';
       echo '<p>';
       echo '<strong>' . __('Notice:') . '</strong> ';
@@ -823,7 +823,7 @@ class PercolateImport
       echo '</p></div>';
 
     }
-  }  
+  }
 
 
 
@@ -868,9 +868,9 @@ class PercolateImport
             }else{
                 $channels = array();
                 foreach ($result['data'] as $channel){
-                    
-                    // Only return "public" sites, these are our .com sites. We don't want 
-                    // to show tumblr or other channels like that. 
+
+                    // Only return "public" sites, these are our .com sites. We don't want
+                    // to show tumblr or other channels like that.
                     if ($channel['type'] == "public") {
                       array_push($channels, array('id' => $channel['id'], 'name' =>$channel['name']));
                     }
@@ -903,8 +903,8 @@ class PercolateImport
                                 }
                             }
                         ?>
-                        </select> 
-                        <?php 
+                        </select>
+                        <?php
                           if (get_option(self::CHANNEL_ID_OPTION)) {
                             echo '<span class="fn-channel-error-help">Which site are you publishing to.</span>';
                           } else {
@@ -951,10 +951,10 @@ class PercolateImport
         </div>
         <?php
       update_option(self::IMPORT_OVERRIDE_OPTION, 0);
-    
+
     // If we are updating the settings, lets get any updated info from the api for this user.
     } else if (isset($_REQUEST['settings-updated']) && $_REQUEST['settings-updated'] == 'true'){
-    
+
         $result = self::getUserProfile();
         $user_profile_id = $result['id'];
         update_option(self::USERID_OPTION, $user_profile_id);
@@ -1035,7 +1035,8 @@ class PercolateImport
 
 
     $tags_array =  $object['tags'];
-    $body = $object['body'];
+
+
     $analytics_array = $object['analytics'];
     $short_url = $object['short_url'];
     $link_array =  $object['link'];
@@ -1065,6 +1066,15 @@ class PercolateImport
 
     if (!trim($post['post_title'])) {
       $post['post_title']=html_entity_decode($link_array['title']);
+    }
+
+
+    // post customization fix
+
+    foreach($object['schedules'] as $schedule){
+      if ($schedule['channel']['id'] == get_option(self::CHANNEL_ID_OPTION)){
+        $body = $schedule['body'];
+      }
     }
 
     $post['post_content']=$body;
@@ -1147,7 +1157,7 @@ class PercolateImport
 
     $ver = floatval(phpversion());
 
-
+// updates post meta
 
 
     update_post_meta($postId, self::M_DOMAIN, parse_url($url_array, PHP_URL_HOST));
@@ -1237,7 +1247,7 @@ class PercolateImport
             error_log("no default license id");
             return array();
         }
-      
+
         $options['api_key'] =  $apiKey;
 
 
@@ -1296,7 +1306,7 @@ class PercolateImport
 
 
 
-    
+
 
         $method = "licenses/" . $default_license_id . "/publishing/channels";
 
@@ -1360,14 +1370,14 @@ class PercolateImport
   //post to percolate
   public function postToPercolate($jsonFields){
     $apiKey = get_option(self::APIKEY_OPTION);
-    
+
     if($apiKey){
       $options['api_key'] = $apiKey;
     }else{
       //no api key return false
       return false;
     }
-    
+
     // Add the channel id to the published public endpoint
     $method = "publish/public";
 
@@ -1387,7 +1397,7 @@ class PercolateImport
       $perc_permalink = get_post_meta($postId, self::M_POSTEDPERMALINK, true);
       $percolate_id = get_post_meta($postId, self::M_PERCOLATEID, true);
       $channel_id = get_option(self::CHANNEL_ID_OPTION);
-      
+
       self::postToPercolate( array("channel_id" => $channel_id, "post_id" => $percolate_id, "permalink" => urlencode($perc_permalink)) );
 
   }
