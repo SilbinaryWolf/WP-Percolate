@@ -1033,7 +1033,22 @@ class PercolateImport
   {
     global $wpdb;
 
+    $custom_title = NULL;
+    $custom_body = NULL;
+    $publish_date = NULL;
+
+    // get custom attributes for post matching channel ID
+    foreach($object['schedules'] as $post){
+      if ($post['channel_id'] == get_option(self::CHANNEL_ID_OPTION)){
+        $custom_title = $post['title'];
+        $custom_body = $post['body'];
+        $publish_date = $post['published_at'];
+      }
+    }
+
     $tags_array =  $object['tags'];
+    $body = trim($custom_body) ? $custom_body : $object['body'];
+    $post_title = trim($custom_title) ? $custom_title : $object['title'];
     $analytics_array = $object['analytics'];
     $short_url = $object['short_url'];
     $link_array =  $object['link'];
@@ -1059,27 +1074,10 @@ class PercolateImport
     }
 
     $post = array();
+    $post['post_title']=html_entity_decode($post_title);
 
-    // custom title fix
-    foreach($object['schedules'] as $schedule){
-      if ($schedule['channel_id'] == get_option(self::CHANNEL_ID_OPTION)){
-        $custom_title = $schedule['title'];
-      }
-    }
-
-    if ((!isset($object['title']) || trim($object['title'])==='') && (!isset($custom_title) || trim($custom_title)==='')) {
-          $post['post_title']=html_entity_decode($link_array['title']);
-      } elseif (!isset($custom_title) || trim($custom_title)==='') {
-            $post['post_title']=html_entity_decode($object['title']);
-      } else {
-            $post['post_title']=html_entity_decode($custom_title);
-      }
-
-    // post customization fix
-    foreach($object['schedules'] as $schedule){
-      if ($schedule['channel']['id'] == get_option(self::CHANNEL_ID_OPTION)){
-        $body = $schedule['body'];
-      }
+    if (!trim($post['post_title'])) {
+      $post['post_title']=html_entity_decode($link_array['title']);
     }
 
     $post['post_content']=$body;
@@ -1090,12 +1088,6 @@ class PercolateImport
     $offset =  get_option('gmt_offset');
 
     // utc timezone adjustment if there is an offset set in wordpress.
-    foreach($object['schedules'] as $schedule){
-      if ($schedule['type'] == 'public' && $schedule['channel']['id'] == get_option(self::CHANNEL_ID_OPTION)){
-        $publish_date = $schedule['published_at'];
-        //$timezone = $schedule['timezone'];
-      }
-    }
 
     // Trying to fix 1970 bug
     if ($publish_date == NULL){
@@ -1174,7 +1166,7 @@ class PercolateImport
     update_post_meta($postId, self::M_URL, $url_array);
     update_post_meta($postId, self::M_SHORTURL, $short_url);
     update_post_meta($postId, self::M_USERDESCRIPTION, html_entity_decode($link_array['description']));
-    update_post_meta($postId, self::M_USERTITLE, $object['title']);
+    update_post_meta($postId, self::M_USERTITLE, $post_title);
     update_post_meta($postId, self::M_PERCOLATEID, $percolate_id);
 
     if (isset($media_array['type']))
