@@ -1033,10 +1033,7 @@ class PercolateImport
   {
     global $wpdb;
 
-
     $tags_array =  $object['tags'];
-
-
     $analytics_array = $object['analytics'];
     $short_url = $object['short_url'];
     $link_array =  $object['link'];
@@ -1062,15 +1059,23 @@ class PercolateImport
     }
 
     $post = array();
-    $post['post_title']=html_entity_decode($object['title']); //apiV3 feature
 
-    if (!trim($post['post_title'])) {
-      $post['post_title']=html_entity_decode($link_array['title']);
+    // custom title fix
+    foreach($object['schedules'] as $schedule){
+      if ($schedule['channel_id'] == get_option(self::CHANNEL_ID_OPTION)){
+        $custom_title = $schedule['title'];
+      }
     }
 
+    if ((!isset($object['title']) || trim($object['title'])==='') && (!isset($custom_title) || trim($custom_title)==='')) {
+          $post['post_title']=html_entity_decode($link_array['title']);
+      } elseif (!isset($custom_title) || trim($custom_title)==='') {
+            $post['post_title']=html_entity_decode($object['title']);
+      } else {
+            $post['post_title']=html_entity_decode($custom_title);
+      }
 
     // post customization fix
-
     foreach($object['schedules'] as $schedule){
       if ($schedule['channel']['id'] == get_option(self::CHANNEL_ID_OPTION)){
         $body = $schedule['body'];
