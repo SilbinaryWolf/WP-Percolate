@@ -792,7 +792,8 @@ class PercolateImport
     public function sanitizeImportInterval($value)
     {
       if ($value < self::MIN_IMPORT_INTERVAL) {
-          return self::MIN_IMPORT_INTERVAL; }
+          return self::MIN_IMPORT_INTERVAL;
+      }
       return $value;
     }
 
