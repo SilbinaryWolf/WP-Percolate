@@ -18,6 +18,8 @@ class PercolateImport
   const SETTINGS_PAGE='percolate';
 
   const IMPORT_INTERVAL=300;
+  const MIN_IMPORT_INTERVAL=180;
+  const IMPORT_INTERVAL_OPTION='percolateimport_interval';
 
   const USERTYPE_OPTION='percolateimport_usertype';
   const GROUPID_OPTION='percolateimport_groupid';
@@ -78,7 +80,7 @@ class PercolateImport
     if (get_option(self::POSTSTATUS_OPTION) == FALSE ) update_option(self::POSTSTATUS_OPTION, 'draft');
     if (get_option(self::POSTTYPE_OPTION) == FALSE ) update_option(self::POSTTYPE_OPTION, 'post');
     if (get_option(self::CHANNEL_ID_OPTION) == FALSE ) update_option(self::CHANNEL_ID_OPTION, '0');
-
+    if (get_option(self::IMPORT_INTERVAL_OPTION) == FALSE ) update_option(self::IMPORT_INTERVAL_OPTION, self::IMPORT_INTERVAL);
 
     // $recentOption = get_option(self::IMPORT_MOSTRECENT_OPTION);
     // if (!isset($recentOption) || !$recentOption || $recentOption == '') update_option(self::IMPORT_MOSTRECENT_OPTION,0);
@@ -265,6 +267,16 @@ class PercolateImport
         self::SETTINGS_SECTION
       );
 
+      add_settings_field(
+        self::IMPORT_INTERVAL_OPTION,
+        "Import Interval",
+        array('PercolateImport', 'settingsImportInterval'),
+        self::SETTINGS_PAGE,
+        self::SETTINGS_SECTION
+      );
+
+
+
     } // End if APIKEY_OPTION
 
 
@@ -302,6 +314,7 @@ class PercolateImport
     register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
     register_setting(self::SETTINGS_PAGE, self::POSTTYPE_OPTION);
     register_setting(self::SETTINGS_PAGE, self::CHANNEL_ID_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::IMPORT_INTERVAL_OPTION, array('PercolateImport', 'sanitizeImportInterval'));
     //Import process
     self::checkImport();
 
@@ -765,6 +778,22 @@ class PercolateImport
             ?>
         </select> New posts imported from percolate will be set to this post type
         <?php
+    }
+
+    public function settingsImportInterval()
+    {
+    ?>
+      <span>
+        <input class="small-text" type="number" min="<?php echo self::MIN_IMPORT_INTERVAL; ?>" step="1" name="<?php echo self::IMPORT_INTERVAL_OPTION; ?>" value="<?php echo get_option(self::IMPORT_INTERVAL_OPTION); ?>" >
+      </span> Minimum <?php echo self::MIN_IMPORT_INTERVAL; ?> seconds.
+    <?php
+    }
+
+    public function sanitizeImportInterval($value)
+    {
+      if ($value < self::MIN_IMPORT_INTERVAL) {
+          return self::MIN_IMPORT_INTERVAL; }
+      return $value;
     }
 
   public function userIdNotice()
@@ -1511,16 +1540,14 @@ class PercolateImport
   }
 
   function scheduleImport( $schedules ) {
+    $interval = get_option( self::IMPORT_INTERVAL_OPTION);
     $schedules['minute'] = array(
-      'interval' => 300,
-      'display' => __('Once 300 seconds')
-    );
-  return $schedules;
+      'interval' => $interval,
+      'display' => __('Once every '. $interval . ' seconds')
+      );
+    return $schedules;
   }
-
 }
-
-
 
 // Add settings link on plugin page
 function percolate_plugin_settings_link($links) {
