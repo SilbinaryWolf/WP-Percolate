@@ -43,7 +43,7 @@ class PercolateImport
 
   const POSTTYPE_OPTION='percolateimport_posttype';
 
-  //Used in callPercolateApi function. PERCOLATE_BASE_API, defined in wp-config.php
+  //Used in callPercolateApi function. PERCOLATE_API_BASE, defined in wp-config.php
   //shall take precedence over API_BASE constant.
   const API_BASE='http://percolate.com/api/v3/';
 
