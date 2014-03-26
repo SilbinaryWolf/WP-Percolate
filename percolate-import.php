@@ -7,7 +7,7 @@ Plugin Name: WP Percolate
 Plugin URI: http://percolate.com
 Description: This plugin turns Percolate posts into Wordpress entries.
 Author: Percolate Industries, Inc.
-Version: 3.3.0
+Version: 3.3.1
 Author URI: http://wp.percolate.com
 
 */
@@ -18,6 +18,8 @@ class PercolateImport
   const SETTINGS_PAGE='percolate';
 
   const IMPORT_INTERVAL=300;
+  const MIN_IMPORT_INTERVAL=180;
+  const IMPORT_INTERVAL_OPTION='percolateimport_interval';
 
   const USERTYPE_OPTION='percolateimport_usertype';
   const GROUPID_OPTION='percolateimport_groupid';
@@ -41,7 +43,7 @@ class PercolateImport
 
   const POSTTYPE_OPTION='percolateimport_posttype';
 
-  //Used in callPercolateApi function. PERCOLATE_BASE_API, defined in wp-config.php
+  //Used in callPercolateApi function. PERCOLATE_API_BASE, defined in wp-config.php
   //shall take precedence over API_BASE constant.
   const API_BASE='http://percolate.com/api/v3/';
 
@@ -78,7 +80,7 @@ class PercolateImport
     if (get_option(self::POSTSTATUS_OPTION) == FALSE ) update_option(self::POSTSTATUS_OPTION, 'draft');
     if (get_option(self::POSTTYPE_OPTION) == FALSE ) update_option(self::POSTTYPE_OPTION, 'post');
     if (get_option(self::CHANNEL_ID_OPTION) == FALSE ) update_option(self::CHANNEL_ID_OPTION, '0');
-
+    if (get_option(self::IMPORT_INTERVAL_OPTION) == FALSE ) update_option(self::IMPORT_INTERVAL_OPTION, self::IMPORT_INTERVAL);
 
     // $recentOption = get_option(self::IMPORT_MOSTRECENT_OPTION);
     // if (!isset($recentOption) || !$recentOption || $recentOption == '') update_option(self::IMPORT_MOSTRECENT_OPTION,0);
@@ -110,13 +112,13 @@ class PercolateImport
 
 
   //=========================================
-  // Admin 
+  // Admin
   //=========================================
   public function adminInit() {
 
-    // Get the post type set in the options. 
+    // Get the post type set in the options.
     $postTypeSlug = get_option(self::POSTTYPE_OPTION);
-    
+
     //----------------------
     // Meta boxes for percolate posts
     //----------------------
@@ -205,10 +207,10 @@ class PercolateImport
       self::SETTINGS_SECTION
     );
 
-    // Only show the API Key first, then once 
-    // that is set, show the rest of the settings. 
+    // Only show the API Key first, then once
+    // that is set, show the rest of the settings.
     if (get_option(self::APIKEY_OPTION)) {
-     
+
       add_settings_field(
         self::CHANNEL_ID_OPTION,
         "Website",
@@ -265,11 +267,21 @@ class PercolateImport
         self::SETTINGS_SECTION
       );
 
+      add_settings_field(
+        self::IMPORT_INTERVAL_OPTION,
+        "Import Interval",
+        array('PercolateImport', 'settingsImportInterval'),
+        self::SETTINGS_PAGE,
+        self::SETTINGS_SECTION
+      );
+
+
+
     } // End if APIKEY_OPTION
 
 
     // note the use of is_admin() to double check that this is happening in the admin
-    if (is_admin() && current_user_can('manage_options') ) { 
+    if (is_admin() && current_user_can('manage_options') ) {
       $config = array(
         'slug' => plugin_basename(__FILE__),
         'proper_folder_name' => 'WP-Percolate',
@@ -279,7 +291,7 @@ class PercolateImport
         'zip_url' => 'https://github.com/percolate/WP-Percolate/zipball/master',
         'sslverify' => false,
         'requires' => "3.2.0",
-        'tested' => "3.5.1", //$wp_version
+        'tested' => "3.8.1", //$wp_version
       );
       GLOBAL $gitHubUpdater;
       $gitHubUpdater = new GitHubUpdater($config);
@@ -302,6 +314,7 @@ class PercolateImport
     register_setting(self::SETTINGS_PAGE, self::IMPORT_OVERRIDE_OPTION);
     register_setting(self::SETTINGS_PAGE, self::POSTTYPE_OPTION);
     register_setting(self::SETTINGS_PAGE, self::CHANNEL_ID_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::IMPORT_INTERVAL_OPTION, array('PercolateImport', 'sanitizeImportInterval'));
     //Import process
     self::checkImport();
 
@@ -767,6 +780,23 @@ class PercolateImport
         <?php
     }
 
+    public function settingsImportInterval()
+    {
+    ?>
+      <span>
+        <input class="small-text" type="number" min="<?php echo self::MIN_IMPORT_INTERVAL; ?>" step="1" name="<?php echo self::IMPORT_INTERVAL_OPTION; ?>" value="<?php echo get_option(self::IMPORT_INTERVAL_OPTION); ?>" >
+      </span> Minimum <?php echo self::MIN_IMPORT_INTERVAL; ?> seconds.
+    <?php
+    }
+
+    public function sanitizeImportInterval($value)
+    {
+      if ($value < self::MIN_IMPORT_INTERVAL) {
+          return self::MIN_IMPORT_INTERVAL;
+      }
+      return $value;
+    }
+
   public function userIdNotice()
   {
     if (get_option(self::USERID_OPTION) || get_option(self::GROUPID_OPTION)) {
@@ -806,13 +836,13 @@ class PercolateImport
       admin_url('options-general.php?page=percolate')
     );
     echo '</p></div>';
-  }  
+  }
 
 
   public function channelIdNotice()
   {
     if (!get_option(self::CHANNEL_ID_OPTION) && get_option(self::APIKEY_OPTION)) {
-    
+
       echo '<div class="error">';
       echo '<p>';
       echo '<strong>' . __('Notice:') . '</strong> ';
@@ -823,7 +853,7 @@ class PercolateImport
       echo '</p></div>';
 
     }
-  }  
+  }
 
 
 
@@ -868,9 +898,9 @@ class PercolateImport
             }else{
                 $channels = array();
                 foreach ($result['data'] as $channel){
-                    
-                    // Only return "public" sites, these are our .com sites. We don't want 
-                    // to show tumblr or other channels like that. 
+
+                    // Only return "public" sites, these are our .com sites. We don't want
+                    // to show tumblr or other channels like that.
                     if ($channel['type'] == "public") {
                       array_push($channels, array('id' => $channel['id'], 'name' =>$channel['name']));
                     }
@@ -903,8 +933,8 @@ class PercolateImport
                                 }
                             }
                         ?>
-                        </select> 
-                        <?php 
+                        </select>
+                        <?php
                           if (get_option(self::CHANNEL_ID_OPTION)) {
                             echo '<span class="fn-channel-error-help">Which site are you publishing to.</span>';
                           } else {
@@ -951,10 +981,10 @@ class PercolateImport
         </div>
         <?php
       update_option(self::IMPORT_OVERRIDE_OPTION, 0);
-    
+
     // If we are updating the settings, lets get any updated info from the api for this user.
     } else if (isset($_REQUEST['settings-updated']) && $_REQUEST['settings-updated'] == 'true'){
-    
+
         $result = self::getUserProfile();
         $user_profile_id = $result['id'];
         update_option(self::USERID_OPTION, $user_profile_id);
@@ -1033,9 +1063,22 @@ class PercolateImport
   {
     global $wpdb;
 
+    $custom_title = NULL;
+    $custom_body = NULL;
+    $publish_date = NULL;
+
+    // get custom attributes for post matching channel ID
+    foreach($object['schedules'] as $post){
+      if ($post['channel_id'] == get_option(self::CHANNEL_ID_OPTION)){
+        $custom_title = $post['title'];
+        $custom_body = $post['body'];
+        $publish_date = $post['published_at'];
+      }
+    }
 
     $tags_array =  $object['tags'];
-    $body = $object['body'];
+    $body = trim($custom_body) ? $custom_body : $object['body'];
+    $post_title = trim($custom_title) ? $custom_title : $object['title'];
     $analytics_array = $object['analytics'];
     $short_url = $object['short_url'];
     $link_array =  $object['link'];
@@ -1061,7 +1104,7 @@ class PercolateImport
     }
 
     $post = array();
-    $post['post_title']=html_entity_decode($object['title']); //apiV3 feature
+    $post['post_title']=html_entity_decode($post_title);
 
     if (!trim($post['post_title'])) {
       $post['post_title']=html_entity_decode($link_array['title']);
@@ -1075,12 +1118,6 @@ class PercolateImport
     $offset =  get_option('gmt_offset');
 
     // utc timezone adjustment if there is an offset set in wordpress.
-    foreach($object['schedules'] as $schedule){
-      if ($schedule['type'] == 'public' && $schedule['channel']['id'] == get_option(self::CHANNEL_ID_OPTION)){
-        $publish_date = $schedule['published_at'];
-        //$timezone = $schedule['timezone'];
-      }
-    }
 
     // Trying to fix 1970 bug
     if ($publish_date == NULL){
@@ -1147,7 +1184,7 @@ class PercolateImport
 
     $ver = floatval(phpversion());
 
-
+// updates post meta
 
 
     update_post_meta($postId, self::M_DOMAIN, parse_url($url_array, PHP_URL_HOST));
@@ -1159,7 +1196,7 @@ class PercolateImport
     update_post_meta($postId, self::M_URL, $url_array);
     update_post_meta($postId, self::M_SHORTURL, $short_url);
     update_post_meta($postId, self::M_USERDESCRIPTION, html_entity_decode($link_array['description']));
-    update_post_meta($postId, self::M_USERTITLE, $object['title']);
+    update_post_meta($postId, self::M_USERTITLE, $post_title);
     update_post_meta($postId, self::M_PERCOLATEID, $percolate_id);
 
     if (isset($media_array['type']))
@@ -1237,7 +1274,7 @@ class PercolateImport
             error_log("no default license id");
             return array();
         }
-      
+
         $options['api_key'] =  $apiKey;
 
 
@@ -1296,7 +1333,7 @@ class PercolateImport
 
 
 
-    
+
 
         $method = "licenses/" . $default_license_id . "/publishing/channels";
 
@@ -1360,14 +1397,14 @@ class PercolateImport
   //post to percolate
   public function postToPercolate($jsonFields){
     $apiKey = get_option(self::APIKEY_OPTION);
-    
+
     if($apiKey){
       $options['api_key'] = $apiKey;
     }else{
       //no api key return false
       return false;
     }
-    
+
     // Add the channel id to the published public endpoint
     $method = "publish/public";
 
@@ -1387,7 +1424,7 @@ class PercolateImport
       $perc_permalink = get_post_meta($postId, self::M_POSTEDPERMALINK, true);
       $percolate_id = get_post_meta($postId, self::M_PERCOLATEID, true);
       $channel_id = get_option(self::CHANNEL_ID_OPTION);
-      
+
       self::postToPercolate( array("channel_id" => $channel_id, "post_id" => $percolate_id, "permalink" => urlencode($perc_permalink)) );
 
   }
@@ -1504,16 +1541,14 @@ class PercolateImport
   }
 
   function scheduleImport( $schedules ) {
+    $interval = get_option( self::IMPORT_INTERVAL_OPTION);
     $schedules['minute'] = array(
-      'interval' => 300,
-      'display' => __('Once 300 seconds')
-    );
-  return $schedules;
+      'interval' => $interval,
+      'display' => __('Once every '. $interval . ' seconds')
+      );
+    return $schedules;
   }
-
 }
-
-
 
 // Add settings link on plugin page
 function percolate_plugin_settings_link($links) {
