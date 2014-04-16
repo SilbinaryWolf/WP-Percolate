@@ -8,6 +8,11 @@ In order to use this plugin you will need an API key issued to you from Percolat
 
 Changelog
 -----------
+
+### 3.3.2
+
+* Updated API calls to use https
+
 ### 3.3.1
 
 * Fixed issue with channel specific custom posting.

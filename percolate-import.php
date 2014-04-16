@@ -45,7 +45,7 @@ class PercolateImport
 
   //Used in callPercolateApi function. PERCOLATE_API_BASE, defined in wp-config.php
   //shall take precedence over API_BASE constant.
-  const API_BASE='http://percolate.com/api/v3/';
+  const API_BASE='https://percolate.com/api/v3/';
 
   const M_LINKID='percolate_link_id';
   const M_ADDEDON='percolate_added_on';
