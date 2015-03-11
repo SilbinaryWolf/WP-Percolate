@@ -1451,7 +1451,7 @@ class PercolateImport
 
 
       //if (WP_DEBUG) {
-        error_log("------ Calling API ------ \nURL: ".$url."\n", 0);
+        //error_log("------ Calling API ------ \nURL: ".$url."\n", 0);
         //}
 
 
