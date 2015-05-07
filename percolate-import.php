@@ -7,7 +7,7 @@ Plugin Name: WP Percolate
 Plugin URI: http://percolate.com
 Description: This plugin turns Percolate posts into Wordpress entries.
 Author: Percolate Industries, Inc.
-Version: 3.3.2
+Version: 3.3.3
 Author URI: http://wp.percolate.com
 
 */
@@ -27,6 +27,7 @@ class PercolateImport
   const GROUPAUTHORS_OPTION='percolateimport_groupauthorids';
   const USERID_OPTION='percolateimport_userid';
   const AUTHORID_OPTION='percolateimport_authorid';
+  const IMPORT_LOAD_IMAGES_OPTION='percolateimport_load_images';
 
   const LASTIMPORT_OPTION='percolateimport_lastimported';
   // const LASTID_OPTION='percolateimport_lastid';
@@ -81,6 +82,7 @@ class PercolateImport
     if (get_option(self::POSTTYPE_OPTION) == FALSE ) update_option(self::POSTTYPE_OPTION, 'post');
     if (get_option(self::CHANNEL_ID_OPTION) == FALSE ) update_option(self::CHANNEL_ID_OPTION, '0');
     if (get_option(self::IMPORT_INTERVAL_OPTION) == FALSE ) update_option(self::IMPORT_INTERVAL_OPTION, self::IMPORT_INTERVAL);
+    if (get_option(self::IMPORT_LOAD_IMAGES_OPTION) == FALSE ) update_option(self::IMPORT_LOAD_IMAGES_OPTION, 0);
 
     // $recentOption = get_option(self::IMPORT_MOSTRECENT_OPTION);
     // if (!isset($recentOption) || !$recentOption || $recentOption == '') update_option(self::IMPORT_MOSTRECENT_OPTION,0);
@@ -90,7 +92,7 @@ class PercolateImport
 
 
 
-  public function init()
+  public static function init()
   {
 
   }
@@ -105,7 +107,7 @@ class PercolateImport
 
   }
 
-  public function adminScripts()
+  public static function adminScripts()
   {
     echo '<script type="text/javascript" src="' . plugin_dir_url(__File__) . 'percimport.js"></script>';
   }
@@ -114,7 +116,7 @@ class PercolateImport
   //=========================================
   // Admin
   //=========================================
-  public function adminInit() {
+  public static function adminInit() {
 
     // Get the post type set in the options.
     $postTypeSlug = get_option(self::POSTTYPE_OPTION);
@@ -275,6 +277,13 @@ class PercolateImport
         self::SETTINGS_SECTION
       );
 
+      add_settings_field(
+          self::IMPORT_LOAD_IMAGES_OPTION,
+          "Load images",
+          array('PercolateImport', 'settingsLoadImages'),
+          self::SETTINGS_PAGE,
+          self::SETTINGS_SECTION
+      );
 
 
     } // End if APIKEY_OPTION
@@ -315,6 +324,7 @@ class PercolateImport
     register_setting(self::SETTINGS_PAGE, self::POSTTYPE_OPTION);
     register_setting(self::SETTINGS_PAGE, self::CHANNEL_ID_OPTION);
     register_setting(self::SETTINGS_PAGE, self::IMPORT_INTERVAL_OPTION, array('PercolateImport', 'sanitizeImportInterval'));
+    register_setting(self::SETTINGS_PAGE, self::IMPORT_LOAD_IMAGES_OPTION);
     //Import process
     self::checkImport();
 
@@ -797,6 +807,26 @@ class PercolateImport
       return $value;
     }
 
+
+    public function settingsLoadImages()
+    {
+      $loadImages = get_option(self::IMPORT_LOAD_IMAGES_OPTION);
+      ?>
+      <span class="percapi-load-images">
+    <input type="checkbox" name="<?php echo self::IMPORT_LOAD_IMAGES_OPTION; ?>"
+           id="percapi-load-images"  value="<?php echo (int)$loadImages; ?>"
+        <?php
+        // percolateimport_load_images
+        echo (int)$loadImages ?  "checked=\"checked\"" :  "" ;
+        ?> />
+          Download Percolate images to Media Library
+
+  <input type="hidden" name="<?php echo self::IMPORT_LOAD_IMAGES_OPTION; ?>" id="init_load_images" value="<?php echo $loadImages;?>">
+</span>
+    <?php
+    }
+
+
   public function userIdNotice()
   {
     if (get_option(self::USERID_OPTION) || get_option(self::GROUPID_OPTION)) {
@@ -819,7 +849,7 @@ class PercolateImport
     echo '</p></div>';
   }
 
-  public function apiKeyNotice()
+  public static function apiKeyNotice()
   {
     if (get_option(self::APIKEY_OPTION)) {
       return;
@@ -839,7 +869,7 @@ class PercolateImport
   }
 
 
-  public function channelIdNotice()
+  public static function channelIdNotice()
   {
     if (!get_option(self::CHANNEL_ID_OPTION) && get_option(self::APIKEY_OPTION)) {
 
@@ -953,7 +983,7 @@ class PercolateImport
         }
     }
 
-  public function adminMenu()
+  public static function adminMenu()
   {
     add_submenu_page(
       'options-general.php',
@@ -1006,7 +1036,7 @@ class PercolateImport
   /**
    * Call the percolate API and try to import stories
    */
-  public function importStories()
+  public static function importStories()
   {
 
     $limit = 30;
@@ -1016,7 +1046,6 @@ class PercolateImport
     // Ed.C 10-19-2012 Commenting out loop so users import most 30 recent posts
     // TODO Add condition check to import all posts
     //while( intval($offset) < intval($total) ) {
-
 
       $posts = self::getPercolatePosts($offset, $limit);
 
@@ -1049,8 +1078,6 @@ class PercolateImport
 
           }
 
-
-
         }
     //}
 
@@ -1059,7 +1086,7 @@ class PercolateImport
   /**
    * Add a percolate story to the WP system as a post
    **/
-  public function importStory($object)
+  public static function importStory($object)
   {
     global $wpdb;
 
@@ -1069,6 +1096,7 @@ class PercolateImport
 
     // get custom attributes for post matching channel ID
     foreach($object['schedules'] as $post){
+
       if ($post['channel_id'] == get_option(self::CHANNEL_ID_OPTION)){
         $custom_title = $post['title'];
         $custom_body = $post['body'];
@@ -1083,7 +1111,7 @@ class PercolateImport
     $short_url = $object['short_url'];
     $link_array =  $object['link'];
     $url_array = $link_array['url'];
-    $media_array = $object['media'];
+    //$media_array = $object['media'];
     $percolate_id = $object['id'];
 
     $linkId = $object['id'];
@@ -1110,13 +1138,30 @@ class PercolateImport
       $post['post_title']=html_entity_decode($link_array['title']);
     }
 
-    $post['post_content']=$body;
+    // if need load images from remote percolate server into local media library
+    $img = '';
+    $newObject = $object;
+    $loadImages = get_option(self::IMPORT_LOAD_IMAGES_OPTION);
+    if((int)$loadImages) {
+      $newObject = self::insertImageIntoMediaLib(0, $object); // $postId
+      foreach($newObject['media']['images'] as $key => $image)
+      {
+          if(!is_numeric($key) && $key == 'original')
+          {
+             $img .= "<p><img src=\"{$image['url']}\"/></p>";
+          } else {
+            if(isset($image['oldSrc']))
+              $body = str_replace($image['oldSrc'], $image['url'], $body);
+          }
+      }
+    }
 
+    $media_array = $newObject['media'];
+    $img = (empty($img)) ? '' : $img;
+    $post['post_content'] = $body.$img;
     $postName = sanitize_title($post['post_title']);
     $post['post_name']=$postName;
-
     $offset =  get_option('gmt_offset');
-
     // utc timezone adjustment if there is an offset set in wordpress.
 
     // Trying to fix 1970 bug
@@ -1140,11 +1185,9 @@ class PercolateImport
     $post['post_date'] = date('Y-m-d H:i:s', $date);
     $post['post_status']=get_option(self::POSTSTATUS_OPTION);
 
-
     if (get_option(self::CATEGORY_OPTION)) {
       $post['post_category']=array(get_option(self::CATEGORY_OPTION));
     }
-
 
     //check user type
     $userType = get_option(self::USERTYPE_OPTION);
@@ -1170,22 +1213,20 @@ class PercolateImport
 
     }
 
-        $post['post_type'] = get_option(self::POSTTYPE_OPTION);
-
+    $post['post_type'] = get_option(self::POSTTYPE_OPTION);
     $postId = wp_insert_post($post);
-
     if ($tags_array) {
       $tags_s = "";
       foreach($tags_array as $tag){
         $tags_s = $tags_s.$tag['tag'] .",";
       }
-    wp_set_post_tags($postId, $tags_s);
+      wp_set_post_tags($postId, $tags_s);
     }
 
     $ver = floatval(phpversion());
 
-// updates post meta
 
+    // updates post meta
 
     update_post_meta($postId, self::M_DOMAIN, parse_url($url_array, PHP_URL_HOST));
 
@@ -1226,6 +1267,157 @@ class PercolateImport
           );
   }
 
+  /**
+   *  Insert image into media library
+   */
+  protected static function insertImageIntoMediaLib($post_id, $object)
+  {
+    $body = $object['body'];
+    $media = $object['media'];
+    $images = $media['images'];
+    $metadata = $media['metadata'];
+    // initializing an empty imagesSizes array
+    // so we don't try to process sizes that are only there for attachments
+    $imageSizes = [];      
+
+    if (isset($metadata['original_filename'])){
+      $file = $metadata['original_filename'];
+      // overwrite the initial empty imageSizes array with built in sizes used by attachments
+      $imageSizes = array(
+          'o' => 'original',
+          's' => 'small',
+          'm' => 'medium',
+          'l' => 'large'
+      );
+    } else {
+      // we have no attachments
+      // no longer throwing an exception here
+      // so we can handle posts with body images but no attachments
+      //throw new Exception("No original filename");
+    }
+
+    $bodyImages = self::extractBodyImagesSrc($body);
+    $cnt = count($bodyImages);
+
+    foreach($bodyImages as $key => $bodyImage) {
+        $imageSizes[$key] = $key;
+        $object['media']['images'][$key]['url'] = $bodyImage['src'];
+        $object['media']['images'][$key]['oldSrc'] = $bodyImage['oldSrc'];
+        //$images[$key]['width']  = $bodyImage['width'];
+        //$images[$key]['height'] = $bodyImage['height'];
+    }
+
+    foreach($imageSizes as $key => $image)
+    {
+      if (isset($object['media']['images'][$image])){
+        $src = $object['media']['images'][$image]['url'];
+      } else {
+        throw new Exception("No image ".$image);
+      }
+
+      // Get uploads dir
+      if (!(($uploads = wp_upload_dir()) && false === $uploads['error']))
+        return new WP_Error('upload_error', $uploads['error']);
+
+      if(preg_match("/^(.*)\.(\w+)$/", $file, $matches) && count($matches))
+         $sizeFilename = $matches[1].'_'.$key.'.'.$matches[2];
+      else
+         $sizeFilename = $file;
+
+      // get unique file name
+      $filename = wp_unique_filename($uploads['path'], basename($sizeFilename));
+
+      $filepath = $uploads['path'] . '/' . $filename;
+
+      $url = '';
+
+      if (self::getImageFromServer($src, $filepath)) {
+
+        // Compute the URL
+        $url = $uploads['url'] . '/' . $filename;
+        $object['media']['images'][$image]['url'] = $url;
+
+        $type = mime_content_type($filepath);
+
+        $title = preg_replace('!\.[^.]+$!', '', basename($file));
+        $content = $title; //'';
+
+        // use image exif/iptc data for title and caption defaults if possible
+        if ($image_meta = @wp_read_image_metadata($filepath)) {
+          if ('' != trim($image_meta['title']))
+            $title = trim($image_meta['title']);
+          if ('' != trim($image_meta['caption']))
+            $content = trim($image_meta['caption']);
+        }
+
+        $time = gmdate('Y-m-d H:i:s', @filemtime($filepath));
+
+        if ($time) {
+          $post_date_gmt = $time;
+          $post_date = $time;
+        } else {
+          $post_date = current_time('mysql');
+          $post_date_gmt = current_time('mysql', 1);
+        }
+
+        // Construct the attachment array
+        $attachment = array(
+            'post_mime_type' => $type,
+            'guid' => $url,
+            'post_parent' => 0, //$post_id,
+            'post_title' => $title,
+            'post_name' => $title,
+            'post_content' => $content,
+            'post_date' => $post_date,
+            'post_date_gmt' => $post_date_gmt
+        );
+
+        $filepath = $uploads['path'] .'/'. $filename;
+        //Win32 fix:
+        $filepath = str_replace(strtolower(str_replace('\\', '/', $uploads['path'])), $uploads['path'], $filepath);
+
+        // Save the data
+        $id = wp_insert_attachment($attachment, $filepath, $post_id);
+
+        if (!is_wp_error($id)) {
+           $data = wp_generate_attachment_metadata($id, $filepath);
+           wp_update_attachment_metadata($id, $data);
+        }
+      } else {
+        //throw new Exception('Sorry, cannot upload file '.$filepath);
+        //return false;
+        new WP_Error('upload_error', 'Sorry, cannot upload file ' . $filepath);
+      }
+    }
+
+    return $object;
+  }
+
+  /*
+   * Extract body images src
+   */
+  public static function extractBodyImagesSrc($body)
+  {
+      $img = array();
+
+      $doc = new DOMDocument();
+      @$doc->loadHTML($body);
+
+      $tags = $doc->getElementsByTagName('img');
+
+      foreach ($tags as $key => $tag) {
+          $img[$key]['src'] = $tag->getAttribute('src');
+          $img[$key]['oldSrc'] = $img[$key]['src'];
+          //$img[]['width'] = $tag->getAttribute('width');
+          //$img[]['height'] = $tag->getAttribute('height');
+      }
+
+      unset($tag);
+      unset($doc);
+
+      return $img;
+  }
+
   public static function getUrl($postId)
   {
     $url = get_post_meta($postId, self::M_URL, true);
@@ -1236,9 +1428,8 @@ class PercolateImport
   /**
    * Check to see if stories have been imported recently
    */
-  public function checkImport()
+  public static function checkImport()
   {
-
 
     if ( ((time() - get_option(self::LASTIMPORT_OPTION)) > self::IMPORT_INTERVAL) || get_option( self::IMPORT_OVERRIDE_OPTION ) == 1 ) {
       try{
@@ -1256,7 +1447,7 @@ class PercolateImport
     }
   }
 
-  public function getPercolatePosts($offset,$limit) {
+  public static function getPercolatePosts($offset,$limit) {
 
     $apiKey = get_option(self::APIKEY_OPTION);
 
@@ -1300,7 +1491,7 @@ class PercolateImport
   }
 
 
-    public function getUserProfile() {
+    public static function getUserProfile() {
 
         $apiKey = get_option(self::APIKEY_OPTION);
 
@@ -1506,6 +1697,52 @@ class PercolateImport
 
   }
 
+  // get image from percolate server
+  protected static function getImageFromServer($src, $filename)
+  {
+    /* get image by url */
+    $curl_handle = curl_init($src);
+    curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl_handle, CURLOPT_HEADER, 0);
+
+    $f = fopen($filename, 'w');
+
+    if($f !== false)
+    {
+      curl_setopt($curl_handle, CURLOPT_FILE, $f);
+      curl_exec($curl_handle);
+      fclose($f);
+
+      // Set correct file permissions
+      $stat = stat(dirname($filename));
+      $perms = $stat['mode'] & 0000666;
+      @ chmod( $filename, $perms );
+
+      $res = true;
+
+    } else {
+      throw new Exception("fopen error for filename {$filename}");
+    }
+
+    $status = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
+
+    curl_close($curl_handle);
+
+    if ($status != 200) {
+
+      $message = "An unknown error occurred communicating with Percolate ($status)";
+
+      $res = false;
+
+      throw new Exception($message, $status);
+    }
+
+    return $res;
+
+  }
+
+
   function checkUpdate()
   {
     $message = self::callPercolateApi('check_version', array('version'=>self::IMPORT_VERSION));
@@ -1540,7 +1777,7 @@ class PercolateImport
     wp_clear_scheduled_hook($timestamp, 'minute', 'percolate_import_event');
   }
 
-  function scheduleImport( $schedules ) {
+  static function scheduleImport( $schedules ) {
     $interval = get_option( self::IMPORT_INTERVAL_OPTION);
     $schedules['minute'] = array(
       'interval' => $interval,
