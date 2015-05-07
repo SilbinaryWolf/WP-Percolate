@@ -9,7 +9,7 @@ In order to use this plugin you will need an API key issued to you from Percolat
 Changelog
 -----------
 ### 3.3.3
- * Fixed issue with the media upload option for in-line images. 
+ * Added ability to upload media from Percolate. 
 
 ### 3.3.2
 
