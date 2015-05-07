@@ -1278,7 +1278,7 @@ class PercolateImport
     $metadata = $media['metadata'];
     // initializing an empty imagesSizes array
     // so we don't try to process sizes that are only there for attachments
-    $imageSizes = [];      
+    $imageSizes = array();      
 
     if (isset($metadata['original_filename'])){
       $file = $metadata['original_filename'];
