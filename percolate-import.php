@@ -1113,7 +1113,6 @@ class PercolateImport
     $url_array = $link_array['url'];
     //$media_array = $object['media'];
     $percolate_id = $object['id'];
-
     $linkId = $object['id'];
 
     // We use this to check for posts that are already imported.
@@ -1276,12 +1275,17 @@ class PercolateImport
     $media = $object['media'];
     $images = $media['images'];
     $metadata = $media['metadata'];
+
     // initializing an empty imagesSizes array
     // so we don't try to process sizes that are only there for attachments
-    $imageSizes = array();      
+    $imageSizes = array();
+    if (isset($metadata['original_filename']) || (isset($metadata['is_photo']) && ($metadata['is_photo'] == 1) && isset($images['original']) && isset($images['original']['url']))){
+      if (isset($metadata['original_filename'])){
+        $file = $metadata['original_filename'];
+      } else {
+        $file = $images['original']['url'];
+      }
 
-    if (isset($metadata['original_filename'])){
-      $file = $metadata['original_filename'];
       // overwrite the initial empty imageSizes array with built in sizes used by attachments
       $imageSizes = array(
           'o' => 'original',
@@ -1298,7 +1302,6 @@ class PercolateImport
 
     $bodyImages = self::extractBodyImagesSrc($body);
     $cnt = count($bodyImages);
-
     foreach($bodyImages as $key => $bodyImage) {
         $imageSizes[$key] = $key;
         $object['media']['images'][$key]['url'] = $bodyImage['src'];
@@ -1326,13 +1329,11 @@ class PercolateImport
 
       // get unique file name
       $filename = wp_unique_filename($uploads['path'], basename($sizeFilename));
-
       $filepath = $uploads['path'] . '/' . $filename;
 
       $url = '';
 
       if (self::getImageFromServer($src, $filepath)) {
-
         // Compute the URL
         $url = $uploads['url'] . '/' . $filename;
         $object['media']['images'][$image]['url'] = $url;
@@ -1375,10 +1376,8 @@ class PercolateImport
         $filepath = $uploads['path'] .'/'. $filename;
         //Win32 fix:
         $filepath = str_replace(strtolower(str_replace('\\', '/', $uploads['path'])), $uploads['path'], $filepath);
-
         // Save the data
         $id = wp_insert_attachment($attachment, $filepath, $post_id);
-
         if (!is_wp_error($id)) {
            $data = wp_generate_attachment_metadata($id, $filepath);
            wp_update_attachment_metadata($id, $data);
