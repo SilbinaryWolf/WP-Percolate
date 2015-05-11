@@ -144,6 +144,10 @@
 		}
 	});
 
+    // load images checkbox:
+    $('#percapi-load-images').change(function (){
+        $('#init_load_images').val(($(this).attr('checked')=="checked")?1:0);
+    });
 
   });
   function toggleUserType(type){
@@ -173,7 +177,7 @@
   function checkRequiredOptions(){
 	type = $('input:radio[name=percolateimport_usertype]:checked').val();
 	user_group_id = $(".user-group-id").val();
-  api_key = $("#percapi_api_key").val();
+	api_key = $("#percapi_api_key").val();
 	user_id = $(".user-id").val();
 
 
