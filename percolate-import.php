@@ -1291,7 +1291,9 @@ class PercolateImport
           'o' => 'original',
           's' => 'small',
           'm' => 'medium',
-          'l' => 'large'
+          'l' => 'large',
+          't' => 'thumbnail',
+          'q' => 'square'
       );
     } else {
       // we have no attachments
@@ -1315,7 +1317,7 @@ class PercolateImport
       if (isset($object['media']['images'][$image])){
         $src = $object['media']['images'][$image]['url'];
       } else {
-        throw new Exception("No image ".$image);
+        continue;
       }
 
       // Get uploads dir
