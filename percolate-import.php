@@ -1291,9 +1291,7 @@ class PercolateImport
           'o' => 'original',
           's' => 'small',
           'm' => 'medium',
-          'l' => 'large',
-          't' => 'thumbnail',
-          'q' => 'square'
+          'l' => 'large'
       );
     } else {
       // we have no attachments
