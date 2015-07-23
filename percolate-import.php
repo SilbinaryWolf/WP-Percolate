@@ -7,7 +7,7 @@ Plugin Name: WP Percolate
 Plugin URI: http://percolate.com
 Description: This plugin turns Percolate posts into Wordpress entries.
 Author: Percolate Industries, Inc.
-Version: 3.3.3
+Version: 3.3.4
 Author URI: http://wp.percolate.com
 
 */
@@ -1315,7 +1315,7 @@ class PercolateImport
       if (isset($object['media']['images'][$image])){
         $src = $object['media']['images'][$image]['url'];
       } else {
-        throw new Exception("No image ".$image);
+        continue;
       }
 
       // Get uploads dir
