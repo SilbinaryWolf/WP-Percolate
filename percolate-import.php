@@ -7,7 +7,7 @@ Plugin Name: WP Percolate
 Plugin URI: http://percolate.com
 Description: This plugin turns Percolate posts into Wordpress entries.
 Author: Percolate Industries, Inc.
-Version: 3.3.4
+Version: 3.3.3
 Author URI: http://wp.percolate.com
 
 */
@@ -1287,12 +1287,7 @@ class PercolateImport
       }
 
       // overwrite the initial empty imageSizes array with built in sizes used by attachments
-      $imageSizes = array(
-          'o' => 'original',
-          's' => 'small',
-          'm' => 'medium',
-          'l' => 'large'
-      );
+      $imageSizes = array_keys($images);
     } else {
       // we have no attachments
       // no longer throwing an exception here
@@ -1303,14 +1298,14 @@ class PercolateImport
     $bodyImages = self::extractBodyImagesSrc($body);
     $cnt = count($bodyImages);
     foreach($bodyImages as $key => $bodyImage) {
-        $imageSizes[$key] = $key;
+        $imageSizes[count($imageSizes)] = $key;
         $object['media']['images'][$key]['url'] = $bodyImage['src'];
         $object['media']['images'][$key]['oldSrc'] = $bodyImage['oldSrc'];
         //$images[$key]['width']  = $bodyImage['width'];
         //$images[$key]['height'] = $bodyImage['height'];
     }
 
-    foreach($imageSizes as $key => $image)
+    foreach($imageSizes as $image)
     {
       if (isset($object['media']['images'][$image])){
         $src = $object['media']['images'][$image]['url'];
@@ -1323,7 +1318,7 @@ class PercolateImport
         return new WP_Error('upload_error', $uploads['error']);
 
       if(preg_match("/^(.*)\.(\w+)$/", $file, $matches) && count($matches))
-         $sizeFilename = $matches[1].'_'.$key.'.'.$matches[2];
+         $sizeFilename = $matches[1].'_'.$image.'.'.$matches[2];
       else
          $sizeFilename = $file;
 
