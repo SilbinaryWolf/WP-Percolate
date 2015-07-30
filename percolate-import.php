@@ -7,7 +7,7 @@ Plugin Name: WP Percolate
 Plugin URI: http://percolate.com
 Description: This plugin turns Percolate posts into Wordpress entries.
 Author: Percolate Industries, Inc.
-Version: 3.3.4
+Version: 3.3.5
 Author URI: http://wp.percolate.com
 
 */
@@ -372,8 +372,24 @@ class PercolateImport
       $mediaType = $media['type'];
       echo "<h4>Type: " . $mediaType . "</h4>";
       echo "<input type='hidden' value='" . $mediaType . "' id='media_type' />";
-
         if ($mediaType === "image") {
+          foreach(array_keys($media['images']) as $size){
+            $url=$media['images'][$size]['url'];
+            $width=$media['images'][$size]['width'];
+            $height=$media['images'][$size]['height'];
+            if ($size == 'original') {
+              $original_url = $url;
+              $original_width = $width;
+              $original_height = $height;
+            } 
+            else {
+              echo "<input type='radio' name='image-size' value='$size' style='display:none;'>";
+              echo "<img src='$url' id='m_media_{$size}' width='$width' height='$height' class='media_image' size='$image'/>";
+              echo "</input><br />";
+            }
+          }
+          //Removing hard-coded image size references
+          /*
           $original_url = $media['images']['original']['url'];
           $original_width = $media['images']['original']['width'];
           $original_height = $media['images']['original']['height'];
@@ -401,10 +417,11 @@ class PercolateImport
           echo "<input type='radio' name='image-size' value='small' style='display:none;'>";
           echo "<img src='$p_img_small_url' id='m_media_s' width='$p_img_small_width' height='$p_img_small_height' class='media_image' size='small'/>";
           echo "</input>";
-
-
-          echo "<br /><br /><input type='radio' id='original-radio' name='image-size' value='original'> Or insert the original image size. ($original_width x $original_height)</input>";
-          echo "<img src='$original_url' id='m_media_org' class='media_image' size='large' style='display:none;'/>";
+          */ 
+          if (!empty($original_url)) {
+            echo "<br /><input type='radio' id='original-radio' name='image-size' value='original'> Or insert the original image size. ($original_width x $original_height)</input>";
+            echo "<img src='$original_url' id='m_media_original' class='media_image' size='original' style='display:none;'/>";
+          }
         }
         if ($mediaType === "video") {
           $video_url = $media['url'];
@@ -445,20 +462,8 @@ class PercolateImport
 
                 if (mType == 'image' ) {
                   var image_size = $("input[name='image-size']:checked").val();
-                  if (image_size == "large") {
-                    p_img =$("#m_media").attr('src');
-                    embedContent = '<img src="'+ p_img +'" alt="" />';
-                  } else if (image_size == "medium") {
-                    p_img =$("#m_media_m").attr('src');
-                    embedContent = '<img src="'+ p_img +'" alt="" />';
-                  } else if (image_size == "small") {
-                    p_img =$("#m_media_s").attr('src');
-                    embedContent = '<img src="'+ p_img +'" alt="" />';
-                  } else if (image_size == "original") {
-                    p_img =$("#m_media_org").attr('src');
-                    embedContent = '<img src="'+ p_img +'" alt="" />';
-                  }
-
+                  p_img = $("#m_media_"+image_size).attr('src');
+                  embedContent = '<img src="'+ p_img +'" alt="" />';
                 } else if (mType == 'video') {
                   embedContent = $("textarea#m_media_video").val();
                 } else if (mType == 'quote') {
@@ -469,7 +474,6 @@ class PercolateImport
                   //edInsertContent(edCanvas, embedContent); // This stopped working in 3.3.1
                   send_to_editor(embedContent);
                   switchEditors.go('content', 'tinymce');
-
               });
           })(jQuery);
       });
@@ -1287,12 +1291,7 @@ class PercolateImport
       }
 
       // overwrite the initial empty imageSizes array with built in sizes used by attachments
-      $imageSizes = array(
-          'o' => 'original',
-          's' => 'small',
-          'm' => 'medium',
-          'l' => 'large'
-      );
+      $imageSizes = array_keys($images);
     } else {
       // we have no attachments
       // no longer throwing an exception here
@@ -1303,14 +1302,14 @@ class PercolateImport
     $bodyImages = self::extractBodyImagesSrc($body);
     $cnt = count($bodyImages);
     foreach($bodyImages as $key => $bodyImage) {
-        $imageSizes[$key] = $key;
+        $imageSizes[count($imageSizes)] = $key;
         $object['media']['images'][$key]['url'] = $bodyImage['src'];
         $object['media']['images'][$key]['oldSrc'] = $bodyImage['oldSrc'];
         //$images[$key]['width']  = $bodyImage['width'];
         //$images[$key]['height'] = $bodyImage['height'];
     }
 
-    foreach($imageSizes as $key => $image)
+    foreach($imageSizes as $image)
     {
       if (isset($object['media']['images'][$image])){
         $src = $object['media']['images'][$image]['url'];
@@ -1323,7 +1322,7 @@ class PercolateImport
         return new WP_Error('upload_error', $uploads['error']);
 
       if(preg_match("/^(.*)\.(\w+)$/", $file, $matches) && count($matches))
-         $sizeFilename = $matches[1].'_'.$key.'.'.$matches[2];
+         $sizeFilename = $matches[1].'_'.$image.'.'.$matches[2];
       else
          $sizeFilename = $file;
 
