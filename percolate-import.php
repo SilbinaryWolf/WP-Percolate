@@ -462,19 +462,8 @@ class PercolateImport
 
                 if (mType == 'image' ) {
                   var image_size = $("input[name='image-size']:checked").val();
-                  if (image_size == "large") {
-                    p_img =$("#m_media").attr('src');
-                  } else if (image_size == "medium") {
-                    p_img =$("#m_media_m").attr('src');
-                  } else if (image_size == "small") {
-                    p_img =$("#m_media_s").attr('src');
-                  } else if (image_size == "original") {
-                    p_img =$("#m_media_org").attr('src');
-                  }
-                  if (p_img == ""){
-                    p_img = $("#m_media_"+image_size).attr('src');
-                    embedContent = '<img src="'+ p_img +'" alt="" />';
-                  } 
+                  p_img = $("#m_media_"+image_size).attr('src');
+                  embedContent = '<img src="'+ p_img +'" alt="" />';
                 } else if (mType == 'video') {
                   embedContent = $("textarea#m_media_video").val();
                 } else if (mType == 'quote') {
