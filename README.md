@@ -8,6 +8,9 @@ In order to use this plugin you will need an API key issued to you from Percolat
 
 Changelog
 -----------
+### 3.3.6
+ * Fixing image upload functionality.
+
 ### 3.3.5
  * Saving all image sizes present.
 
@@ -95,7 +98,7 @@ _Method of Deployment_
 
 --------------------------------------------------
 _Please do not remove this version declaration_
-~Current Version:3.3.4~
+~Current Version:3.3.6~
 
 
 
