@@ -384,7 +384,7 @@ class PercolateImport
             } 
             else {
               echo "<input type='radio' name='image-size' value='$size' style='display:none;'>";
-              echo "<img src='$url' id='m_media_{$size}' width='$width' height='$height' class='media_image' size='$image'/>";
+              echo "<img src='$url' id='m_media_{$size}' width='$width' height='$height' class='media_image' size='$size'/>";
               echo "</input><br />";
             }
           }
