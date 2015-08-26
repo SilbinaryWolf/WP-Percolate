@@ -8,6 +8,9 @@ In order to use this plugin you will need an API key issued to you from Percolat
 
 Changelog
 -----------
+### 3.3.7
+ * Adding a featured image option.
+
 ### 3.3.6
  * Fixing image embedment functionality.
 
@@ -98,7 +101,7 @@ _Method of Deployment_
 
 --------------------------------------------------
 _Please do not remove this version declaration_
-~Current Version:3.3.6~
+~Current Version:3.3.7~
 
 
 
