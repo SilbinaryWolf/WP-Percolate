@@ -335,6 +335,7 @@ class PercolateImport
     register_setting(self::SETTINGS_PAGE, self::CHANNEL_ID_OPTION);
     register_setting(self::SETTINGS_PAGE, self::IMPORT_INTERVAL_OPTION, array('PercolateImport', 'sanitizeImportInterval'));
     register_setting(self::SETTINGS_PAGE, self::IMPORT_LOAD_IMAGES_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::FEATURED_IMAGE_OPTION);
     //Import process
     self::checkImport();
 
