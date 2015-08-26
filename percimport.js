@@ -148,6 +148,11 @@
     $('#percapi-load-images').change(function (){
         $('#init_load_images').val(($(this).attr('checked')=="checked")?1:0);
     });
+    
+    // featured image checkbox:
+    $('#percapi-featured-image').change(function (){
+        $('#init_featured_image').val(($(this).attr('checked')=="checked")?1:0);
+    });
 
   });
   function toggleUserType(type){
