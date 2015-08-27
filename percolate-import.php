@@ -281,7 +281,7 @@ class PercolateImport
 
       add_settings_field(
           self::IMPORT_LOAD_IMAGES_OPTION,
-          "Load images",
+          "Load Images",
           array('PercolateImport', 'settingsLoadImages'),
           self::SETTINGS_PAGE,
           self::SETTINGS_SECTION
@@ -289,7 +289,7 @@ class PercolateImport
 
       add_settings_field(
           self::FEATURED_IMAGE_OPTION,
-          "Make attached image Featured",
+          "Attach Featured Image",
           array('PercolateImport', 'settingsFeaturedImage'),
           self::SETTINGS_PAGE,
           self::SETTINGS_SECTION
@@ -852,7 +852,7 @@ class PercolateImport
         // percolateimport_featured_image
         echo (int)$featuredImage ?  "checked=\"checked\"" :  "" ;
         ?> />
-          Make attached image a featured image in WordPress
+          Make attached image in Percolate a featured image in WordPress
 
   <input type="hidden" name="<?php echo self::FEATURED_IMAGE_OPTION; ?>" id="init_featured_image" value="<?php echo $featuredImage;?>">
 </span>
