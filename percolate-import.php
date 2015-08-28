@@ -7,7 +7,7 @@ Plugin Name: WP Percolate
 Plugin URI: http://percolate.com
 Description: This plugin turns Percolate posts into Wordpress entries.
 Author: Percolate Industries, Inc.
-Version: 3.3.6
+Version: 3.3.7
 Author URI: http://wp.percolate.com
 
 */
@@ -28,6 +28,7 @@ class PercolateImport
   const USERID_OPTION='percolateimport_userid';
   const AUTHORID_OPTION='percolateimport_authorid';
   const IMPORT_LOAD_IMAGES_OPTION='percolateimport_load_images';
+  const FEATURED_IMAGE_OPTION='percolateimport_featured_image';
 
   const LASTIMPORT_OPTION='percolateimport_lastimported';
   // const LASTID_OPTION='percolateimport_lastid';
@@ -83,6 +84,7 @@ class PercolateImport
     if (get_option(self::CHANNEL_ID_OPTION) == FALSE ) update_option(self::CHANNEL_ID_OPTION, '0');
     if (get_option(self::IMPORT_INTERVAL_OPTION) == FALSE ) update_option(self::IMPORT_INTERVAL_OPTION, self::IMPORT_INTERVAL);
     if (get_option(self::IMPORT_LOAD_IMAGES_OPTION) == FALSE ) update_option(self::IMPORT_LOAD_IMAGES_OPTION, 0);
+    if (get_option(self::FEATURED_IMAGE_OPTION) == FALSE ) update_option(self::FEATURED_IMAGE_OPTION, 0);
 
     // $recentOption = get_option(self::IMPORT_MOSTRECENT_OPTION);
     // if (!isset($recentOption) || !$recentOption || $recentOption == '') update_option(self::IMPORT_MOSTRECENT_OPTION,0);
@@ -279,8 +281,16 @@ class PercolateImport
 
       add_settings_field(
           self::IMPORT_LOAD_IMAGES_OPTION,
-          "Load images",
+          "Load Images",
           array('PercolateImport', 'settingsLoadImages'),
+          self::SETTINGS_PAGE,
+          self::SETTINGS_SECTION
+      );
+
+      add_settings_field(
+          self::FEATURED_IMAGE_OPTION,
+          "Attach Featured Image",
+          array('PercolateImport', 'settingsFeaturedImage'),
           self::SETTINGS_PAGE,
           self::SETTINGS_SECTION
       );
@@ -325,6 +335,7 @@ class PercolateImport
     register_setting(self::SETTINGS_PAGE, self::CHANNEL_ID_OPTION);
     register_setting(self::SETTINGS_PAGE, self::IMPORT_INTERVAL_OPTION, array('PercolateImport', 'sanitizeImportInterval'));
     register_setting(self::SETTINGS_PAGE, self::IMPORT_LOAD_IMAGES_OPTION);
+    register_setting(self::SETTINGS_PAGE, self::FEATURED_IMAGE_OPTION);
     //Import process
     self::checkImport();
 
@@ -830,6 +841,23 @@ class PercolateImport
     <?php
     }
 
+    public function settingsFeaturedImage()
+    {
+      $featuredImage = get_option(self::FEATURED_IMAGE_OPTION);
+      ?>
+      <span class="percapi-featured-image">
+    <input type="checkbox" name="<?php echo self::FEATURED_IMAGE_OPTION; ?>"
+           id="percapi-featured-image"  value="<?php echo (int)$featuredImage; ?>"
+        <?php
+        // percolateimport_featured_image
+        echo (int)$featuredImage ?  "checked=\"checked\"" :  "" ;
+        ?> />
+          Make attached image in Percolate a featured image in WordPress
+
+  <input type="hidden" name="<?php echo self::FEATURED_IMAGE_OPTION; ?>" id="init_featured_image" value="<?php echo $featuredImage;?>">
+</span>
+    <?php
+    }
 
   public function userIdNotice()
   {
@@ -1152,15 +1180,16 @@ class PercolateImport
           if(!is_numeric($key) && $key == 'original')
           {
              $img .= "<p><img src=\"{$image['url']}\"/></p>";
+	     $mainImageId = $image['id'];
           } else {
             if(isset($image['oldSrc']))
               $body = str_replace($image['oldSrc'], $image['url'], $body);
           }
       }
     }
-
+    $featuredImage = (int)get_option(self::FEATURED_IMAGE_OPTION);
     $media_array = $newObject['media'];
-    $img = (empty($img)) ? '' : $img;
+    $img = (empty($img) || $featuredImage) ? '' : $img;
     $post['post_content'] = $body.$img;
     $postName = sanitize_title($post['post_title']);
     $post['post_name']=$postName;
@@ -1218,6 +1247,9 @@ class PercolateImport
 
     $post['post_type'] = get_option(self::POSTTYPE_OPTION);
     $postId = wp_insert_post($post);
+    if ($featuredImage && isset($mainImageId)){
+      set_post_thumbnail($postId,$mainImageId);
+    } 
     if ($tags_array) {
       $tags_s = "";
       foreach($tags_array as $tag){
@@ -1380,6 +1412,7 @@ class PercolateImport
         if (!is_wp_error($id)) {
            $data = wp_generate_attachment_metadata($id, $filepath);
            wp_update_attachment_metadata($id, $data);
+	   $object['media']['images'][$image]['id'] = $id;
         }
       } else {
         //throw new Exception('Sorry, cannot upload file '.$filepath);
