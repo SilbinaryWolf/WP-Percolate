@@ -71,7 +71,7 @@ class PercolateImport
 
   /** INSTALL AND INIT CODE **/
 
-  public function install()
+  public static function install()
   {
     // Check to see if the plugin options were already installed, if not then set the default values.
     if (get_option(self::USERID_OPTION) == FALSE ) update_option(self::USERID_OPTION, '0');
@@ -99,12 +99,12 @@ class PercolateImport
 
   }
 
-  public function addRewrite($wpRewrite)
+  public static function addRewrite($wpRewrite)
   {
 
   }
 
-  public function queryVars($pubicQueryVars)
+  public static function queryVars($pubicQueryVars)
   {
 
   }
@@ -345,18 +345,18 @@ class PercolateImport
   // Meta Boxes for Percoalte Posts
   //----------------------
 
-  public function urlMetaBox($post) {
+  public static function urlMetaBox($post) {
     $url = get_post_meta($post->ID, self::M_URL, true);
     echo $url;
   }
 
 
-  public function shortUrl($post) {
+  public static function shortUrl($post) {
     $url = get_post_meta($post->ID, self::M_SHORTURL, true);
     echo $url;
   }
 
-  public function infoMetaBox($post)
+  public static function infoMetaBox($post)
   {
     $userTitle = get_post_meta($post->ID, self::M_USERTITLE, true);
     $originalTitle = get_post_meta($post->ID, self::M_ORIGINALTITLE, true);
@@ -373,7 +373,7 @@ class PercolateImport
         <?php
   }
 
-  public function mediaMetaBox($post){
+  public static function mediaMetaBox($post){
     $mediaMeta = get_post_meta($post->ID, self::M_MEDIA);
     if (!empty($mediaMeta[0])) {
     foreach($mediaMeta as $media_js){
@@ -522,13 +522,13 @@ class PercolateImport
   }
 
   //posted permalink to percolate
-  public function postedPermalink($post)
+  public static function postedPermalink($post)
   {
     $plink = get_post_meta($post->ID, self::M_POSTEDPERMALINK, true);
     echo $plink;
   }
   // percolate id
-  public function percolateId($post)
+  public static function percolateId($post)
   {
     $percolateId = get_post_meta($post->ID, self::M_PERCOLATEID, true);
     echo $percolateId;
@@ -536,7 +536,7 @@ class PercolateImport
 
 
 
-  public function updatePost($postId)
+  public static function updatePost($postId)
   {
 
     if (wp_is_post_revision($postId)) {
@@ -563,12 +563,12 @@ class PercolateImport
 
 /** PERCOLATE SETTINGS **/
 
-  public function settingsSectionHeader()
+  public static function settingsSectionHeader()
   {
     echo "<p>Settings for Percolate API Integration</p>";
   }
 
-  public function settingsUserTypeDisplay()
+  public static function settingsUserTypeDisplay()
   {
     $userType = get_option(self::USERTYPE_OPTION);
 ?>
@@ -597,7 +597,7 @@ class PercolateImport
   }
 
 
-  public function settingsUserIdDisplay()
+  public static function settingsUserIdDisplay()
   {
 
 ?>
@@ -611,7 +611,7 @@ class PercolateImport
         <?php
   }
 
-  public function settingsGroupIdDisplay()
+  public static function settingsGroupIdDisplay()
   {
 ?>
         <span class="percapi-usergroupid-control user-type-grp">
@@ -624,7 +624,7 @@ class PercolateImport
   }
 
 
-  public function settingsApiKeyDisplay()
+  public static function settingsApiKeyDisplay()
   {
     ?>
     <span class="percapi-apikey-control api-key">
@@ -635,7 +635,7 @@ class PercolateImport
     <?php
   }
 
-  public function settingsDefGrpAuthorDisplay()
+  public static function settingsDefGrpAuthorDisplay()
   {
     global $wp_version;
     if ($wp_version >= "3.1") {
@@ -659,7 +659,7 @@ class PercolateImport
 
 
 
-  public function settingsAuthorDisplay()
+  public static function settingsAuthorDisplay()
   {
 
     global $wp_version;
@@ -684,7 +684,7 @@ class PercolateImport
         <?php
   }
 
-  public function settingsGroupAuthorsDisplay(){
+  public static function settingsGroupAuthorsDisplay(){
     $group_authors = get_option(self::GROUPAUTHORS_OPTION);
 ?>
     <span class="user-type-grp">
@@ -761,7 +761,7 @@ class PercolateImport
   }
 
 
-  public function settingsCategoryDisplay()
+  public static function settingsCategoryDisplay()
   {
     $categoryId = get_option(self::CATEGORY_OPTION);
     wp_dropdown_categories('hide_empty=0&name=' . self::CATEGORY_OPTION . '&selected=' . $categoryId);
@@ -772,7 +772,7 @@ class PercolateImport
         <?php
   }
 
-  public function settingsExcludeCategoryDisplay()
+  public static function settingsExcludeCategoryDisplay()
   {
     $ex_categoryId = get_option(self::EX_CATEGORY_OPTION);
     wp_dropdown_categories('hide_empty=0&show_option_none=None&name=' . self::EX_CATEGORY_OPTION . '&selected=' . $ex_categoryId);
@@ -783,7 +783,7 @@ class PercolateImport
         <?php
   }
 
-    public function settingsPostTypeDisplay()
+    public static function settingsPostTypeDisplay()
     {
         $postTypeID = get_option(self::POSTTYPE_OPTION);
         ?>
@@ -805,7 +805,7 @@ class PercolateImport
         <?php
     }
 
-    public function settingsImportInterval()
+    public static function settingsImportInterval()
     {
     ?>
       <span>
@@ -814,7 +814,7 @@ class PercolateImport
     <?php
     }
 
-    public function sanitizeImportInterval($value)
+    public static function sanitizeImportInterval($value)
     {
       if ($value < self::MIN_IMPORT_INTERVAL) {
           return self::MIN_IMPORT_INTERVAL;
@@ -823,7 +823,7 @@ class PercolateImport
     }
 
 
-    public function settingsLoadImages()
+    public static function settingsLoadImages()
     {
       $loadImages = get_option(self::IMPORT_LOAD_IMAGES_OPTION);
       ?>
@@ -841,7 +841,7 @@ class PercolateImport
     <?php
     }
 
-    public function settingsFeaturedImage()
+    public static function settingsFeaturedImage()
     {
       $featuredImage = get_option(self::FEATURED_IMAGE_OPTION);
       ?>
@@ -859,7 +859,7 @@ class PercolateImport
     <?php
     }
 
-  public function userIdNotice()
+  public static function userIdNotice()
   {
     if (get_option(self::USERID_OPTION) || get_option(self::GROUPID_OPTION)) {
       return;
@@ -922,7 +922,7 @@ class PercolateImport
 
 
 
-  public function postStatusDisplay()
+  public static function postStatusDisplay()
   {
     $options = array('draft'=>'Enter as Drafts', 'publish'=>'Publish Immediately');
     $option = get_option(self::POSTSTATUS_OPTION);
@@ -937,7 +937,7 @@ class PercolateImport
     echo '</select>';
   }
 
-    public function settingsChannelIdDisplay()
+    public static function settingsChannelIdDisplay()
     {
 
         $result = self::getUserProfile();
@@ -1030,7 +1030,7 @@ class PercolateImport
 
 
 
-  public function settingsPage()
+  public static function settingsPage()
   {
 
     if( isset($_REQUEST['settings-updated']) && $_REQUEST['settings-updated'] == 'true' && get_option(PercolateImport::IMPORT_OVERRIDE_OPTION) == 1 )
@@ -1057,7 +1057,7 @@ class PercolateImport
 
 
   /** IMPORT SCREEN **/
-  public function renderImportPage()
+  public static function renderImportPage()
   {
     load_template(dirname(__FILE__) . '/admin-import-page.php');
   }
@@ -1180,7 +1180,7 @@ class PercolateImport
           if(!is_numeric($key) && $key == 'original')
           {
              $img .= "<p><img src=\"{$image['url']}\"/></p>";
-	     $mainImageId = $image['id'];
+       $mainImageId = $image['id'];
           } else {
             if(isset($image['oldSrc']))
               $body = str_replace($image['oldSrc'], $image['url'], $body);
@@ -1412,7 +1412,7 @@ class PercolateImport
         if (!is_wp_error($id)) {
            $data = wp_generate_attachment_metadata($id, $filepath);
            wp_update_attachment_metadata($id, $data);
-	   $object['media']['images'][$image]['id'] = $id;
+     $object['media']['images'][$image]['id'] = $id;
         }
       } else {
         //throw new Exception('Sorry, cannot upload file '.$filepath);
@@ -1542,7 +1542,7 @@ class PercolateImport
 
 
 
-    public function getChannels($default_license_id) {
+    public static function getChannels($default_license_id) {
 
         $apiKey = get_option(self::APIKEY_OPTION);
 
@@ -1567,7 +1567,7 @@ class PercolateImport
     }
 
   //get group users
-  public function getGroupUsers($groupId){
+  public static function getGroupUsers($groupId){
         $result = self::getUserProfile();
         $default_license_id = $result['default_license_id'];
         if ($default_license_id){
@@ -1617,7 +1617,7 @@ class PercolateImport
   }
 
   //post to percolate
-  public function postToPercolate($jsonFields){
+  public static function postToPercolate($jsonFields){
     $apiKey = get_option(self::APIKEY_OPTION);
 
     if($apiKey){
@@ -1641,7 +1641,7 @@ class PercolateImport
   }
 
   // Post the wordpress permalink back to percolate.
-  public function permalink_post_back($postId) {
+  public static function permalink_post_back($postId) {
 
       $perc_permalink = get_post_meta($postId, self::M_POSTEDPERMALINK, true);
       $percolate_id = get_post_meta($postId, self::M_PERCOLATEID, true);
