@@ -122,6 +122,10 @@ class PercolateImport
 
     // Get the post type set in the options.
     $postTypeSlug = get_option(self::POSTTYPE_OPTION);
+    if (!$postTypeSlug) {
+      trigger_error('Empty post type. Please deactivate and re-activate the plugin');
+      return;
+    }
 
     //----------------------
     // Meta boxes for percolate posts
@@ -710,7 +714,7 @@ class PercolateImport
 
       $percolate_users = self::getGroupUsers($group_id);
 
-      $objects = $percolate_users['users'];
+      $objects = isset($percolate_users['users']) ? $percolate_users['users'] : null;
 
       if(is_array($objects)){
 
@@ -941,7 +945,7 @@ class PercolateImport
     {
 
         $result = self::getUserProfile();
-        $default_license_id = $result['default_license_id'];
+        $default_license_id = isset($result['default_license_id']) ? $result['default_license_id'] : null;
         if ($default_license_id){
             $result = self::getChannels($default_license_id);
             if(!$result){
@@ -1048,7 +1052,7 @@ class PercolateImport
     } else if (isset($_REQUEST['settings-updated']) && $_REQUEST['settings-updated'] == 'true'){
 
         $result = self::getUserProfile();
-        $user_profile_id = $result['id'];
+        $user_profile_id = isset($result['id']) ? $result['id'] : null;
         update_option(self::USERID_OPTION, $user_profile_id);
     }
 
@@ -1081,17 +1085,16 @@ class PercolateImport
 
       $posts = self::getPercolatePosts($offset, $limit);
 
-      $pagination = $posts['pagination'];
+      $pagination = isset($posts['pagination']) ? $posts['pagination'] : null;
       $total = $pagination['total'];
       $offset = intval($offset) + 30;
 
-      $objects = $posts['data'];
+      $objects = isset($posts['data']) ? $posts['data'] : null;
       //$last_startId = get_option(self::STARTID_OPTION);
 
       // Check to see if the last_id coming from the percolate API is larger than that is what is
       // stored in the wp db, if its smaller than something is wrong and we don't update the start_at_id and don't
       // do the import.
-
         if ($objects) {
           // update the startID with the last id that was imported.
           $startId = $objects[0]['id'];
@@ -1180,7 +1183,7 @@ class PercolateImport
           if(!is_numeric($key) && $key == 'original')
           {
              $img .= "<p><img src=\"{$image['url']}\"/></p>";
-       $mainImageId = $image['id'];
+	     $mainImageId = $image['id'];
           } else {
             if(isset($image['oldSrc']))
               $body = str_replace($image['oldSrc'], $image['url'], $body);
@@ -1412,7 +1415,7 @@ class PercolateImport
         if (!is_wp_error($id)) {
            $data = wp_generate_attachment_metadata($id, $filepath);
            wp_update_attachment_metadata($id, $data);
-     $object['media']['images'][$image]['id'] = $id;
+	   $object['media']['images'][$image]['id'] = $id;
         }
       } else {
         //throw new Exception('Sorry, cannot upload file '.$filepath);
@@ -1482,41 +1485,42 @@ class PercolateImport
 
     $apiKey = get_option(self::APIKEY_OPTION);
 
-    if($apiKey){
-        }else{
+    if (!$apiKey) {
       //no api key return empty array for now
-            error_log("no api key");
+      //if (WP_DEBUG) trigger_error("no api key");
+      error_log("no api key");
       return array();
     }
 
-        $result = self::getUserProfile();
-        $default_license_id = $result['default_license_id'];
-        if ($default_license_id){
-        }else{
-            error_log("no default license id");
-            return array();
-        }
+    $result = self::getUserProfile();
+    $default_license_id = isset($result['default_license_id']) ? $result['default_license_id'] : false;
+    if (!$default_license_id)
+    {
+        //if (WP_DEBUG) trigger_error("No default license id");
+        error_log("no default license id");
+        return array();
+    }
 
-        $options['api_key'] =  $apiKey;
-
-
-        $channel_id = get_option(self::CHANNEL_ID_OPTION);
-        if($channel_id){
-        }else{
-            error_log("no channel id");
-            return array();
-        }
-        $method = "licenses/" . $default_license_id . "/posts";
+    $options['api_key'] =  $apiKey;
 
 
+    $channel_id = get_option(self::CHANNEL_ID_OPTION);
+    if(!$channel_id)
+    {
+        //if (WP_DEBUG) trigger_error("no channel id");
+        error_log("no channel id");
+        return array();
+    }
+    $method = "licenses/" . $default_license_id . "/posts";
 
-        $options['channel_id'] = $channel_id;
-        $options['statuses'] = 'published'; //apiV3 feature
-        //$options['service_ids'] = '12'; // .com service - apiV3 feature
-        $options['order_direction'] = 'desc'; //apiV3 feature
-        $options['limit'] = $limit; //apiV3 feature
-        $options['offset'] = $offset; //apiV3 feature
 
+
+    $options['channel_id'] = $channel_id;
+    $options['statuses'] = 'published'; //apiV3 feature
+    //$options['service_ids'] = '12'; // .com service - apiV3 feature
+    $options['order_direction'] = 'desc'; //apiV3 feature
+    $options['limit'] = $limit; //apiV3 feature
+    $options['offset'] = $offset; //apiV3 feature
 
     return self::callPercolateApi($method , $options);
   }
@@ -1530,6 +1534,9 @@ class PercolateImport
             $options['api_key'] = $apiKey;
             $method = "me";
         }else{
+            if (WP_DEBUG) {
+              trigger_error("No default license id");
+            }
             error_log('no api key');
             return array();
         }
@@ -1569,7 +1576,7 @@ class PercolateImport
   //get group users
   public static function getGroupUsers($groupId){
         $result = self::getUserProfile();
-        $default_license_id = $result['default_license_id'];
+        $default_license_id = isset($result['default_license_id']) ? $result['default_license_id'] : false;
         if ($default_license_id){
 
         }
@@ -1653,15 +1660,13 @@ class PercolateImport
 
   protected static function callPercolateApi($method, $fields=array(), $jsonFields=array())
   {
-    // If PERCOLATE_API_BASE is defined in wp-config.php, use it instead of API_BASE
-    if (defined('PERCOLATE_API_BASE')) {
-      $url =  constant('PERCOLATE_API_BASE') . "$method";
-    }
-    else{
-      $url = self::API_BASE . "$method";
-    }
-
-
+      // If PERCOLATE_API_BASE is defined in wp-config.php, use it instead of API_BASE
+      if (defined('PERCOLATE_API_BASE')) {
+        $url =  constant('PERCOLATE_API_BASE') . "$method";
+      }
+      else{
+        $url = self::API_BASE . "$method";
+      }
 
       if ($fields) {
         $tokens = array();
@@ -1671,44 +1676,38 @@ class PercolateImport
         $url.="?" . implode('&', $tokens);
       }
 
-
       //if (WP_DEBUG) {
         //error_log("------ Calling API ------ \nURL: ".$url."\n", 0);
-        //}
+      //}
 
-
-      /* call url*/
-      $curl_handle = curl_init($url);
-      curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 5);
-      curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-      curl_setopt($curl_handle, CURLOPT_HEADER, 0);
-
-      /* json post fields */
+      // call url
       if ($jsonFields) {
-        curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array("Content-type: application/json"));
-        curl_setopt($curl_handle, CURLOPT_POSTFIELDS,json_encode($jsonFields));
-      }else{
-        curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array('Expect:'));
+        $response = wp_remote_post($url, array(
+          'headers' => array(
+            'Content-Type' => 'application/json'
+          ),
+          'body' => $jsonFields,
+        ));
+      } else {
+        $response = wp_remote_get($url, array(
+          'headers' => array(
+            'Content-Type' => 'application/json'
+          ),
+        ));
       }
 
-      $buffer = curl_exec($curl_handle);
+      $status = isset($response['response']['code']) ? $response['response']['code'] : null;
+      $data = json_decode($response['body'], true );
 
-      $status = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
+      if ($status != 200) 
+      {
+        $message = "An unknown error occurred communicating with Percolate ($status)";
 
-      curl_close($curl_handle);
-
-      $data = json_decode( $buffer, true );
-
-      if ($status != 200) {
-
-        $message = "An unknown error occurred communicating with Percolate ($status) - $buffer";
-
-        if ($data) {
-
+        if ($data) 
+        {
           if ($data['error']) {
             $message = $data['error'];
           }
-
           if (array_key_exists('request', $data)) {
             $message .= ' -- Request: '.$data['request'];
           }
@@ -1718,9 +1717,6 @@ class PercolateImport
 
         throw new Exception($message, $status);
       }
-
-
-      $data = json_decode( $buffer, true );
 
 
     return $data;
