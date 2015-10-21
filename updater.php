@@ -41,7 +41,6 @@ class GitHubUpdater {
 			if (!isset($this->config['last_updated'])) $this->config['last_updated'] = $this->get_date();
 			// Get the Github description, the part at the top of the github page, not the readme.
 			if (!isset($this->config['description'])) $this->config['description'] = $this->get_description();
-	
 			
 			$plugin_data = $this->get_plugin_data();
 			
@@ -124,15 +123,23 @@ class GitHubUpdater {
 	
 		function get_date() {
 			$_date = $this->get_github_data();
-			$date = $_date->updated_at;
-			$date = date('Y-m-d', strtotime($_date->updated_at));
-			return $date;
+			$updated_at = isset($_date->updated_at) ? $_date->updated_at : null;
+			if ($updated_at) {
+				// If failed, return the first UNIX date. (ie. what was being returned in error cases)
+				return gmdate('Y-m-d', strtotime($_date->updated_at));
+			}
+			// If failed, return the first UNIX date. (ie. what was being returned in previous version error cases)
+			return '1970-01-01';
 		}
 	
 		// Get the description of the plugin from github
 		function get_description() {
 			$_description = $this->get_github_data();
-			return $_description->description;
+			if (isset($_description->description)) {
+				return $_description->description;
+			}
+			// Return what was being returned in previous version error cases
+			return null;
 		}
 	
 		// Get the plugin data from the header of the actual local plugin file.
